@@ -4,11 +4,14 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.api.LinkShare;
 
 import java.util.List;
@@ -23,14 +26,25 @@ public class LinksListActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "MainActivity";
     Retrofit mRetrofit;
-    TextView mMessageText;
+    RecyclerView mRecyclerView;
+    LinksAdapter mLinksAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mRetrofit =
+                new Retrofit.Builder().baseUrl(LinkShare.BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_links_list);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -39,26 +53,9 @@ public class LinksListActivity extends AppCompatActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
-    }
 
-//    protected void onCreate(Bundle savedInstanceState) {
-//        mRetrofit =
-//                new Retrofit.Builder().baseUrl(LinkShare.BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-//
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        Button button = (Button) findViewById(R.id.button);
-//        mMessageText = (TextView) findViewById(R.id.message);
-//
-//        handleIntent();
-//
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                addLink("http://example.com");
-//            }
-//        });
-//    }
+        getLinks();
+    }
 
     private void getLinks() {
         mRetrofit =
@@ -76,13 +73,19 @@ public class LinksListActivity extends AppCompatActivity {
                 for (String url : urls) {
                     Log.e(LOG_TAG, "" + url);
                 }
+                mLinksAdapter = new LinksAdapter(getApplicationContext(), urls);
+                mRecyclerView.setAdapter(mLinksAdapter);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "onResponse: Error during call" + t.getLocalizedMessage());
-//                setMessage(t.getLocalizedMessage());
+                showToast(t.getLocalizedMessage());
             }
         });
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

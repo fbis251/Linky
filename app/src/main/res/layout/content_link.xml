@@ -1,0 +1,13 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="?android:attr/listPreferredItemHeight"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:padding="6dip">
+
+    <TextView
+        android:id="@+id/link_url"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:text="http://www.example.com"/>
+
+</LinearLayout>
