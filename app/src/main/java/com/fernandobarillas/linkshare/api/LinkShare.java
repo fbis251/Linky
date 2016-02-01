@@ -14,7 +14,7 @@ import retrofit.http.Path;
  * Created by fb on 1/28/16.
  */
 public interface LinkShare {
-    String BASE_URL = "http://192.168.1.2:8000/";
+    String BASE_URL = "https://r.0fb.xyz";
 
     @GET("/list")
     Call<List<String>> getList();
