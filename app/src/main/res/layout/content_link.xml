@@ -1,8 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="wrap_content"
               android:layout_height="?android:attr/listPreferredItemHeight"
-              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="horizontal"
               android:padding="6dip">
+
+    <Button
+        android:id="@+id/delete_button"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/link_url"
