@@ -13,28 +13,25 @@ import android.view.View;
 
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.api.LinkShare;
+import com.fernandobarillas.linkshare.api.ServiceGenerator;
+import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LinksListActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "MainActivity";
-    Retrofit mRetrofit;
     SwipeRefreshLayout mSwipeRefreshLayout;
     RecyclerView mRecyclerView;
     LinksAdapter mLinksAdapter;
+    LinkShare mLinkShare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mRetrofit =
-                new Retrofit.Builder().baseUrl(LinkShare.BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_links_list);
 
@@ -50,54 +47,72 @@ public class LinksListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                getList();
             }
         });
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.links_swipe_refresh_layout);
-        mSwipeRefreshLayout.setProgressViewOffset(false, 0, 100);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getLinks();
+                getList();
             }
         });
 
-        getLinks();
+        serviceSetup();
+        getList();
     }
 
-    private void getLinks() {
-        mRetrofit =
-                new Retrofit.Builder().baseUrl(LinkShare.BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
+    private void serviceSetup() {
+        // TODO: Load from sharedpreferences
+        String username = "";
+        String password = "";
+        mLinkShare = ServiceGenerator.createService(LinkShare.class, username, password);
+    }
 
-        LinkShare linkShare = mRetrofit.create(LinkShare.class);
-        Call<List<String>> call = linkShare.getList();
+    private void getList() {
+        Log.v(LOG_TAG, "getList()");
+        mSwipeRefreshLayout.setRefreshing(true);
+        Call<List<String>> call = mLinkShare.getList();
         call.enqueue(new Callback<List<String>>() {
             @Override
-            public void onResponse(Response<List<String>> response, Retrofit retrofit) {
-                int statusCode = response.code();
-                Log.i(LOG_TAG, "onResponse: Response code " + statusCode);
-                List<String> urls = response.body();
-                Log.e(LOG_TAG, "onResponse: Got " + urls.size() + " urls");
-                for (String url : urls) {
-                    Log.e(LOG_TAG, "" + url);
+            public void onResponse(Response<List<String>> response) {
+                Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
+                if (!response.isSuccess()) {
+                    String message =
+                            "Invalid response returned by server: " + ResponsePrinter.httpCodeString(response);
+                    showError(message);
+                    Log.e(LOG_TAG, "onResponse: " + message);
+                    return;
                 }
-                showSnackBar(String.format("Downloaded %d links(s)", urls.size()));
+
+                List<String> urls = response.body();
+                if (urls == null) {
+                    String message = "No links returned by server";
+                    showError(message);
+                    Log.e(LOG_TAG, "onResponse: " + message);
+                    return;
+                }
+
                 mLinksAdapter = new LinksAdapter(getApplicationContext(), urls);
                 mRecyclerView.setAdapter(mLinksAdapter);
                 mSwipeRefreshLayout.setRefreshing(false);
+                Log.i(LOG_TAG, "onResponse: Got " + urls.size() + " urls");
+                showSnackBar(String.format("Downloaded %d links(s)", urls.size()));
             }
 
             @Override
             public void onFailure(Throwable t) {
-                Log.e(LOG_TAG, "onResponse: Error during call" + t.getLocalizedMessage());
-                showError(t.getLocalizedMessage());
+                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
+                Log.e(LOG_TAG, errorMessage);
+                showError(errorMessage);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     private void showError(String message) {
+        mSwipeRefreshLayout.setRefreshing(false);
         showSnackBar(message, true);
     }
 
@@ -109,5 +124,4 @@ public class LinksListActivity extends AppCompatActivity {
         int length = indefinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_LONG;
         Snackbar.make(mRecyclerView, message, length).setAction("Action", null).show();
     }
-
 }

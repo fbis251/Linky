@@ -7,67 +7,62 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.fernandobarillas.linkshare.api.LinkShare;
+import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.models.Link;
+import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by fb on 1/29/16.
  */
 public class AddLinkActivity extends AppCompatActivity {
-    private static final String LOG_TAG = "AddLink";
-    Retrofit mRetrofit;
+    private static final String LOG_TAG = "AddLinkActivity";
+    LinkShare mLinkShare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mRetrofit =
-                new Retrofit.Builder().baseUrl(LinkShare.BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-
         super.onCreate(savedInstanceState);
+        serviceSetup();
         handleIntent();
+    }
+
+    private void serviceSetup() {
+        // TODO: Load from sharedpreferences
+        String username = "";
+        String password = "";
+        mLinkShare = ServiceGenerator.createService(LinkShare.class, username, password);
     }
 
     private void handleIntent() {
         ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
         if (intentReader.isShareIntent()) {
-            String htmlText = intentReader.getHtmlText();
-            String type = intentReader.getType();
             String text = intentReader.getText().toString();
-            // Compose an email
-            if (text != null) {
-                Log.e(LOG_TAG, "onCreate: text: " + text);
-                addLink(text);
-            } else {
-                showToast("Could not save link");
-            }
+            Log.e(LOG_TAG, "onCreate: text: " + text);
+            addLink(text);
         }
     }
 
     public void addLink(String url) {
-        Log.v(LOG_TAG, "addLink()");
-        LinkShare linkShare = mRetrofit.create(LinkShare.class);
-        Call<Link> call = linkShare.addLink(new Link(url));
+        Log.v(LOG_TAG, "addLink() called with: " + "url = [" + url + "]");
+        Call<Link> call = mLinkShare.addLink(new Link(url));
         Log.i(LOG_TAG, "addLink: Calling URL: " + call.toString());
         call.enqueue(new Callback<Link>() {
             @Override
-            public void onResponse(Response<Link> response, Retrofit retrofit) {
+            public void onResponse(Response<Link> response) {
                 int statusCode = response.code();
-                Log.i(LOG_TAG, "onResponse: Response code " + statusCode);
-                Log.i(LOG_TAG, "onResponse: Headers: " + response.headers().toString());
-                Log.i(LOG_TAG, "onResponse: Body: " + response.message());
-
+                Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
                 showToast("Link Added Successfully");
                 finish();
             }
 
             @Override
             public void onFailure(Throwable t) {
-                Log.e(LOG_TAG, "onResponse: Error during call" + t.getLocalizedMessage());
-                showToast(t.getLocalizedMessage());
+                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
+                Log.e(LOG_TAG, errorMessage);
+                showToast(errorMessage);
                 finish();
             }
         });
