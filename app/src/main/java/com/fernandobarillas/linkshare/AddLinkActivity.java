@@ -33,9 +33,30 @@ public class AddLinkActivity extends AppCompatActivity {
         handleIntent();
     }
 
-    private void serviceSetup(String refreshToken) {
-        Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
-        mLinkShare = ServiceGenerator.createService(LinkShare.class, refreshToken);
+    public void addLink(String url) {
+        Log.v(LOG_TAG, "addLink() called with: " + "url = [" + url + "]");
+        Call<Link> call = mLinkShare.addLink(new Link(url));
+        Log.i(LOG_TAG, "addLink: Calling URL: " + call.toString());
+        call.enqueue(new Callback<Link>() {
+            @Override
+            public void onFailure(Throwable t) {
+                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
+                Log.e(LOG_TAG, errorMessage);
+                showToast(errorMessage);
+                finish();
+            }
+
+            @Override
+            public void onResponse(Response<Link> response) {
+                Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
+                if (response.isSuccess()) {
+                    showToast("Link Added Successfully");
+                } else {
+                    showToast("Error adding link");
+                }
+                finish();
+            }
+        });
     }
 
     private void handleIntent() {
@@ -47,30 +68,9 @@ public class AddLinkActivity extends AppCompatActivity {
         }
     }
 
-    public void addLink(String url) {
-        Log.v(LOG_TAG, "addLink() called with: " + "url = [" + url + "]");
-        Call<Link> call = mLinkShare.addLink(new Link(url));
-        Log.i(LOG_TAG, "addLink: Calling URL: " + call.toString());
-        call.enqueue(new Callback<Link>() {
-            @Override
-            public void onResponse(Response<Link> response) {
-                Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
-                if (response.isSuccess()) {
-                    showToast("Link Added Successfully");
-                } else {
-                    showToast("Error adding link");
-                }
-                finish();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
-                Log.e(LOG_TAG, errorMessage);
-                showToast(errorMessage);
-                finish();
-            }
-        });
+    private void serviceSetup(String refreshToken) {
+        Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
+        mLinkShare = ServiceGenerator.createService(LinkShare.class, refreshToken);
     }
 
     private void showToast(String message) {

@@ -78,6 +78,12 @@ public class LinksListActivity extends AppCompatActivity {
         Call<SuccessResponse> deleteCall = mLinkShare.deleteLink(linkId);
         deleteCall.enqueue(new Callback<SuccessResponse>() {
             @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "onFailure: " + errorMessage, t);
+                Snacks.showError(view, errorMessage);
+            }
+
+            @Override
             public void onResponse(Response<SuccessResponse> response) {
                 Log.v(LOG_TAG, "onResponse() called with: " + "response = [" + response + "]");
 
@@ -95,12 +101,6 @@ public class LinksListActivity extends AppCompatActivity {
 
                 Snacks.showError(view, errorMessage);
             }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(LOG_TAG, "onFailure: " + errorMessage, t);
-                Snacks.showError(view, errorMessage);
-            }
         });
     }
 
@@ -109,6 +109,15 @@ public class LinksListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setRefreshing(true);
         Call<List<String>> call = mLinkShare.getList();
         call.enqueue(new Callback<List<String>>() {
+            @Override
+            public void onFailure(Throwable t) {
+                Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
+                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
+                Log.e(LOG_TAG, errorMessage);
+                Snacks.showError(mRecyclerView, errorMessage);
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+
             @Override
             public void onResponse(Response<List<String>> response) {
                 Log.v(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
@@ -135,15 +144,6 @@ public class LinksListActivity extends AppCompatActivity {
                 Log.i(LOG_TAG, "onResponse: " + message);
                 Snacks.showMessage(mRecyclerView, message);
                 touchHelperSetup();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
-                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
-                Log.e(LOG_TAG, errorMessage);
-                Snacks.showError(mRecyclerView, errorMessage);
-                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }

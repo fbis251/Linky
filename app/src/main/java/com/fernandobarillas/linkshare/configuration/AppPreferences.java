@@ -18,12 +18,20 @@ public class AppPreferences {
         mSecurePreferences = new SecurePreferences(context);
     }
 
+    public String getPassword() {
+        return mSecurePreferences.getString(KEY_PASSWORD, null);
+    }
+
+    public void setPassword(String password) {
+        mSecurePreferences.edit().putString(KEY_PASSWORD, password).apply();
+    }
+
     public String getRefreshToken() {
         return mSecurePreferences.getString(KEY_REFRESH_TOKEN, null);
     }
 
-    public String getPassword() {
-        return mSecurePreferences.getString(KEY_PASSWORD, null);
+    public void setRefreshToken(String refreshToken) {
+        mSecurePreferences.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply();
     }
 
     public String getUsername() {
@@ -32,13 +40,5 @@ public class AppPreferences {
 
     public void setUsername(String username) {
         mSecurePreferences.edit().putString(KEY_USERNAME, username).apply();
-    }
-
-    public void setPassword(String password) {
-        mSecurePreferences.edit().putString(KEY_PASSWORD, password).apply();
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        mSecurePreferences.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply();
     }
 }

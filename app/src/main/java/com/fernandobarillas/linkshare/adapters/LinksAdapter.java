@@ -29,10 +29,8 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     }
 
     @Override
-    public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView =
-                LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.content_link, viewGroup, false);
-        return new LinkViewHolder(itemView);
+    public int getItemCount() {
+        return mLinksList.size();
     }
 
     @Override
@@ -43,16 +41,10 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     }
 
     @Override
-    public int getItemCount() {
-        return mLinksList.size();
-    }
-
-    public String remove(int linkId) {
-        if (mLinksList == null || mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
-            return null;
-        }
-
-        return mLinksList.remove(linkId);
+    public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View itemView =
+                LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.content_link, viewGroup, false);
+        return new LinkViewHolder(itemView);
     }
 
     public String getUrl(int linkId) {
@@ -61,6 +53,14 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         }
 
         return mLinksList.get(linkId);
+    }
+
+    public String remove(int linkId) {
+        if (mLinksList == null || mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
+            return null;
+        }
+
+        return mLinksList.remove(linkId);
     }
 
     private void openLink(final int linkId) {
