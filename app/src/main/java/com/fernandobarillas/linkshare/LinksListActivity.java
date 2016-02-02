@@ -14,6 +14,7 @@ import android.view.View;
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.api.LinkShare;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
+import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
 import java.util.List;
@@ -25,6 +26,7 @@ import retrofit2.Response;
 public class LinksListActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "MainActivity";
+    AppPreferences mPreferences;
     SwipeRefreshLayout mSwipeRefreshLayout;
     RecyclerView mRecyclerView;
     LinksAdapter mLinksAdapter;
@@ -32,6 +34,7 @@ public class LinksListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_links_list);
 
@@ -59,15 +62,15 @@ public class LinksListActivity extends AppCompatActivity {
             }
         });
 
-        serviceSetup();
+        mPreferences = new AppPreferences(getApplicationContext());
+
+        serviceSetup(mPreferences.getRefreshToken());
         getList();
     }
 
-    private void serviceSetup() {
-        // TODO: Load from sharedpreferences
-        String username = "";
-        String password = "";
-        mLinkShare = ServiceGenerator.createService(LinkShare.class, username, password);
+    private void serviceSetup(String refreshToken) {
+        Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
+        mLinkShare = ServiceGenerator.createService(LinkShare.class, refreshToken);
     }
 
     private void getList() {
@@ -77,7 +80,7 @@ public class LinksListActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<String>>() {
             @Override
             public void onResponse(Response<List<String>> response) {
-                Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
+                Log.v(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
                 if (!response.isSuccess()) {
                     String message =
                             "Invalid response returned by server: " + ResponsePrinter.httpCodeString(response);
@@ -103,6 +106,7 @@ public class LinksListActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Throwable t) {
+                Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
                 String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
                 Log.e(LOG_TAG, errorMessage);
                 showError(errorMessage);
@@ -121,6 +125,7 @@ public class LinksListActivity extends AppCompatActivity {
     }
 
     private void showSnackBar(String message, boolean indefinite) {
+        Log.v(LOG_TAG, "showSnackBar() called with: " + "message = [" + message + "], indefinite = [" + indefinite + "]");
         int length = indefinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_LONG;
         Snackbar.make(mRecyclerView, message, length).setAction("Action", null).show();
     }

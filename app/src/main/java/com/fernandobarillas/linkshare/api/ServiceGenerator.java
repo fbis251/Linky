@@ -1,7 +1,5 @@
 package com.fernandobarillas.linkshare.api;
 
-import android.util.Base64;
-
 import com.fernandobarillas.linkshare.configuration.Constants;
 
 import java.io.IOException;
@@ -27,22 +25,18 @@ public class ServiceGenerator {
             new Retrofit.Builder().baseUrl(Constants.API_BASE_URL).addConverterFactory(GsonConverterFactory.create());
 
     public static <S> S createService(Class<S> serviceClass) {
-        return createService(serviceClass, null, null);
+        return createService(serviceClass, null);
     }
 
-    public static <S> S createService(Class<S> serviceClass, String username, String password) {
-        if (username != null && password != null) {
-            String credentials = username + ":" + password;
-            final String basic =
-                    "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-
+    public static <S> S createService(Class<S> serviceClass, final String refreshToken) {
+        if (refreshToken != null) {
             httpClient.addInterceptor(new Interceptor() {
                 @Override
                 public Response intercept(Interceptor.Chain chain) throws IOException {
                     Request original = chain.request();
 
                     Request.Builder requestBuilder =
-                            original.newBuilder().header("Authorization", basic).header("Accept", "applicaton/json").method(original.method(), original.body());
+                            original.newBuilder().header("Authorization", refreshToken).header("Accept", "applicaton/json").method(original.method(), original.body());
 
                     Request request = requestBuilder.build();
                     return chain.proceed(request);

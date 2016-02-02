@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.fernandobarillas.linkshare.api.LinkShare;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
+import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
@@ -24,23 +25,24 @@ public class AddLinkActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
-        serviceSetup();
+
+        AppPreferences mPreferences = new AppPreferences(getApplicationContext());
+        serviceSetup(mPreferences.getRefreshToken());
         handleIntent();
     }
 
-    private void serviceSetup() {
-        // TODO: Load from sharedpreferences
-        String username = "";
-        String password = "";
-        mLinkShare = ServiceGenerator.createService(LinkShare.class, username, password);
+    private void serviceSetup(String refreshToken) {
+        Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
+        mLinkShare = ServiceGenerator.createService(LinkShare.class, refreshToken);
     }
 
     private void handleIntent() {
+        Log.v(LOG_TAG, "handleIntent()");
         ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
         if (intentReader.isShareIntent()) {
             String text = intentReader.getText().toString();
-            Log.e(LOG_TAG, "onCreate: text: " + text);
             addLink(text);
         }
     }
@@ -52,9 +54,12 @@ public class AddLinkActivity extends AppCompatActivity {
         call.enqueue(new Callback<Link>() {
             @Override
             public void onResponse(Response<Link> response) {
-                int statusCode = response.code();
                 Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
-                showToast("Link Added Successfully");
+                if (response.isSuccess()) {
+                    showToast("Link Added Successfully");
+                } else {
+                    showToast("Error adding link");
+                }
                 finish();
             }
 
@@ -69,6 +74,7 @@ public class AddLinkActivity extends AppCompatActivity {
     }
 
     private void showToast(String message) {
+        Log.v(LOG_TAG, "showToast() called with: " + "message = [" + message + "]");
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 }
