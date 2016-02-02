@@ -37,17 +37,9 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
     @Override
     public void onBindViewHolder(final LinkViewHolder linkViewHolder, final int linkId) {
-        linkViewHolder.linkId = linkId;
-        final String url = mLinksList.get(linkId);
+        final String url = getUrl(linkId);
         // Set the strings in the card
         linkViewHolder.mLinkTitle.setText(url);
-        linkViewHolder.mLinkTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openLink(url);
-            }
-        });
-
     }
 
     @Override
@@ -55,8 +47,25 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         return mLinksList.size();
     }
 
-    private void openLink(String url) {
-        Log.v(LOG_TAG, "openLink() called with: " + "url = [" + url + "]");
+    public String remove(int linkId) {
+        if (mLinksList == null || mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
+            return null;
+        }
+
+        return mLinksList.remove(linkId);
+    }
+
+    public String getUrl(int linkId) {
+        if (mLinksList == null || mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
+            return null;
+        }
+
+        return mLinksList.get(linkId);
+    }
+
+    private void openLink(final int linkId) {
+        Log.v(LOG_TAG, "openLink() called with: " + "linkId = [" + linkId + "]");
+        String url = getUrl(linkId);
         if (mContext == null) {
             return;
         }
@@ -71,15 +80,20 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     /**
      * ViewHolder that displays individual reddit Links. It uses a CardView in the UI.
      */
-    public static class LinkViewHolder extends RecyclerView.ViewHolder {
-
-        protected int linkId;
+    public class LinkViewHolder extends RecyclerView.ViewHolder {
 
         protected TextView mLinkTitle;
 
         public LinkViewHolder(View view) {
             super(view);
             mLinkTitle = (TextView) view.findViewById(R.id.link_url);
+
+            mLinkTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openLink(getLayoutPosition());
+                }
+            });
         }
     }
 }

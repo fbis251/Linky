@@ -1,6 +1,7 @@
 package com.fernandobarillas.linkshare.api;
 
 import com.fernandobarillas.linkshare.models.Link;
+import com.fernandobarillas.linkshare.models.SuccessResponse;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface LinkShare {
     Call<Link> addLink(@Body Link link);
 
     @GET("/delete/{id}")
-    Call<String> deleteLink(@Path("id") int id);
+    Call<SuccessResponse> deleteLink(@Path("id") int id);
 
     @GET("/list")
     Call<List<String>> getList();

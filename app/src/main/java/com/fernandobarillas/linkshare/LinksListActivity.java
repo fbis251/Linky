@@ -2,19 +2,23 @@ package com.fernandobarillas.linkshare;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.api.LinkShare;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
+import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
+import com.fernandobarillas.linkshare.models.SuccessResponse;
+import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
+import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
 import java.util.List;
@@ -68,9 +72,36 @@ public class LinksListActivity extends AppCompatActivity {
         getList();
     }
 
-    private void serviceSetup(String refreshToken) {
-        Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
-        mLinkShare = ServiceGenerator.createService(LinkShare.class, refreshToken);
+    private void deleteLink(final int linkId, final View view) {
+        Log.v(LOG_TAG, "deleteLink() called with: " + "linkId = [" + linkId + "]");
+        final String errorMessage = "Error deleting " + mLinksAdapter.getUrl(linkId);
+        Call<SuccessResponse> deleteCall = mLinkShare.deleteLink(linkId);
+        deleteCall.enqueue(new Callback<SuccessResponse>() {
+            @Override
+            public void onResponse(Response<SuccessResponse> response) {
+                Log.v(LOG_TAG, "onResponse() called with: " + "response = [" + response + "]");
+
+                if (response.isSuccess()) {
+                    if (response.body().isSuccess()) {
+                        String removedUrl = mLinksAdapter.remove(linkId);
+                        if (removedUrl != null) {
+                            mLinksAdapter.remove(linkId);
+                            mLinksAdapter.notifyItemRemoved(linkId);
+                            Snacks.showMessage(view, "Removed " + removedUrl);
+                        }
+                        return;
+                    }
+                }
+
+                Snacks.showError(view, errorMessage);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "onFailure: " + errorMessage, t);
+                Snacks.showError(view, errorMessage);
+            }
+        });
     }
 
     private void getList() {
@@ -84,7 +115,7 @@ public class LinksListActivity extends AppCompatActivity {
                 if (!response.isSuccess()) {
                     String message =
                             "Invalid response returned by server: " + ResponsePrinter.httpCodeString(response);
-                    showError(message);
+                    Snacks.showError(mRecyclerView, message);
                     Log.e(LOG_TAG, "onResponse: " + message);
                     return;
                 }
@@ -92,7 +123,7 @@ public class LinksListActivity extends AppCompatActivity {
                 List<String> urls = response.body();
                 if (urls == null) {
                     String message = "No links returned by server";
-                    showError(message);
+                    Snacks.showError(mRecyclerView, message);
                     Log.e(LOG_TAG, "onResponse: " + message);
                     return;
                 }
@@ -100,8 +131,10 @@ public class LinksListActivity extends AppCompatActivity {
                 mLinksAdapter = new LinksAdapter(getApplicationContext(), urls);
                 mRecyclerView.setAdapter(mLinksAdapter);
                 mSwipeRefreshLayout.setRefreshing(false);
-                Log.i(LOG_TAG, "onResponse: Got " + urls.size() + " urls");
-                showSnackBar(String.format("Downloaded %d links(s)", urls.size()));
+                String message = String.format("Downloaded %d links(s)", urls.size());
+                Log.i(LOG_TAG, "onResponse: " + message);
+                Snacks.showMessage(mRecyclerView, message);
+                touchHelperSetup();
             }
 
             @Override
@@ -109,24 +142,29 @@ public class LinksListActivity extends AppCompatActivity {
                 Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
                 String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
                 Log.e(LOG_TAG, errorMessage);
-                showError(errorMessage);
+                Snacks.showError(mRecyclerView, errorMessage);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    private void showError(String message) {
-        mSwipeRefreshLayout.setRefreshing(false);
-        showSnackBar(message, true);
+    private void serviceSetup(String refreshToken) {
+        Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
+        mLinkShare = ServiceGenerator.createService(LinkShare.class, refreshToken);
     }
 
-    private void showSnackBar(String message) {
-        showSnackBar(message, false);
-    }
-
-    private void showSnackBar(String message, boolean indefinite) {
-        Log.v(LOG_TAG, "showSnackBar() called with: " + "message = [" + message + "], indefinite = [" + indefinite + "]");
-        int length = indefinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_LONG;
-        Snackbar.make(mRecyclerView, message, length).setAction("Action", null).show();
+    private void touchHelperSetup() {
+        Log.v(LOG_TAG, "touchHelperSetup()");
+        ItemTouchHelperCallback callback =
+                new ItemTouchHelperCallback(new ItemSwipedRightCallback() {
+                    @Override
+                    public void swipeCallback(RecyclerView.ViewHolder viewHolder) {
+                        int linkId = viewHolder.getLayoutPosition();
+                        deleteLink(linkId, viewHolder.itemView);
+                        // TODO: Bring back swiped item after API error when deleting
+                    }
+                });
+        ItemTouchHelper simpleItemTouchHelper = new ItemTouchHelper(callback);
+        simpleItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 }
