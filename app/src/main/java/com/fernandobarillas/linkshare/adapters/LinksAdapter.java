@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fernandobarillas.linkshare.R;
+import com.fernandobarillas.linkshare.models.Link;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,9 +23,10 @@ import java.util.List;
 public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHolder> {
     private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
     Context mContext;
-    List<String> mLinksList;
+    List<Link> mLinksList = new ArrayList<>();
 
-    public LinksAdapter(Context context, List<String> linksList) {
+    public LinksAdapter(Context context, List<Link> linksList) {
+        Log.v(LOG_TAG, "LinksAdapter() called with: " + "context = [" + context + "], linksList = [" + linksList + "]");
         mContext = context;
         mLinksList = linksList;
     }
@@ -35,9 +38,10 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
     @Override
     public void onBindViewHolder(final LinkViewHolder linkViewHolder, final int linkId) {
-        final String url = getUrl(linkId);
+        final Link link = mLinksList.get(linkId);
         // Set the strings in the card
-        linkViewHolder.mLinkTitle.setText(url);
+        linkViewHolder.mLinkTitle.setText(link.getTitle());
+        linkViewHolder.mLinkUrl.setText(link.getUrl());
     }
 
     @Override
@@ -48,19 +52,23 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     }
 
     public String getUrl(int linkId) {
-        if (mLinksList == null || mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
+        if (mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
             return null;
         }
 
-        return mLinksList.get(linkId);
+        Log.e(LOG_TAG, "getUrl: Database ID for link: " + mLinksList.get(linkId).getId());
+
+        return mLinksList.get(linkId).getUrl();
     }
 
-    public String remove(int linkId) {
-        if (mLinksList == null || mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
+    public Link remove(int linkId) {
+        if (mLinksList.isEmpty() || linkId < 0 || linkId >= mLinksList.size()) {
             return null;
         }
 
-        return mLinksList.remove(linkId);
+        Link removedLink = mLinksList.remove(linkId);
+        removedLink.delete(); // Delete from database
+        return removedLink;
     }
 
     private void openLink(final int linkId) {
@@ -84,11 +92,14 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
         protected TextView mLinkTitle;
 
+        protected TextView mLinkUrl;
+
         public LinkViewHolder(View view) {
             super(view);
-            mLinkTitle = (TextView) view.findViewById(R.id.link_url);
+            mLinkTitle = (TextView) view.findViewById(R.id.link_title);
+            mLinkUrl = (TextView) view.findViewById(R.id.link_url);
 
-            mLinkTitle.setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     openLink(getLayoutPosition());
