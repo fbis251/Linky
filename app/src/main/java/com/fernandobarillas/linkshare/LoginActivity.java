@@ -183,7 +183,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (!TextUtils.isEmpty(refreshToken)) {
                             mPreferences.setApiUrl(apiUrl);
                             mPreferences.setRefreshToken(refreshToken);
-                            mPreferences.setUsername(username);
+                            mPreferences.setUsername(loginResponse.getUsername());
                             Log.i(LOG_TAG, "Login completed, starting LinksListActivity");
                             startActivity(new Intent(getApplicationContext(), LinksListActivity.class));
                             finish();
