@@ -165,18 +165,10 @@ public class LoginActivity extends AppCompatActivity {
         Call<LoginResponse> loginCall = mLinkShare.login(loginRequest);
         loginCall.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onFailure(Throwable t) {
-                Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
-                Log.e("LinksListActivity", t.getLocalizedMessage());
-                mUsernameView.setError(getString(R.string.error_incorrect_username_or_password));
-                mPasswordView.setError(getString(R.string.error_incorrect_username_or_password));
-            }
-
-            @Override
-            public void onResponse(Response<LoginResponse> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 Log.v(LOG_TAG, "onResponse() called with: " + "response = [" + response + "]");
                 showProgress(false);
-                if (response.isSuccess()) {
+                if (response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
                     if (loginResponse.isSuccess()) {
                         String refreshToken = loginResponse.getRefreshToken();
@@ -192,6 +184,14 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
 
+                mUsernameView.setError(getString(R.string.error_incorrect_username_or_password));
+                mPasswordView.setError(getString(R.string.error_incorrect_username_or_password));
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
+                Log.e("LinksListActivity", t.getLocalizedMessage());
                 mUsernameView.setError(getString(R.string.error_incorrect_username_or_password));
                 mPasswordView.setError(getString(R.string.error_incorrect_username_or_password));
             }

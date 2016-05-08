@@ -45,22 +45,22 @@ public class AddLinkActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "addLink: Calling URL: " + call.toString());
         call.enqueue(new Callback<Link>() {
             @Override
-            public void onFailure(Throwable t) {
-                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
-                Log.e(LOG_TAG, errorMessage);
-                showToast(errorMessage);
-                finish();
-            }
-
-            @Override
-            public void onResponse(Response<Link> response) {
+            public void onResponse(Call<Link> call, Response<Link> response) {
                 Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
-                if (response.isSuccess()) {
+                if (response.isSuccessful()) {
                     showToast("Link Added Successfully");
                     // TODO: Set a needsRefresh variable here to get new links on next resume
                 } else {
                     showToast("Error adding link");
                 }
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<Link> call, Throwable t) {
+                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
+                Log.e(LOG_TAG, errorMessage);
+                showToast(errorMessage);
                 finish();
             }
         });
