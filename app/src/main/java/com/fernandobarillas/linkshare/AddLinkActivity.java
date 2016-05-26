@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.fernandobarillas.linkshare.api.LinkShare;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
+import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.Link;
@@ -17,6 +18,8 @@ import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
 import java.net.URL;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -26,38 +29,44 @@ import retrofit2.Response;
  */
 public class AddLinkActivity extends AppCompatActivity {
     private static final String LOG_TAG = "AddLinkActivity";
-    LinkShare mLinkShare;
+    LinkShare          mLinkShare;
+    RealmConfiguration mRealmConfig;
+    Realm              mRealm;
+    LinkStorage        mLinkStorage;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
+    @Override protected void onCreate(Bundle savedInstanceState) {
+        Log.v(LOG_TAG,
+                "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
 
         AppPreferences mPreferences = new AppPreferences(getApplicationContext());
         serviceSetup(mPreferences.getApiUrl(), mPreferences.getRefreshToken());
+        realmSetup();
         handleIntent();
     }
 
-    public void addLink(String url) {
+    public void addLink(final String url) {
         Log.v(LOG_TAG, "addLink() called with: " + "url = [" + url + "]");
         AddLinkRequest linkRequest = new AddLinkRequest(new Link(url));
         Call<Link> call = mLinkShare.addLink(linkRequest);
         Log.i(LOG_TAG, "addLink: Calling URL: " + call.toString());
         call.enqueue(new Callback<Link>() {
-            @Override
-            public void onResponse(Call<Link> call, Response<Link> response) {
+            @Override public void onResponse(Call<Link> call, Response<Link> response) {
                 Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
                 if (response.isSuccessful()) {
-                    showToast("Link Added Successfully");
                     // TODO: Set a needsRefresh variable here to get new links on next resume
+                    Link link = response.body();
+                    link.setUrl(url);
+                    Log.i(LOG_TAG, "onResponse: Trying to add Link: " + link);
+                    mLinkStorage.add(link);
+                    showToast("Link Added Successfully");
                 } else {
                     showToast("Error adding link");
                 }
                 finish();
             }
 
-            @Override
-            public void onFailure(Call<Link> call, Throwable t) {
+            @Override public void onFailure(Call<Link> call, Throwable t) {
                 String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
                 Log.e(LOG_TAG, errorMessage);
                 showToast(errorMessage);
@@ -75,6 +84,18 @@ public class AddLinkActivity extends AppCompatActivity {
         }
     }
 
+    private void launchLoginActivity() {
+        Log.v(LOG_TAG, "launchLoginActivity()");
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
+    private void realmSetup() {
+        mRealmConfig = new RealmConfiguration.Builder(this).build();
+        mRealm = Realm.getInstance(mRealmConfig);
+        mLinkStorage = new LinkStorage(mRealm);
+    }
+
     private void serviceSetup(URL apiUrl, String refreshToken) {
         Log.v(LOG_TAG, "serviceSetup() called with: " + "refreshToken = [" + refreshToken + "]");
         try {
@@ -85,12 +106,6 @@ public class AddLinkActivity extends AppCompatActivity {
             // come back to this activity afterwards to finish the add procedure
             launchLoginActivity();
         }
-    }
-
-    private void launchLoginActivity() {
-        Log.v(LOG_TAG, "launchLoginActivity()");
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
     }
 
     private void showToast(String message) {

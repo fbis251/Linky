@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fernandobarillas.linkshare.R;
+import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.models.Link;
 
 import java.util.ArrayList;
@@ -22,33 +23,38 @@ import java.util.List;
 
 public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHolder> {
     private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
-    Context mContext;
+
+    Context     mContext;
+    LinkStorage mLinkStorage;
     List<Link> mLinksList = new ArrayList<>();
 
-    public LinksAdapter(Context context, List<Link> linksList) {
-        Log.v(LOG_TAG, "LinksAdapter() called with: " + "context = [" + context + "], linksList = [" + linksList + "]");
+    public LinksAdapter(Context context, LinkStorage linkStorage) {
+        Log.v(LOG_TAG, "LinksAdapter() called with: "
+                + "context = ["
+                + context
+                + "], linkStorage = ["
+                + linkStorage
+                + "]");
         mContext = context;
-        mLinksList = linksList;
+        mLinkStorage = linkStorage;
+        mLinksList = mLinkStorage.getAllLinks();
     }
 
-    @Override
-    public int getItemCount() {
-        return mLinksList.size();
+    @Override public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View itemView = LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.content_link, viewGroup, false);
+        return new LinkViewHolder(itemView);
     }
 
-    @Override
-    public void onBindViewHolder(final LinkViewHolder linkViewHolder, final int linkId) {
+    @Override public void onBindViewHolder(final LinkViewHolder linkViewHolder, final int linkId) {
         final Link link = mLinksList.get(linkId);
         // Set the strings in the card
         linkViewHolder.mLinkTitle.setText(link.getTitle());
         linkViewHolder.mLinkUrl.setText(link.getUrl());
     }
 
-    @Override
-    public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView =
-                LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.content_link, viewGroup, false);
-        return new LinkViewHolder(itemView);
+    @Override public int getItemCount() {
+        return mLinksList.size();
     }
 
     public String getUrl(int linkId) {
@@ -56,7 +62,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             return null;
         }
 
-        Log.e(LOG_TAG, "getUrl: Database ID for link: " + mLinksList.get(linkId).getId());
+        Log.e(LOG_TAG, "getUrl: Database ID for link: " + mLinksList.get(linkId));
 
         return mLinksList.get(linkId).getUrl();
     }
@@ -67,8 +73,9 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         }
 
         Link removedLink = mLinksList.remove(linkId);
-        removedLink.delete(); // Delete from database
-        return removedLink;
+        Link resultLink = new Link(removedLink);
+        mLinkStorage.remove(removedLink); // Delete from database
+        return resultLink;
     }
 
     private void openLink(final int linkId) {
@@ -100,8 +107,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             mLinkUrl = (TextView) view.findViewById(R.id.link_url);
 
             view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                @Override public void onClick(View v) {
                     openLink(getLayoutPosition());
                 }
             });

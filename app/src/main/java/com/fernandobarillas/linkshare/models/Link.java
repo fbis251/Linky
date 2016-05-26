@@ -1,23 +1,28 @@
 package com.fernandobarillas.linkshare.models;
 
 
-import com.orm.SugarRecord;
-import com.orm.dsl.Table;
-import com.orm.dsl.Unique;
+import android.text.TextUtils;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import io.realm.RealmObject;
 
 /**
  * Created by fb on 1/28/16.
  */
-@Table
-public class Link extends SugarRecord {
-    @Unique
+public class Link extends RealmObject {
     int linkId;
     String category = "";
     int timestamp;
     String title = "";
-    String url = "";
+    String url   = "";
 
     public Link() {
+    }
+
+    public Link(Link link) {
+        copy(link);
     }
 
     public Link(int linkId, String category, int timestamp, String title, String url) {
@@ -32,12 +37,22 @@ public class Link extends SugarRecord {
         this.url = url;
     }
 
-    public int getLinkId() {
-        return linkId;
+    @Override public String toString() {
+        return "Link{" +
+                "linkId=" + linkId +
+                ", category='" + category + '\'' +
+                ", timestamp=" + timestamp +
+                ", title='" + title + '\'' +
+                ", url='" + url + '\'' +
+                '}';
     }
 
-    public void setLinkId(int id) {
-        this.linkId = id;
+    public void copy(Link link) {
+        linkId = link.linkId;
+        category = link.category;
+        timestamp = link.timestamp;
+        title = link.title;
+        url = link.url;
     }
 
     public String getCategory() {
@@ -46,6 +61,25 @@ public class Link extends SugarRecord {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getDomain() {
+        if (url == null) return null;
+        try {
+            URL urlObject = new URL(url);
+            return urlObject.getHost();
+        } catch (MalformedURLException ignored) {
+        }
+
+        return null;
+    }
+
+    public int getLinkId() {
+        return linkId;
+    }
+
+    public void setLinkId(int id) {
+        this.linkId = id;
     }
 
     public int getTimestamp() {
@@ -57,7 +91,7 @@ public class Link extends SugarRecord {
     }
 
     public String getTitle() {
-        return title;
+        return !TextUtils.isEmpty(title) ? title : getDomain();
     }
 
     public void setTitle(String title) {
