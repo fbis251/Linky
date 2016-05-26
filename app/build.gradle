@@ -9,8 +9,8 @@ android {
         applicationId "com.fernandobarillas.linkshare"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 3
-        versionName "1.2.0 API/0.3"
+        versionCode 4
+        versionName "1.3.0 API/0.3"
     }
     buildTypes {
         release {
