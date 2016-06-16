@@ -21,7 +21,13 @@ public interface LinkShare {
     Call<Link> addLink(@Body AddLinkRequest linkRequest);
 
     @GET("archive/{id}")
-    Call<SuccessResponse> archiveLink(@Path("id") int id);
+    Call<SuccessResponse> archiveLink(@Path("id") long id, boolean isArchived);
+
+    @GET("delete/{id}")
+    Call<SuccessResponse> deleteLink(@Path("id") long id);
+
+    @GET("favorite/{id}")
+    Call<SuccessResponse> favoriteLink(@Path("id") long id, boolean isFavorite);
 
     @GET("list")
     Call<LinksList> getList();
