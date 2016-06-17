@@ -1,12 +1,14 @@
 package com.fernandobarillas.linkshare.api;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.fernandobarillas.linkshare.configuration.Constants;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -24,12 +26,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ServiceGenerator {
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
-    public static <S> S createService(Class<S> serviceClass, final URL apiUrl) throws InvalidApiUrlException {
+    public static <S> S createService(Class<S> serviceClass, final URL apiUrl)
+            throws InvalidApiUrlException {
         return createService(serviceClass, apiUrl, null);
     }
 
-    public static <S> S createService(Class<S> serviceClass, final URL apiUrl, final String refreshToken) throws InvalidApiUrlException {
-        if (apiUrl == null || TextUtils.isEmpty(apiUrl.toString())) {
+    public static <S> S createService(Class<S> serviceClass, final URL apiUrl,
+            final String refreshToken) throws InvalidApiUrlException {
+        if (!isApiUrlValid(apiUrl)) {
             throw new InvalidApiUrlException();
         }
 
@@ -39,8 +43,10 @@ public class ServiceGenerator {
                 public Response intercept(Interceptor.Chain chain) throws IOException {
                     Request original = chain.request();
 
-                    Request.Builder requestBuilder =
-                            original.newBuilder().header("Authorization", refreshToken).header("Accept", "applicaton/json").method(original.method(), original.body());
+                    Request.Builder requestBuilder = original.newBuilder()
+                            .header("Authorization", refreshToken)
+                            .header("Accept", "applicaton/json")
+                            .method(original.method(), original.body());
 
                     Request request = requestBuilder.build();
                     return chain.proceed(request);
@@ -59,13 +65,31 @@ public class ServiceGenerator {
         }
 
         String baseUrl = getApiUrlString(apiUrl);
-        Retrofit.Builder builder =
-                new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create());
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create());
         Retrofit retrofit = builder.client(client).build();
         return retrofit.create(serviceClass);
     }
 
+    private static final String LOG_TAG = "ServiceGenerator";
+
+    public static boolean isApiUrlValid(final String apiUrlString) {
+        Log.v(LOG_TAG, "isApiUrlValid() called with: " + "apiUrlString = [" + apiUrlString + "]");
+        if (TextUtils.isEmpty(apiUrlString)) return false;
+        try {
+            return isApiUrlValid(new URL(apiUrlString));
+        } catch (MalformedURLException e) {
+            // Invalid URL if it could not be instantiated as a URL Object
+            return false;
+        }
+    }
+
+    public static boolean isApiUrlValid(final URL apiUrl) {
+        return (apiUrl != null && !TextUtils.isEmpty(apiUrl.toString()));
+    }
+
     private static String getApiUrlString(URL apiUrl) {
+        // TODO: Add support for custom ports
         return apiUrl.getProtocol() + "://" + apiUrl.getHost() + "/api/";
     }
 }
