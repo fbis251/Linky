@@ -18,8 +18,9 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
     }
 
     @Override
-    public boolean isItemViewSwipeEnabled() {
-        return true;
+    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+            RecyclerView.ViewHolder target) {
+        return false;
     }
 
     @Override
@@ -28,8 +29,8 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
     }
 
     @Override
-    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-        return false;
+    public boolean isItemViewSwipeEnabled() {
+        return true;
     }
 
     @Override

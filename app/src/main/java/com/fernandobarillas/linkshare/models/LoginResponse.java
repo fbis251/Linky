@@ -5,12 +5,8 @@ package com.fernandobarillas.linkshare.models;
  */
 public class LoginResponse {
     boolean success;
-    String refreshToken;
-    String username;
-
-    public boolean isSuccess() {
-        return success;
-    }
+    String  refreshToken;
+    String  username;
 
     public String getRefreshToken() {
         return refreshToken;
@@ -18,5 +14,9 @@ public class LoginResponse {
 
     public String getUsername() {
         return username;
+    }
+
+    public boolean isSuccess() {
+        return success;
     }
 }

@@ -24,7 +24,8 @@ public class Snacks {
         showSnackBar(view, message, false, null);
     }
 
-    public static void showSnackBar(View view, String message, boolean indefinite, Action snackAction) {
+    public static void showSnackBar(View view, String message, boolean indefinite,
+            Action snackAction) {
         if (view == null || message == null) return;
         int length = indefinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_LONG;
         Snackbar snackbar = Snackbar.make(view, message, length);
@@ -42,7 +43,7 @@ public class Snacks {
         static final int INVALID_ID = -1;
         @StringRes
         int mResId = INVALID_ID;
-        String mActionMessage;
+        String               mActionMessage;
         View.OnClickListener mOnClickListener;
 
         public Action(int resId, View.OnClickListener onClickListener) {
