@@ -6,7 +6,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,14 +16,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.fernandobarillas.linkshare.api.LinkShare;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
-import com.fernandobarillas.linkshare.configuration.AppPreferences;
-import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 import com.fernandobarillas.linkshare.models.LoginRequest;
 import com.fernandobarillas.linkshare.models.LoginResponse;
-
-import java.net.URL;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,18 +27,14 @@ import retrofit2.Response;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
-    private static final String LOG_TAG = "LoginActivity";
-
-    AppPreferences mPreferences;
-    LinkShare mLinkShare;
+public class LoginActivity extends BaseLinkActivity {
 
     // UI references.
     private EditText mApiUrlView;
     private EditText mUsernameView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+    private View     mProgressView;
+    private View     mLoginFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,19 +66,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        mPreferences = new AppPreferences(getApplicationContext());
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Show the Up button in the action bar.
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     /**
@@ -137,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
             mApiUrlView.setError(getString(R.string.error_field_required));
             focusView = mApiUrlView;
             cancel = true;
-        } else if (!isApiUrlValid(apiUrl)) {
+        } else if (!ServiceGenerator.isApiUrlValid(apiUrl)) {
             mApiUrlView.setError(getString(R.string.error_invalid_api_url));
             focusView = mApiUrlView;
             cancel = true;
@@ -155,14 +132,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void serviceSetup(URL apiUrl) throws InvalidApiUrlException {
-        Log.v(LOG_TAG, "serviceSetup()");
-        mLinkShare = ServiceGenerator.createService(LinkShare.class, apiUrl);
-    }
-
     private void doLogin(final String apiUrl, final String username, final String password) {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        Call<LoginResponse> loginCall = mLinkShare.login(loginRequest);
+        Call<LoginResponse> loginCall = mLinkService.login(loginRequest);
         loginCall.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
@@ -177,7 +149,8 @@ public class LoginActivity extends AppCompatActivity {
                             mPreferences.setRefreshToken(refreshToken);
                             mPreferences.setUsername(loginResponse.getUsername());
                             Log.i(LOG_TAG, "Login completed, starting LinksListActivity");
-                            startActivity(new Intent(getApplicationContext(), LinksListActivity.class));
+                            startActivity(
+                                    new Intent(getApplicationContext(), LinksListActivity.class));
                             finish();
                             return;
                         }
@@ -198,21 +171,23 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private boolean isApiUrlValid(String apiUrl) {
-        try {
-            serviceSetup(new URL(apiUrl));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    private boolean isPasswordValid(String password) {
+        return password.length() >= 4;
     }
 
     private boolean isUsernameValid(String username) {
         return username.length() >= 4;
     }
 
-    private boolean isPasswordValid(String password) {
-        return password.length() >= 4;
+    /**
+     * Set up the {@link android.app.ActionBar}, if the API is available.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void setupActionBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // Show the Up button in the action bar.
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
@@ -227,20 +202,26 @@ public class LoginActivity extends AppCompatActivity {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+            mLoginFormView.animate()
+                    .setDuration(shortAnimTime)
+                    .alpha(show ? 0 : 1)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                        }
+                    });
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
+            mProgressView.animate()
+                    .setDuration(shortAnimTime)
+                    .alpha(show ? 1 : 0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                        }
+                    });
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
