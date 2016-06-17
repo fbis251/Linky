@@ -1,4 +1,4 @@
-package com.fernandobarillas.linkshare;
+package com.fernandobarillas.linkshare.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.models.LoginRequest;
 import com.fernandobarillas.linkshare.models.LoginResponse;

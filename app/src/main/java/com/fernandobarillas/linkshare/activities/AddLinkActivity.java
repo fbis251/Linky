@@ -1,4 +1,4 @@
-package com.fernandobarillas.linkshare;
+package com.fernandobarillas.linkshare.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;

@@ -41,6 +41,8 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         mContext = context;
         mLinkStorage = linkStorage;
         mLinksList = mLinkStorage.getAllLinks();
+//        mLinksList = mLinkStorage.getAllFavorites();
+//        mLinksList = mLinkStorage.getAllArchived();
     }
 
     @Override

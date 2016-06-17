@@ -1,4 +1,4 @@
-package com.fernandobarillas.linkshare;
+package com.fernandobarillas.linkshare.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +11,8 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
+import com.fernandobarillas.linkshare.R;
+import com.fernandobarillas.linkshare.activities.BaseLinkActivity;
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
 import com.fernandobarillas.linkshare.models.Link;

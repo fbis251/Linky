@@ -1,4 +1,4 @@
-package com.fernandobarillas.linkshare;
+package com.fernandobarillas.linkshare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.api.LinkService;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
