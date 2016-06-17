@@ -26,10 +26,20 @@ public class LinkStorage {
         Log.v(LOG_TAG, "add() called with: " + "link = [" + link + "]");
         Log.i(LOG_TAG, "add: Current count: " + getLinksCount());
         mRealm.executeTransaction(new Realm.Transaction() {
-            @Override public void execute(Realm realm) {
+            @Override
+            public void execute(Realm realm) {
                 Link newLink = realm.createObject(Link.class);
                 newLink.copy(link);
                 Log.i(LOG_TAG, "execute: Added " + newLink);
+            }
+        });
+    }
+
+    public void deleteAllLinks() {
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                mRealm.delete(Link.class);
             }
         });
     }
@@ -39,11 +49,26 @@ public class LinkStorage {
         return new ArrayList<>(mRealm.where(Link.class).equalTo("url", url).findAll());
     }
 
+    public List<Link> getAllArchived() {
+        Log.v(LOG_TAG, "getAllArchived()");
+        RealmResults<Link> results = mRealm.where(Link.class)
+                .equalTo("isArchived", true)
+                .findAllSorted("timestamp", Sort.DESCENDING);
+        return new ArrayList<>(results);
+    }
+
+    public List<Link> getAllFavorites() {
+        Log.v(LOG_TAG, "getAllFavorites()");
+        RealmResults<Link> results = mRealm.where(Link.class)
+                .equalTo("isFavorite", true)
+                .findAllSorted("timestamp", Sort.DESCENDING);
+        return new ArrayList<>(results);
+    }
+
     public List<Link> getAllLinks() {
         Log.v(LOG_TAG, "getAllLinks()");
         RealmResults<Link> results =
-                mRealm.where(Link.class).findAllSorted("timestamp", Sort.ASCENDING);
-        // TODO: Convert to list and return
+                mRealm.where(Link.class).findAllSorted("timestamp", Sort.DESCENDING);
         return new ArrayList<>(results);
     }
 
@@ -54,7 +79,8 @@ public class LinkStorage {
     public void remove(final Link link) {
         Log.v(LOG_TAG, "remove() called with: " + "link = [" + link + "]");
         mRealm.executeTransaction(new Realm.Transaction() {
-            @Override public void execute(Realm realm) {
+            @Override
+            public void execute(Realm realm) {
                 link.deleteFromRealm();
             }
         });
@@ -62,12 +88,21 @@ public class LinkStorage {
 
     public void replaceLinks(final List<Link> newLinksList) {
         Log.v(LOG_TAG, "replaceLinks() called with: " + "newLinksList = [" + newLinksList + "]");
+        if (newLinksList == null) {
+            Log.e(LOG_TAG, "replaceLinks: New Links list was null");
+            return;
+        }
+
+        Log.i(LOG_TAG, "replaceLinks: New Link count: " + newLinksList.size());
         mRealm.executeTransaction(new Realm.Transaction() {
-            @Override public void execute(Realm realm) {
+            @Override
+            public void execute(Realm realm) {
+                // Delete all the Links current stored before we use the new server data
                 mRealm.delete(Link.class);
+
+                // Insert all the links we got from the server
                 for (Link link : newLinksList) {
-                    Link newLink = mRealm.createObject(Link.class);
-                    newLink.copy(link);
+                    mRealm.copyToRealmOrUpdate(link);
                 }
             }
         });
