@@ -1,22 +1,81 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:minHeight="?android:attr/listPreferredItemHeight"
-              android:orientation="vertical">
+<?xml version="1.0" encoding ="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/link_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="bold"
-        tools:text="Link Title"/>
+    <data>
 
-    <TextView
-        android:id="@+id/link_url"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="http://www.example.com"/>
+        <variable
+                name="link"
+                type="com.fernandobarillas.linkshare.models.Link"/>
+    </data>
 
-</LinearLayout>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeight">
+
+        <ImageView
+                android:id="@+id/link_is_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:paddingEnd="@dimen/link_favorite_right_margin"
+                android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
+                tools:src="@drawable/ic_favorite_filled_24dp"/>
+
+        <TextView
+                android:id="@+id/link_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/link_is_favorite"
+                android:text="@{link.title}"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold"
+                tools:text="Link Title"/>
+
+        <TextView
+                android:id="@+id/link_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/link_title"
+                android:layout_toEndOf="@id/link_is_favorite"
+                android:text="@{link.timeString}"
+                tools:text="1 hour ago"/>
+
+        <TextView
+                android:id="@+id/link_separator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/link_title"
+                android:layout_toEndOf="@id/link_time"
+                android:paddingLeft="@dimen/link_information_margin"
+                android:paddingRight="@dimen/link_information_margin"
+                android:text="@string/link_information_separator"/>
+
+        <TextView
+                android:id="@+id/link_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/link_title"
+                android:layout_toEndOf="@id/link_separator"
+                android:text="@{link.domain}"
+                tools:text="example.com"/>
+
+        <TextView
+                android:id="@+id/link_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/link_title"
+                android:layout_marginStart="@dimen/link_information_margin"
+                android:layout_toEndOf="@id/link_url"
+                android:background="@{link.category != null ? @drawable/link_category_bg : null}"
+                android:text="@{link.category}"
+                tools:background="@drawable/link_category_bg"
+                tools:text="Uncategorized"/>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray300"/>
+    </RelativeLayout>
+</layout>

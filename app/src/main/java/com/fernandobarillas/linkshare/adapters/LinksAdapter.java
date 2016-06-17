@@ -2,16 +2,19 @@ package com.fernandobarillas.linkshare.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import com.android.databinding.library.baseAdapters.BR;
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
+import com.fernandobarillas.linkshare.databinding.ContentLinkBinding;
 import com.fernandobarillas.linkshare.models.Link;
 
 import java.util.ArrayList;
@@ -40,31 +43,31 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         mLinksList = mLinkStorage.getAllLinks();
     }
 
-    @Override public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    @Override
+    public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.content_link, viewGroup, false);
         return new LinkViewHolder(itemView);
     }
 
-    @Override public void onBindViewHolder(final LinkViewHolder linkViewHolder, final int linkId) {
+    @Override
+    public void onBindViewHolder(final LinkViewHolder holder, final int linkId) {
         final Link link = mLinksList.get(linkId);
-        // Set the strings in the card
-        linkViewHolder.mLinkTitle.setText(link.getTitle());
-        linkViewHolder.mLinkUrl.setText(link.getUrl());
+        holder.getBinding().setVariable(BR.link, link);
+        holder.getBinding().executePendingBindings();
     }
 
-    @Override public int getItemCount() {
+    @Override
+    public int getItemCount() {
         return mLinksList.size();
     }
 
-    public String getUrl(int linkId) {
-        if (mLinksList.isEmpty() || linkId < 0 || linkId > mLinksList.size()) {
+    public Link getLink(int position) {
+        if (mLinksList.isEmpty() || position < 0 || position > mLinksList.size()) {
             return null;
         }
 
-        Log.e(LOG_TAG, "getUrl: Database ID for link: " + mLinksList.get(linkId));
-
-        return mLinksList.get(linkId).getUrl();
+        return mLinksList.get(position);
     }
 
     public Link remove(int linkId) {
@@ -78,17 +81,31 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         return resultLink;
     }
 
-    private void openLink(final int linkId) {
-        Log.v(LOG_TAG, "openLink() called with: " + "linkId = [" + linkId + "]");
-        String url = getUrl(linkId);
+    private void openLink(final int position) {
+        Log.v(LOG_TAG, "openLink() called with: " + "position = [" + position + "]");
         if (mContext == null) {
+            Log.e(LOG_TAG, "openLink: Invalid context, cancelling opening link");
             return;
         }
+
+        if (getLink(position) == null) {
+            Log.e(LOG_TAG, "openLink: Null Link when attempting to open URL: " + position);
+            return;
+        }
+
+        String url = getLink(position).getUrl();
+        if (TextUtils.isEmpty(url)) {
+            Log.e(LOG_TAG, "openLink: Cannot open empty or null link");
+            // TODO: Show UI error
+        }
+        Log.i(LOG_TAG, "openLink: Opening URL: " + url);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         // Make sure that we have applications installed that can handle this intent
         if (browserIntent.resolveActivity(mContext.getPackageManager()) != null) {
             mContext.startActivity(browserIntent);
+        } else {
+            // TODO: Show UI error
         }
     }
 
@@ -97,20 +114,21 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
      */
     public class LinkViewHolder extends RecyclerView.ViewHolder {
 
-        protected TextView mLinkTitle;
-
-        protected TextView mLinkUrl;
+        protected ContentLinkBinding mBinding;
 
         public LinkViewHolder(View view) {
             super(view);
-            mLinkTitle = (TextView) view.findViewById(R.id.link_title);
-            mLinkUrl = (TextView) view.findViewById(R.id.link_url);
-
+            mBinding = DataBindingUtil.bind(view);
             view.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
+                @Override
+                public void onClick(View v) {
                     openLink(getLayoutPosition());
                 }
             });
+        }
+
+        public ContentLinkBinding getBinding() {
+            return mBinding;
         }
     }
 }
