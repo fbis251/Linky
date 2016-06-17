@@ -16,7 +16,7 @@ import retrofit2.http.Path;
 /**
  * Created by fb on 1/28/16.
  */
-public interface LinkShare {
+public interface LinkService {
     @POST("add")
     Call<Link> addLink(@Body AddLinkRequest linkRequest);
 
