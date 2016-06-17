@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 
 import com.fernandobarillas.linkshare.R;
-import com.fernandobarillas.linkshare.activities.BaseLinkActivity;
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
 import com.fernandobarillas.linkshare.models.Link;
@@ -97,13 +96,14 @@ public class LinksListActivity extends BaseLinkActivity {
         touchHelperSetup();
     }
 
-    private void deleteLink(final int linkId) {
-        Log.v(LOG_TAG, "deleteLink() called with: " + "linkId = [" + linkId + "]");
+    private void deleteLink(final int position) {
+        Log.v(LOG_TAG, "deleteLink() called with: " + "position = [" + position + "]");
+        Link link = mLinksAdapter.getLink(position);
+        String url = link != null ? link.getUrl() : null;
+        final String errorMessage = "Error deleting " + url;
 
-        final String errorMessage = "Error deleting " + mLinksAdapter.getUrl(linkId);
-
-        final Link removedLink = mLinksAdapter.remove(linkId);
-        mLinksAdapter.notifyItemRemoved(linkId);
+        final Link removedLink = mLinksAdapter.remove(position);
+        mLinksAdapter.notifyItemRemoved(position);
 
         Call<SuccessResponse> deleteCall = mLinkService.deleteLink(removedLink.getLinkId());
         deleteCall.enqueue(new Callback<SuccessResponse>() {
@@ -194,8 +194,8 @@ public class LinksListActivity extends BaseLinkActivity {
                 new ItemTouchHelperCallback(new ItemSwipedRightCallback() {
                     @Override
                     public void swipeCallback(RecyclerView.ViewHolder viewHolder) {
-                        int linkId = viewHolder.getLayoutPosition();
-                        deleteLink(linkId);
+                        int position = viewHolder.getLayoutPosition();
+                        deleteLink(position);
                         // TODO: Bring back swiped item after API error when deleting
                     }
                 });
