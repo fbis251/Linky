@@ -2,14 +2,18 @@ package com.fernandobarillas.linkshare.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.android.databinding.library.baseAdapters.BR;
 import com.fernandobarillas.linkshare.R;
@@ -31,6 +35,9 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     LinkStorage mLinkStorage;
     List<Link> mLinksList = new ArrayList<>();
 
+    Drawable mFavoriteDrawable;
+    Drawable mNotFavorite;
+
     public LinksAdapter(Context context, LinkStorage linkStorage) {
         Log.v(LOG_TAG, "LinksAdapter() called with: "
                 + "context = ["
@@ -43,6 +50,14 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         mLinksList = mLinkStorage.getAllLinks();
 //        mLinksList = mLinkStorage.getAllFavorites();
 //        mLinksList = mLinkStorage.getAllArchived();
+
+        // Set up the favorite drawables
+        Resources resources = mContext.getResources();
+        if (resources == null) return;
+        mFavoriteDrawable =
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_favorite_filled_24dp, null);
+        mNotFavorite =
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_favorite_border_24dp, null);
     }
 
     @Override
@@ -111,6 +126,49 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         }
     }
 
+    public class LinkHandler {
+        private LinkViewHolder holder;
+
+        public LinkHandler(LinkViewHolder holder) {
+            this.holder = holder;
+        }
+
+        public void onClickFavorite(View view) {
+            Log.v(LOG_TAG, "onClickFavorite() called with: " + "view = [" + view + "]");
+            if (view == null || mFavoriteDrawable == null) return;
+            if (!(view instanceof ImageView)) return;
+            ImageView imageView = (ImageView) view;
+            imageView.setImageDrawable(mFavoriteDrawable);
+            setFavorite(true);
+        }
+
+        public void onClickNotFavorite(View view) {
+            Log.v(LOG_TAG, "onClickNotFavorite() called with: " + "view = [" + view + "]");
+            if (view == null || mNotFavorite == null) return;
+            if (!(view instanceof ImageView)) return;
+            ImageView imageView = (ImageView) view;
+            imageView.setImageDrawable(mNotFavorite);
+            setFavorite(false);
+        }
+
+        public void onClickTitle(View view) {
+            Log.v(LOG_TAG, "onClickTitle() called with: " + "view = [" + view + "]");
+            openLink(getHolderPosition());
+        }
+
+        private int getHolderPosition() {
+            return holder.getLayoutPosition();
+        }
+
+        private void setFavorite(boolean isFavorite) {
+            Log.v(LOG_TAG, "setFavorite() called with: " + "isFavorite = [" + isFavorite + "]");
+            Log.i(LOG_TAG, "setFavorite: Position: " + getHolderPosition());
+            Link link = getLink(getHolderPosition());
+            if (link == null) return;
+            mLinkStorage.setFavorite(link, isFavorite);
+        }
+    }
+
     /**
      * ViewHolder that displays individual reddit Links. It uses a CardView in the UI.
      */
@@ -121,12 +179,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         public LinkViewHolder(View view) {
             super(view);
             mBinding = DataBindingUtil.bind(view);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openLink(getLayoutPosition());
-                }
-            });
+            mBinding.setHandlers(new LinkHandler(this));
         }
 
         public ContentLinkBinding getBinding() {

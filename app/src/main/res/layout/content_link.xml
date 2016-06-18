@@ -5,6 +5,10 @@
     <data>
 
         <variable
+                name="handlers"
+                type="com.fernandobarillas.linkshare.adapters.LinksAdapter.LinkHandler"/>
+
+        <variable
                 name="link"
                 type="com.fernandobarillas.linkshare.models.Link"/>
     </data>
@@ -19,6 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_centerVertical="true"
+                android:onClick="@{link.favorite ? handlers.onClickNotFavorite : handlers.onClickFavorite}"
                 android:paddingEnd="@dimen/link_favorite_right_margin"
                 android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
                 tools:src="@drawable/ic_favorite_filled_24dp"/>
@@ -28,6 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/link_is_favorite"
+                android:onClick="@{handlers.onClickTitle}"
                 android:text="@{link.title}"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textStyle="bold"
