@@ -49,12 +49,6 @@ public class BaseLinkActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    protected void setToolbarTitle(String title) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null) return;
-        actionBar.setTitle(title);
-    }
-
     protected void launchLoginActivity() {
         Log.v(LOG_TAG, "launchLoginActivity()");
         startActivity(new Intent(this, LoginActivity.class));
@@ -75,5 +69,11 @@ public class BaseLinkActivity extends AppCompatActivity {
             Log.e(LOG_TAG, "serviceSetup: Invalid API URL, launching login activity", e);
             launchLoginActivity();
         }
+    }
+
+    protected void setToolbarTitle(String title) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) return;
+        actionBar.setTitle(title);
     }
 }

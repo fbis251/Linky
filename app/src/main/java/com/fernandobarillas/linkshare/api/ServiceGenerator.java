@@ -24,6 +24,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by fb on 2/1/16.
  */
 public class ServiceGenerator {
+    private static final String LOG_TAG = "ServiceGenerator";
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
     public static <S> S createService(Class<S> serviceClass, final URL apiUrl)
@@ -70,8 +71,6 @@ public class ServiceGenerator {
         Retrofit retrofit = builder.client(client).build();
         return retrofit.create(serviceClass);
     }
-
-    private static final String LOG_TAG = "ServiceGenerator";
 
     public static boolean isApiUrlValid(final String apiUrlString) {
         Log.v(LOG_TAG, "isApiUrlValid() called with: " + "apiUrlString = [" + apiUrlString + "]");
