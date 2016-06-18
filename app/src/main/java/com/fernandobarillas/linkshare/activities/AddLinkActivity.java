@@ -9,6 +9,8 @@ import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
+import java.util.Date;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,9 +33,10 @@ public class AddLinkActivity extends BaseLinkActivity {
     public void addLink(final String title, final String url) {
         Log.v(LOG_TAG, "addLink() called with: " + "title = [" + title + "], url = [" + url + "]");
 
-        Link newLink = new Link(url);
+        final Link newLink = new Link(url);
         newLink.setTitle(title);
         newLink.setCategory("");
+        newLink.setTimestamp(new Date());
 
         AddLinkRequest linkRequest = new AddLinkRequest(newLink);
 
@@ -44,13 +47,13 @@ public class AddLinkActivity extends BaseLinkActivity {
             public void onResponse(Call<Link> call, Response<Link> response) {
                 Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
                 if (response.isSuccessful()) {
-                    // TODO: Set a needsRefresh variable here to get new links on next resume
-                    Link link = response.body();
-                    link.setUrl(url);
-                    Log.i(LOG_TAG, "onResponse: Added Link: " + link);
-                    mLinkStorage.deleteAllLinks(); // TODO: Don't delete once we get it from the response
-//                    mLinkStorage.add(link); // TODO: Get the link from the response instead
-                    showToast("Link Added Successfully");
+//                    Link newLink = response.body(); // TODO: Get the link from API response
+                    mLinkStorage.add(newLink, true);
+                    Log.i(LOG_TAG, "onResponse: Added Link: " + newLink);
+                    String message = String.format("Added %s",
+                            (newLink.getTitle() != null) ? newLink.getTitle()
+                                    : newLink.getDomain());
+                    showToast(message);
                 } else {
                     showToast("Error adding link");
                 }
