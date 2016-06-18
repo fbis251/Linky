@@ -1,11 +1,14 @@
 package com.fernandobarillas.linkshare.databases;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.fernandobarillas.linkshare.models.Link;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -22,24 +25,22 @@ public class LinkStorage {
         mRealm = realm;
     }
 
-    public void add(final Link link) {
+    public void add(final Link link, final boolean generateNewLinkId) {
         Log.v(LOG_TAG, "add() called with: " + "link = [" + link + "]");
         Log.i(LOG_TAG, "add: Current count: " + getLinksCount());
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Link newLink = realm.createObject(Link.class);
-                newLink.copy(link);
-                Log.i(LOG_TAG, "execute: Added " + newLink);
-            }
-        });
-    }
-
-    public void deleteAllLinks() {
-        mRealm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                mRealm.delete(Link.class);
+                if (generateNewLinkId) {
+                    // Before the link is gotten from the API, use largest linkId + 1 for this Link
+                    Link lastLink = getLastLink();
+                    long newLinkId =
+                            lastLink != null ? lastLink.getLinkId() + 1 : Long.MAX_VALUE - 1;
+                    link.setLinkId(newLinkId);
+                }
+                realm.copyToRealmOrUpdate(link);
+                Log.i(LOG_TAG, "add: Added " + link);
+                Log.i(LOG_TAG, "add: New count: " + getLinksCount());
             }
         });
     }
@@ -49,27 +50,47 @@ public class LinkStorage {
         return new ArrayList<>(mRealm.where(Link.class).equalTo("url", url).findAll());
     }
 
-    public List<Link> getAllArchived() {
+    public RealmResults<Link> getAllArchived() {
         Log.v(LOG_TAG, "getAllArchived()");
-        RealmResults<Link> results = mRealm.where(Link.class)
+        return mRealm.where(Link.class)
                 .equalTo("isArchived", true)
                 .findAllSorted("timestamp", Sort.DESCENDING);
-        return new ArrayList<>(results);
     }
 
-    public List<Link> getAllFavorites() {
+    public RealmResults<Link> getAllFavorites() {
         Log.v(LOG_TAG, "getAllFavorites()");
-        RealmResults<Link> results = mRealm.where(Link.class)
+        return mRealm.where(Link.class)
                 .equalTo("isFavorite", true)
                 .findAllSorted("timestamp", Sort.DESCENDING);
-        return new ArrayList<>(results);
     }
 
-    public List<Link> getAllLinks() {
+    public RealmResults<Link> getAllLinks() {
         Log.v(LOG_TAG, "getAllLinks()");
-        RealmResults<Link> results =
-                mRealm.where(Link.class).findAllSorted("timestamp", Sort.DESCENDING);
-        return new ArrayList<>(results);
+        return mRealm.where(Link.class).findAllSorted("timestamp", Sort.DESCENDING);
+    }
+
+    public Set<String> getCategories() {
+        Log.v(LOG_TAG, "getCategories()");
+        Set<String> categories = new LinkedHashSet<>();
+        RealmResults<Link> result = mRealm.where(Link.class).distinct("category");
+        for (Link link : result) {
+            String category = link.getCategory();
+            if (!TextUtils.isEmpty(category)) {
+                categories.add(category.toLowerCase());
+            }
+        }
+
+        for (String category : categories) {
+            Log.i(LOG_TAG, "getCategories: Category: " + category);
+        }
+
+        return categories;
+    }
+
+    public Link getLastLink() {
+        Link lastLink = mRealm.where(Link.class).findAllSorted("linkId", Sort.DESCENDING).first();
+        Log.i(LOG_TAG, "getLastLink: Last link: " + lastLink);
+        return lastLink;
     }
 
     public long getLinksCount() {
@@ -81,7 +102,9 @@ public class LinkStorage {
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
+                String title = link.getTitle();
                 link.deleteFromRealm();
+                Log.i(LOG_TAG, "remove: Removed: " + title);
             }
         });
     }
@@ -104,6 +127,40 @@ public class LinkStorage {
                 for (Link link : newLinksList) {
                     mRealm.copyToRealmOrUpdate(link);
                 }
+            }
+        });
+    }
+
+    public void setArchived(final Link link, final boolean isArchived) {
+        Log.v(LOG_TAG, "setArchived() called with: "
+                + "link = ["
+                + link
+                + "], isArchived = ["
+                + isArchived
+                + "]");
+        if (link == null) return; // TODO: Show UI error
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                link.setArchived(isArchived);
+                Log.i(LOG_TAG, "setArchived: Edited Link: " + link);
+            }
+        });
+    }
+
+    public void setFavorite(final Link link, final boolean isFavorite) {
+        Log.v(LOG_TAG, "setFavorite() called with: "
+                + "link = ["
+                + link
+                + "], isFavorite = ["
+                + isFavorite
+                + "]");
+        if (link == null) return; // TODO: Show UI error
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                link.setFavorite(isFavorite);
+                Log.i(LOG_TAG, "setFavorite: Edited Link: " + link);
             }
         });
     }

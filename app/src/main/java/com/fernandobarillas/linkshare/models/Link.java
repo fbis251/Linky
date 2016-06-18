@@ -6,8 +6,10 @@ import android.text.format.DateUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -16,8 +18,9 @@ import io.realm.annotations.PrimaryKey;
 public class Link extends RealmObject {
 
     @PrimaryKey
-    long linkId;
-    String  category;
+    long   linkId;
+    @Index
+    String category;
     boolean isArchived;
     boolean isFavorite;
     long    timestamp;
@@ -25,10 +28,6 @@ public class Link extends RealmObject {
     String  url;
 
     public Link() {
-    }
-
-    public Link(Link link) {
-        copy(link);
     }
 
     public Link(int linkId, String category, int timestamp, String title, String url) {
@@ -48,18 +47,12 @@ public class Link extends RealmObject {
         return "Link{" +
                 "linkId=" + linkId +
                 ", category='" + category + '\'' +
+                ", isArchived=" + isArchived +
+                ", isFavorite=" + isFavorite +
                 ", timestamp=" + timestamp +
                 ", title='" + title + '\'' +
                 ", url='" + url + '\'' +
                 '}';
-    }
-
-    public void copy(Link link) {
-        linkId = link.linkId;
-        category = link.category;
-        timestamp = link.timestamp;
-        title = link.title;
-        url = link.url;
     }
 
     public String getCategory() {
@@ -99,8 +92,8 @@ public class Link extends RealmObject {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setTimestamp(Date date) {
+        this.timestamp = date.getTime() / 1000;
     }
 
     public String getTitle() {
@@ -133,5 +126,9 @@ public class Link extends RealmObject {
 
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }
