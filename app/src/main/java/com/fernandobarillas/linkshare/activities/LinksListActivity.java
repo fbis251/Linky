@@ -23,16 +23,24 @@ import com.fernandobarillas.linkshare.utils.ResponsePrinter;
 
 import java.util.List;
 
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LinksListActivity extends BaseLinkActivity {
+public class LinksListActivity extends BaseLinkActivity
+        implements RealmChangeListener<RealmResults<Link>> {
     private static final int GRID_COLUMNS = 1; // How many columns when displaying the Links
 
     SwipeRefreshLayout mSwipeRefreshLayout;
     RecyclerView       mRecyclerView;
     LinksAdapter       mLinksAdapter;
+
+    @Override
+    public void onChange(RealmResults<Link> element) {
+        setTitle();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +79,7 @@ public class LinksListActivity extends BaseLinkActivity {
     @Override
     protected void onDestroy() {
         Log.v(LOG_TAG, "onDestroy()");
+        mLinksAdapter.removeChangeListener();
         super.onDestroy();
     }
 
@@ -91,21 +100,30 @@ public class LinksListActivity extends BaseLinkActivity {
             mLinksAdapter = new LinksAdapter(getApplicationContext(), mLinkStorage);
             mRecyclerView.setAdapter(mLinksAdapter);
         }
-        Log.v(LOG_TAG, "adapterSetup: Count: " + mLinksAdapter.getItemCount());
-        setToolbarTitle("Saved Links: " + mLinksAdapter.getItemCount());
+        if (mLinksAdapter.getLinks() != null) {
+            mLinksAdapter.getLinks().addChangeListener(this);
+        }
+
+        Log.v(LOG_TAG, "adapterSetup: Adapter count: " + mLinksAdapter.getItemCount());
+        setTitle();
         touchHelperSetup();
     }
 
     private void deleteLink(final int position) {
         Log.v(LOG_TAG, "deleteLink() called with: " + "position = [" + position + "]");
-        Link link = mLinksAdapter.getLink(position);
-        String url = link != null ? link.getUrl() : null;
+        final Link link = mLinksAdapter.getLink(position);
+        if (link == null) {
+            Log.e(LOG_TAG, "deleteLink: Link instance was null before making delete API call");
+            // TODO: Show UI error
+            return;
+        }
+
+        final String url = link.getUrl();
+        final String successMessage = "Removed " + url;
         final String errorMessage = "Error deleting " + url;
 
-        final Link removedLink = mLinksAdapter.remove(position);
-        mLinksAdapter.notifyItemRemoved(position);
-
-        Call<SuccessResponse> deleteCall = mLinkService.deleteLink(removedLink.getLinkId());
+        Log.i(LOG_TAG, "deleteLink: Trying to remove link: " + link);
+        Call<SuccessResponse> deleteCall = mLinkService.deleteLink(link.getLinkId());
         deleteCall.enqueue(new Callback<SuccessResponse>() {
             @Override
             public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
@@ -114,7 +132,8 @@ public class LinksListActivity extends BaseLinkActivity {
                 SuccessResponse archiveResponse = response.body();
                 if (response.isSuccessful() && archiveResponse.isSuccess()) {
                     if (mRecyclerView == null) return;
-                    Snacks.showMessage(mRecyclerView, "Removed " + removedLink.getUrl());
+                    Snacks.showMessage(mRecyclerView, successMessage);
+                    mLinkStorage.remove(link);
                     return;
                 }
 
@@ -159,8 +178,6 @@ public class LinksListActivity extends BaseLinkActivity {
 
                 // Store the links in the database
                 mLinkStorage.replaceLinks(downloadedLinks);
-                mLinksAdapter = null;
-                adapterSetup();
                 mSwipeRefreshLayout.setRefreshing(false);
                 String message = String.format("Downloaded %d %s", mLinkStorage.getLinksCount(),
                         mLinkStorage.getLinksCount() == 1 ? "link" : "links");
@@ -188,6 +205,11 @@ public class LinksListActivity extends BaseLinkActivity {
         });
     }
 
+    private void setTitle() {
+        if (mLinksAdapter == null) return;
+        setToolbarTitle("Saved Links: " + mLinksAdapter.getItemCount());
+    }
+
     private void touchHelperSetup() {
         Log.v(LOG_TAG, "touchHelperSetup()");
         ItemTouchHelperCallback callback =
@@ -196,7 +218,7 @@ public class LinksListActivity extends BaseLinkActivity {
                     public void swipeCallback(RecyclerView.ViewHolder viewHolder) {
                         int position = viewHolder.getLayoutPosition();
                         deleteLink(position);
-                        // TODO: Bring back swiped item after API error when deleting
+                        // TODO: Swipe should archive the Link, not delete
                     }
                 });
         ItemTouchHelper simpleItemTouchHelper = new ItemTouchHelper(callback);
