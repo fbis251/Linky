@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_centerVertical="true"
-                android:onClick="@{link.favorite ? handlers.onClickNotFavorite : handlers.onClickFavorite}"
+                android:onClick="@{link.favorite ? handlers::onClickNotFavorite : handlers::onClickFavorite}"
                 android:paddingEnd="@dimen/link_favorite_right_margin"
                 android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
                 tools:src="@drawable/ic_favorite_filled_24dp"/>
@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/link_is_favorite"
-                android:onClick="@{handlers.onClickTitle}"
+                android:onClick="@{handlers::onClickTitle}"
                 android:text="@{link.title}"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textStyle="bold"
@@ -82,6 +82,8 @@
         <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
                 android:background="@color/gray300"/>
+
     </RelativeLayout>
 </layout>

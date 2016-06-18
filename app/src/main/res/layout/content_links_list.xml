@@ -5,16 +5,17 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginTop="?android:attr/actionBarSize"
-        tools:context=".LinksListActivity"
-        tools:showIn="@layout/activity_links_list">
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        tools:context=".activities.LinksListActivity"
+        tools:showIn="@layout/links_list_main">
 
     <android.support.v7.widget.RecyclerView
             android:id="@+id/links_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbars="vertical"/>
+            android:scrollbars="vertical"
+            tools:listitem="@layout/content_link"/>
 
 </android.support.v4.widget.SwipeRefreshLayout>

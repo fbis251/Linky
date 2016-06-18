@@ -92,8 +92,8 @@ public class Link extends RealmObject {
         return timestamp;
     }
 
-    public void setTimestamp(Date date) {
-        this.timestamp = date.getTime() / 1000;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getTitle() {
@@ -128,7 +128,7 @@ public class Link extends RealmObject {
         isFavorite = favorite;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setTimestamp(Date date) {
+        this.timestamp = date.getTime() / 1000;
     }
 }

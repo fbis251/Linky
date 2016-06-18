@@ -64,6 +64,13 @@ public class LinkStorage {
                 .findAllSorted("timestamp", Sort.DESCENDING);
     }
 
+    public RealmResults<Link> getAllFreshLinks() {
+        Log.v(LOG_TAG, "getAllFreshLinks()");
+        return mRealm.where(Link.class)
+                .equalTo("isArchived", false)
+                .findAllSorted("timestamp", Sort.DESCENDING);
+    }
+
     public RealmResults<Link> getAllLinks() {
         Log.v(LOG_TAG, "getAllLinks()");
         return mRealm.where(Link.class).findAllSorted("timestamp", Sort.DESCENDING);
@@ -84,6 +91,7 @@ public class LinkStorage {
             Log.i(LOG_TAG, "getCategories: Category: " + category);
         }
 
+        // TODO: It's better if this returns RealmResults<Link> since the caller can then be notified of newly added categories
         return categories;
     }
 

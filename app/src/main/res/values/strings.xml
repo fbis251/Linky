@@ -5,6 +5,18 @@
     <!-- LinksListActivity strings -->
     <string name="action_retry">Retry</string>
     <string name="action_settings">Settings</string>
+    <string name="category_uncategorized">Uncategorized</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_all_links">All</string>
+    <string name="nav_archived_links">Archived</string>
+    <string name="nav_favorite_links">Favorites</string>
+    <string name="nav_fresh_links">Fresh</string>
+    <string name="title_categories">Categories</string>
+    <string name="title_all_links">All Links</string>
+    <string name="title_archived_links">Archived Links</string>
+    <string name="title_favorite_links">Favorite Links</string>
+    <string name="title_fresh_links">Fresh Links</string>
 
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -40,6 +41,11 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     Drawable mNotFavorite;
 
     public LinksAdapter(Context context, LinkStorage linkStorage) {
+        this(context, linkStorage, null);
+    }
+
+    public LinksAdapter(Context context, LinkStorage linkStorage,
+            @Nullable RealmResults<Link> links) {
         // TODO: Use RealmResults<Link> passed in here instead of passing in the LinkStorage object
         Log.v(LOG_TAG, "LinksAdapter() called with: "
                 + "context = ["
@@ -49,7 +55,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
                 + "]");
         mContext = context;
         mLinkStorage = linkStorage;
-        mLinks = mLinkStorage.getAllLinks();
+        mLinks = (links == null) ? mLinkStorage.getAllFreshLinks() : links;
         mLinks.addChangeListener(this);
 
         // Set up the favorite drawables
