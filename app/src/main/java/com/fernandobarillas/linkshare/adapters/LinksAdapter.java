@@ -21,24 +21,26 @@ import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.databinding.ContentLinkBinding;
 import com.fernandobarillas.linkshare.models.Link;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 /**
  * Created by fb on 1/29/16.
  */
 
-public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHolder> {
+public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHolder>
+        implements RealmChangeListener<RealmResults<Link>> {
     private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
 
-    Context     mContext;
-    LinkStorage mLinkStorage;
-    List<Link> mLinksList = new ArrayList<>();
+    Context            mContext;
+    LinkStorage        mLinkStorage;
+    RealmResults<Link> mLinks;
 
     Drawable mFavoriteDrawable;
     Drawable mNotFavorite;
 
     public LinksAdapter(Context context, LinkStorage linkStorage) {
+        // TODO: Use RealmResults<Link> passed in here instead of passing in the LinkStorage object
         Log.v(LOG_TAG, "LinksAdapter() called with: "
                 + "context = ["
                 + context
@@ -47,9 +49,8 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
                 + "]");
         mContext = context;
         mLinkStorage = linkStorage;
-        mLinksList = mLinkStorage.getAllLinks();
-//        mLinksList = mLinkStorage.getAllFavorites();
-//        mLinksList = mLinkStorage.getAllArchived();
+        mLinks = mLinkStorage.getAllLinks();
+        mLinks.addChangeListener(this);
 
         // Set up the favorite drawables
         Resources resources = mContext.getResources();
@@ -61,6 +62,11 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     }
 
     @Override
+    public void onChange(RealmResults<Link> element) {
+        notifyDataSetChanged();
+    }
+
+    @Override
     public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.content_link, viewGroup, false);
@@ -68,34 +74,37 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     }
 
     @Override
-    public void onBindViewHolder(final LinkViewHolder holder, final int linkId) {
-        final Link link = mLinksList.get(linkId);
+    public void onBindViewHolder(final LinkViewHolder holder, final int position) {
+        final Link link = mLinks.get(position);
         holder.getBinding().setVariable(BR.link, link);
         holder.getBinding().executePendingBindings();
     }
 
     @Override
     public int getItemCount() {
-        return mLinksList.size();
+        return mLinks.size();
     }
 
     public Link getLink(int position) {
-        if (mLinksList.isEmpty() || position < 0 || position > mLinksList.size()) {
+        if (!isPositionValid(position)) {
             return null;
         }
 
-        return mLinksList.get(position);
+        return mLinks.get(position);
     }
 
-    public Link remove(int linkId) {
-        if (mLinksList.isEmpty() || linkId < 0 || linkId >= mLinksList.size()) {
-            return null;
-        }
+    public RealmResults<Link> getLinks() {
+        return mLinks;
+    }
 
-        Link removedLink = mLinksList.remove(linkId);
-        Link resultLink = new Link(removedLink);
-        mLinkStorage.remove(removedLink); // Delete from database
-        return resultLink;
+    public void removeChangeListener() {
+        Log.v(LOG_TAG, "removeChangeListener()");
+        if (mLinks == null) return;
+        mLinks.removeChangeListener(this);
+    }
+
+    private boolean isPositionValid(int position) {
+        return (!mLinks.isEmpty() && position >= 0 && position < mLinks.size());
     }
 
     private void openLink(final int position) {
