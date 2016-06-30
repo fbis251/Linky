@@ -2,6 +2,6 @@
 <resources>
 
     <string name="app_name">Saved DEBUG</string>
-    <string name="title_add_link">Add DEBUG</string>
+    <string name="title_add_link">Save DEBUG</string>
 
 </resources>

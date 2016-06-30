@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Saved Links</string>
-    <string name="title_add_link">Add Link</string>
+    <string name="title_add_link">Save Link</string>
 
     <!-- LinksListActivity strings -->
     <string name="action_retry">Retry</string>
