@@ -5,12 +5,13 @@ import android.util.Log;
 
 import com.fernandobarillas.linkshare.models.Link;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
+import io.realm.Case;
 import io.realm.Realm;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -19,6 +20,14 @@ import io.realm.Sort;
  */
 public class LinkStorage {
     private static final String LOG_TAG = "LinkStorage";
+
+    private static final String COLUMN_CATEGORY    = "category";
+    private static final String COLUMN_IS_ARCHIVED = "isArchived";
+    private static final String COLUMN_IS_FAVORITE = "isFavorite";
+    private static final String COLUMN_TIMESTAMP   = "timestamp";
+    private static final String COLUMN_TITLE       = "title";
+    private static final String COLUMN_URL         = "url";
+
     private Realm mRealm;
 
     public LinkStorage(Realm realm) {
@@ -45,41 +54,60 @@ public class LinkStorage {
         });
     }
 
-    public List<Link> findByUrl(String url) {
+    public RealmResults<Link> findByCategory(String category) {
+        Log.v(LOG_TAG, "findByCategory() called with: " + "category = [" + category + "]");
+        return mRealm.where(Link.class)
+                .equalTo(COLUMN_CATEGORY, category, Case.INSENSITIVE)
+                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
+    }
+
+    public RealmResults<Link> findByString(String searchTerm) {
+        Log.v(LOG_TAG, "findByString() called with: " + "searchTerm = [" + searchTerm + "]");
+        return mRealm.where(Link.class)
+                .contains(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE)
+                .or()
+                .contains(COLUMN_TITLE, searchTerm, Case.INSENSITIVE)
+                .or()
+                .contains(COLUMN_URL, searchTerm, Case.INSENSITIVE)
+                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
+    }
+
+    public RealmResults<Link> findByUrl(String url) {
         Log.v(LOG_TAG, "findByUrl() called with: " + "url = [" + url + "]");
-        return new ArrayList<>(mRealm.where(Link.class).equalTo("url", url).findAll());
+        return mRealm.where(Link.class).equalTo(COLUMN_URL, url).findAll();
     }
 
     public RealmResults<Link> getAllArchived() {
         Log.v(LOG_TAG, "getAllArchived()");
         return mRealm.where(Link.class)
-                .equalTo("isArchived", true)
-                .findAllSorted("timestamp", Sort.DESCENDING);
+                .equalTo(COLUMN_IS_ARCHIVED, true)
+                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
     }
 
     public RealmResults<Link> getAllFavorites() {
         Log.v(LOG_TAG, "getAllFavorites()");
         return mRealm.where(Link.class)
-                .equalTo("isFavorite", true)
-                .findAllSorted("timestamp", Sort.DESCENDING);
+                .equalTo(COLUMN_IS_FAVORITE, true)
+                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
     }
 
     public RealmResults<Link> getAllFreshLinks() {
         Log.v(LOG_TAG, "getAllFreshLinks()");
         return mRealm.where(Link.class)
-                .equalTo("isArchived", false)
-                .findAllSorted("timestamp", Sort.DESCENDING);
+                .equalTo(COLUMN_IS_ARCHIVED, false)
+                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
     }
 
     public RealmResults<Link> getAllLinks() {
         Log.v(LOG_TAG, "getAllLinks()");
-        return mRealm.where(Link.class).findAllSorted("timestamp", Sort.DESCENDING);
+        return mRealm.where(Link.class).findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
     }
 
     public Set<String> getCategories() {
         Log.v(LOG_TAG, "getCategories()");
-        Set<String> categories = new LinkedHashSet<>();
-        RealmResults<Link> result = mRealm.where(Link.class).distinct("category");
+        Set<String> categories = new TreeSet<>();
+        RealmResults<Link> result = mRealm.where(Link.class).distinct(COLUMN_CATEGORY);
+        Log.i(LOG_TAG, "getCategories: Category count: " + result.size());
         for (Link link : result) {
             String category = link.getCategory();
             if (!TextUtils.isEmpty(category)) {
@@ -87,8 +115,9 @@ public class LinkStorage {
             }
         }
 
+        Log.i(LOG_TAG, "getCategories: Unique category count: " + categories.size());
         for (String category : categories) {
-            Log.i(LOG_TAG, "getCategories: Category: " + category);
+            Log.d(LOG_TAG, "getCategories: Category: " + category);
         }
 
         // TODO: It's better if this returns RealmResults<Link> since the caller can then be notified of newly added categories
@@ -111,7 +140,7 @@ public class LinkStorage {
             @Override
             public void execute(Realm realm) {
                 String title = link.getTitle();
-                link.deleteFromRealm();
+                RealmObject.deleteFromRealm(link);
                 Log.i(LOG_TAG, "remove: Removed: " + title);
             }
         });
