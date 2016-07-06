@@ -24,12 +24,4 @@
                 android:title="@string/action_settings"/>
     </group>
 
-    <item android:title="@string/title_categories">
-        <menu>
-            <item
-                    android:id="@+id/category_uncategorized"
-                    android:title="@string/category_uncategorized"/>
-        </menu>
-    </item>
-
 </menu>
