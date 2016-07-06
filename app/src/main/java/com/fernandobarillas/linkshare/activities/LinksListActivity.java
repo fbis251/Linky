@@ -1,5 +1,7 @@
 package com.fernandobarillas.linkshare.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -11,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -77,6 +80,8 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public void onChange(RealmResults<Link> element) {
+        Log.v(LOG_TAG, "onChange() called with: " + "element = [" + element + "]");
+        if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
         populateDrawerCategories();
         setTitle();
     }
@@ -141,7 +146,10 @@ public class LinksListActivity extends BaseLinkActivity
     @Override
     protected void onDestroy() {
         Log.v(LOG_TAG, "onDestroy()");
-        if (mLinksAdapter != null) mLinksAdapter.removeChangeListener();
+
+        if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
+            mLinksAdapter.getLinks().removeChangeListeners();
+        }
         super.onDestroy();
     }
 
@@ -187,6 +195,92 @@ public class LinksListActivity extends BaseLinkActivity
         return true;
     }
 
+    public void openLink(final int position) {
+        Log.v(LOG_TAG, "openLink() called with: " + "position = [" + position + "]");
+        Link link = mLinksAdapter.getLink(position);
+        Log.i(LOG_TAG, "openLink: Link: " + link);
+        if (link == null) {
+            Log.e(LOG_TAG, "openLink: Null Link when attempting to open URL: " + position);
+            showError("Error: could not open that link");
+            return;
+        }
+
+        String url = link.getUrl();
+        if (TextUtils.isEmpty(url)) {
+            Log.e(LOG_TAG, "openLink: Cannot open empty or null link");
+            showError("Error: That link did not contain a URL to open");
+        }
+        Log.i(LOG_TAG, "openLink: Opening URL: " + url);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // Make sure that we have applications installed that can handle this intent
+        if (browserIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(browserIntent);
+        } else {
+            showError("Error while opening URL: " + url);
+        }
+    }
+
+    public void setFavorite(final int position, final boolean isFavorite) {
+        Log.v(LOG_TAG, "setFavorite() called with: "
+                + "position = ["
+                + position
+                + "], isFavorite = ["
+                + isFavorite
+                + "]");
+        final Link link = mLinksAdapter.getLink(position);
+        Log.i(LOG_TAG, "setFavorite: Link: " + link);
+        if (link == null) {
+            Log.e(LOG_TAG, "openLink: Null Link when attempting to favorite position " + position);
+            showError("Error: could not set favorite on that link");
+            return;
+        }
+
+        final String errorMessage =
+                String.format("API Error %s favorite: %s", isFavorite ? "setting" : "unsetting",
+                        link.getTitle());
+
+        final Snacks.Action retryAction =
+                new Snacks.Action(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Log.v(LOG_TAG, "setFavorite retryAction onClick() called with: "
+                                + "view = ["
+                                + view
+                                + "]");
+                        setFavorite(position, isFavorite);
+                    }
+                });
+
+        Call<SuccessResponse> call = mLinkService.favoriteLink(link.getLinkId());
+        if (!isFavorite) {
+            call = mLinkService.unfavoriteLink(link.getLinkId());
+        }
+
+        call.enqueue(new Callback<SuccessResponse>() {
+            @Override
+            public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
+                Log.v(LOG_TAG, "setFavorite onResponse() called with: "
+                        + "call = ["
+                        + call
+                        + "], response = ["
+                        + response
+                        + "]");
+                if (response.isSuccessful()) {
+                    Log.d(LOG_TAG, "setFavorite onResponse: Successful");
+                    if (mLinkStorage != null) mLinkStorage.setFavorite(link, isFavorite);
+                } else {
+                    showError(errorMessage, retryAction);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessResponse> call, Throwable t) {
+                showError(errorMessage, retryAction);
+            }
+        });
+    }
+
     private void adapterSetup() {
         Log.v(LOG_TAG, "adapterSetup()");
         if (mLinksAdapter == null) {
@@ -197,8 +291,8 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void addLinksChangeListener() {
-        if (mLinksAdapter.getLinks() != null) {
-            mLinksAdapter.getLinks().removeChangeListener(this);
+        if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
+            mLinksAdapter.getLinks().removeChangeListeners();
             mLinksAdapter.getLinks().addChangeListener(this);
         }
     }
@@ -235,13 +329,13 @@ public class LinksListActivity extends BaseLinkActivity
                 Log.e(LOG_TAG, "archiveLink: onResponse: " + errorMessage);
                 Log.e(LOG_TAG, String.format("archiveLink: onResponse: %d %s", response.code(),
                         response.message()));
-                Snacks.showError(mRecyclerView, errorMessage);
+                showError(errorMessage);
             }
 
             @Override
             public void onFailure(Call<SuccessResponse> call, Throwable t) {
                 Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
-                Snacks.showError(mRecyclerView, errorMessage);
+                showError(errorMessage);
             }
         });
     }
@@ -264,7 +358,7 @@ public class LinksListActivity extends BaseLinkActivity
                     String message = "Invalid response returned by server: "
                             + ResponsePrinter.httpCodeString(response);
                     Log.e(LOG_TAG, "getLinks: onResponse: " + message);
-                    Snacks.showError(mRecyclerView, message, retryGetLinksAction());
+                    showError(message, retryGetLinksAction());
                     mSwipeRefreshLayout.setRefreshing(false);
                     return;
                 }
@@ -273,7 +367,7 @@ public class LinksListActivity extends BaseLinkActivity
                 if (downloadedLinks == null) {
                     String message = "No links returned by server";
                     Log.e(LOG_TAG, "getLinks: onResponse: " + message);
-                    Snacks.showError(mRecyclerView, message, retryGetLinksAction());
+                    showError(message, retryGetLinksAction());
                     return;
                 }
 
@@ -293,7 +387,7 @@ public class LinksListActivity extends BaseLinkActivity
                 String errorMessage =
                         "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
                 Log.e(LOG_TAG, errorMessage);
-                Snacks.showError(mRecyclerView, errorMessage);
+                showError(errorMessage);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -336,15 +430,13 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void showAllLinks() {
-        mLinksAdapter =
-                new LinksAdapter(getApplicationContext(), mLinkStorage, mLinkStorage.getAllLinks());
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllLinks());
         mToolbarTitle = getString(R.string.title_all_links);
         updateUiAfterAdapterChange();
     }
 
     private void showArchivedLinks() {
-        mLinksAdapter = new LinksAdapter(getApplicationContext(), mLinkStorage,
-                mLinkStorage.getAllArchived());
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllArchived());
         mToolbarTitle = getString(R.string.title_archived_links);
         updateUiAfterAdapterChange();
     }
@@ -355,23 +447,29 @@ public class LinksListActivity extends BaseLinkActivity
         if (category.equalsIgnoreCase(getString(R.string.category_uncategorized))) {
             searchTerm = "";
         }
-        mLinksAdapter = new LinksAdapter(getApplicationContext(), mLinkStorage,
-                mLinkStorage.findByCategory(searchTerm));
+        mLinksAdapter =
+                new LinksAdapter(this, mLinkStorage, mLinkStorage.findByCategory(searchTerm));
         String categoriesFormat = getString(R.string.title_category_links);
         mToolbarTitle = String.format(categoriesFormat, category);
         updateUiAfterAdapterChange();
     }
 
+    private void showError(String errorMessage, Snacks.Action action) {
+        Snacks.showError(mRecyclerView, errorMessage, action);
+    }
+
+    private void showError(String errorMessage) {
+        showError(errorMessage, null);
+    }
+
     private void showFavoriteLinks() {
-        mLinksAdapter = new LinksAdapter(getApplicationContext(), mLinkStorage,
-                mLinkStorage.getAllFavorites());
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllFavorites());
         mToolbarTitle = getString(R.string.title_favorite_links);
         updateUiAfterAdapterChange();
     }
 
     private void showFreshLinks() {
-        mLinksAdapter = new LinksAdapter(getApplicationContext(), mLinkStorage,
-                mLinkStorage.getAllFreshLinks());
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllFreshLinks());
         mToolbarTitle = getString(R.string.title_fresh_links);
         updateUiAfterAdapterChange();
     }
