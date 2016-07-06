@@ -9,4 +9,8 @@ public class InvalidApiUrlException extends Exception {
     public InvalidApiUrlException() {
         super(ERROR_MESSAGE);
     }
+
+    public InvalidApiUrlException(String message) {
+        super(message);
+    }
 }

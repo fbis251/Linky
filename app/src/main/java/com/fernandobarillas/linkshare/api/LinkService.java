@@ -1,37 +1,55 @@
 package com.fernandobarillas.linkshare.api;
 
 import com.fernandobarillas.linkshare.models.AddLinkRequest;
+import com.fernandobarillas.linkshare.models.AddLinkResponse;
 import com.fernandobarillas.linkshare.models.Link;
-import com.fernandobarillas.linkshare.models.LinksList;
 import com.fernandobarillas.linkshare.models.LoginRequest;
-import com.fernandobarillas.linkshare.models.LoginResponse;
 import com.fernandobarillas.linkshare.models.SuccessResponse;
 
+import java.util.List;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 /**
  * Created by fb on 1/28/16.
  */
 public interface LinkService {
-    @POST("add")
-    Call<Link> addLink(@Body AddLinkRequest linkRequest);
+    String API_BASE_URL = "/api/1/"; // Must have trailing slash
 
-    @GET("archive/{id}")
-    Call<SuccessResponse> archiveLink(@Path("id") long id, boolean isArchived);
+    @POST("links")
+    Call<AddLinkResponse> addLink(@Body AddLinkRequest linkRequest);
 
-    @GET("delete/{id}")
-    Call<SuccessResponse> deleteLink(@Path("id") long id);
+    @PUT("links/{linkId}/archive")
+    Call<SuccessResponse> archiveLink(@Path("linkId") long linkId);
 
-    @GET("favorite/{id}")
-    Call<SuccessResponse> favoriteLink(@Path("id") long id, boolean isFavorite);
+    @DELETE("links/{linkId}")
+    Call<SuccessResponse> deleteLink(@Path("linkId") long linkId);
 
-    @GET("list")
-    Call<LinksList> getList();
+    @PUT("links/{linkId}/favorite")
+    Call<SuccessResponse> favoriteLink(@Path("linkId") long linkId);
+
+    @GET("links")
+    Call<List<Link>> getLinks();
 
     @POST("login")
-    Call<LoginResponse> login(@Body LoginRequest loginRequest);
+    Call<ResponseBody> login(@Body LoginRequest loginRequest);
+
+    @DELETE("links/{linkId}/archive")
+    Call<SuccessResponse> unarchiveLink(@Path("linkId") long linkId);
+
+    @DELETE("links/{linkId}/favorite")
+    Call<SuccessResponse> unfavoriteLink(@Path("linkId") long linkId);
+
+    // TODO: This needs its own request object
+    @PUT("links/{linkId")
+    Call<AddLinkResponse> updateLink(@Path("linkId") @Body AddLinkRequest linkRequest);
+
+    // TODO: Add getUser to get all user info
 }

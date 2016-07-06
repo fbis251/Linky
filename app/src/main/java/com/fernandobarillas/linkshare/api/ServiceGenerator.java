@@ -8,11 +8,11 @@ import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
 
+import okhttp3.Credentials;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,29 +24,38 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by fb on 2/1/16.
  */
 public class ServiceGenerator {
-    private static final String               LOG_TAG    = "ServiceGenerator";
-    private static       OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+    private static final String LOG_TAG = "ServiceGenerator";
 
     public static <S> S createService(Class<S> serviceClass, final URL apiUrl)
             throws InvalidApiUrlException {
+        if (!isApiUrlValid(apiUrl)) {
+            if (apiUrl != null) {
+                throw new InvalidApiUrlException("Invalid API URL " + apiUrl.toString());
+            } else {
+                throw new InvalidApiUrlException();
+            }
+        }
+
         return createService(serviceClass, apiUrl, null);
     }
 
     public static <S> S createService(Class<S> serviceClass, final URL apiUrl,
-            final String refreshToken) throws InvalidApiUrlException {
+            final String authToken) throws InvalidApiUrlException {
         if (!isApiUrlValid(apiUrl)) {
             throw new InvalidApiUrlException();
         }
 
-        if (refreshToken != null) {
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        // Add the Basic Auth header to the request
+        if (authToken != null) {
             httpClient.addInterceptor(new Interceptor() {
                 @Override
                 public Response intercept(Interceptor.Chain chain) throws IOException {
                     Request original = chain.request();
 
                     Request.Builder requestBuilder = original.newBuilder()
-                            .header("Authorization", refreshToken)
-                            .header("Accept", "applicaton/json")
+                            .header("Authorization", Credentials.basic(authToken, ""))
                             .method(original.method(), original.body());
 
                     Request request = requestBuilder.build();
@@ -60,11 +69,10 @@ public class ServiceGenerator {
             SocketAddress proxyAddress =
                     new InetSocketAddress(Constants.HTTP_PROXY_ADDRESS, Constants.HTTP_PROXY_PORT);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
-            client = httpClient.proxy(proxy).build();
-        } else {
-            client = httpClient.build();
+            httpClient = httpClient.proxy(proxy);
         }
 
+        client = httpClient.build();
         String baseUrl = getApiUrlString(apiUrl);
         Retrofit.Builder builder = new Retrofit.Builder().baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create());
@@ -72,23 +80,22 @@ public class ServiceGenerator {
         return retrofit.create(serviceClass);
     }
 
-    public static boolean isApiUrlValid(final String apiUrlString) {
-        Log.v(LOG_TAG, "isApiUrlValid() called with: " + "apiUrlString = [" + apiUrlString + "]");
-        if (TextUtils.isEmpty(apiUrlString)) return false;
-        try {
-            return isApiUrlValid(new URL(apiUrlString));
-        } catch (MalformedURLException e) {
-            // Invalid URL if it could not be instantiated as a URL Object
-            return false;
-        }
-    }
-
     public static boolean isApiUrlValid(final URL apiUrl) {
-        return (apiUrl != null && !TextUtils.isEmpty(apiUrl.toString()));
+        Log.v(LOG_TAG, "isApiUrlValid() called with: " + "apiUrl = [" + apiUrl + "]");
+        if (apiUrl != null && !TextUtils.isEmpty(apiUrl.toString())) {
+            String host = apiUrl.getHost();
+            if (!TextUtils.isEmpty(host.trim())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static String getApiUrlString(URL apiUrl) {
-        // TODO: Add support for custom ports
-        return apiUrl.getProtocol() + "://" + apiUrl.getHost() + "/api/";
+        Log.v(LOG_TAG, "getApiUrlString() called with: " + "apiUrl = [" + apiUrl + "]");
+        String result = apiUrl.toString() + LinkService.API_BASE_URL;
+        Log.v(LOG_TAG, "getApiUrlString: API result URL: " + result);
+        return result;
     }
 }
