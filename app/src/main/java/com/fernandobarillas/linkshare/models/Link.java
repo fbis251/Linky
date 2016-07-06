@@ -8,14 +8,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-import io.realm.RealmObject;
+import io.realm.RealmModel;
 import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
 
 /**
  * Created by fb on 1/28/16.
  */
-public class Link extends RealmObject {
+@RealmClass
+public class Link implements RealmModel {
 
     @PrimaryKey
     long   linkId;
@@ -85,7 +87,9 @@ public class Link extends RealmObject {
     public String getTimeString() {
         if (timestamp < 1) return null;
         long milliseconds = timestamp * 1000;
-        return DateUtils.getRelativeTimeSpanString(milliseconds).toString();
+
+        return DateUtils.getRelativeTimeSpanString(milliseconds, new Date().getTime(),
+                DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL).toString();
     }
 
     public long getTimestamp() {

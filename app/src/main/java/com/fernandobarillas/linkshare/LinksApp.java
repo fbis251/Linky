@@ -49,7 +49,7 @@ public class LinksApp extends Application {
             getPreferences();
             mLinkService =
                     ServiceGenerator.createService(LinkService.class, mPreferences.getApiUrl(),
-                            mPreferences.getRefreshToken());
+                            mPreferences.getAuthToken());
         }
         return mLinkService;
     }

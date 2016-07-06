@@ -4,9 +4,9 @@ package com.fernandobarillas.linkshare.models;
  * Created by fb on 2/2/16.
  */
 public class SuccessResponse {
-    boolean success;
+    private boolean successful;
 
-    public boolean isSuccess() {
-        return success;
+    public boolean isSuccessful() {
+        return successful;
     }
 }
