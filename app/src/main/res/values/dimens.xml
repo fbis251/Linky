@@ -8,7 +8,9 @@
     <dimen name="text_margin">16dp</dimen>
 
     <!-- Link -->
-    <dimen name="link_favorite_right_margin">8dp</dimen>
+    <dimen name="link_layout_height">88dp</dimen>
+    <dimen name="link_time_min_width">40dp</dimen>
+    <dimen name="link_favorite_padding">16dp</dimen>
     <dimen name="link_information_margin">4dp</dimen>
     <dimen name="link_category_bg_horizontal_padding">2dp</dimen>
     <dimen name="link_category_bg_vertical_padding">0dp</dimen>

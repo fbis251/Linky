@@ -11,59 +11,59 @@
         <variable
                 name="link"
                 type="com.fernandobarillas.linkshare.models.Link"/>
+
     </data>
 
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?android:attr/listPreferredItemHeight">
-
-        <ImageView
-                android:id="@+id/link_is_favorite"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_centerVertical="true"
-                android:onClick="@{link.favorite ? handlers::onClickNotFavorite : handlers::onClickFavorite}"
-                android:paddingEnd="@dimen/link_favorite_right_margin"
-                android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
-                tools:src="@drawable/ic_favorite_filled_24dp"/>
-
-        <TextView
-                android:id="@+id/link_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/link_is_favorite"
-                android:onClick="@{handlers::onClickTitle}"
-                android:text="@{link.title}"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textStyle="bold"
-                tools:text="Link Title"/>
+            android:layout_height="@dimen/link_layout_height">
 
         <TextView
                 android:id="@+id/link_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/link_title"
-                android:layout_toEndOf="@id/link_is_favorite"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/link_title"
+                android:fontFamily="sans-serif-condensed"
+                android:gravity="end"
+                android:maxLines="1"
+                android:minWidth="@dimen/link_time_min_width"
                 android:text="@{link.timeString}"
-                tools:text="1 hour ago"/>
+                android:textAppearance="@style/LinkSecondaryText"
+                tools:text="1 hr"/>
 
-        <TextView
-                android:id="@+id/link_separator"
+        <ImageView
+                android:id="@+id/link_is_favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/link_title"
-                android:layout_toEndOf="@id/link_time"
-                android:paddingLeft="@dimen/link_information_margin"
-                android:paddingRight="@dimen/link_information_margin"
-                android:text="@string/link_information_separator"/>
+                android:layout_alignEnd="@+id/link_time"
+                android:layout_below="@+id/link_time"
+                android:onClick="@{link.favorite ? handlers::onClickNotFavorite : handlers::onClickFavorite}"
+                android:paddingStart="@dimen/link_favorite_padding"
+                android:paddingTop="@dimen/link_favorite_padding"
+                android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
+                tools:src="@drawable/ic_favorite_filled_24dp"/>
+
+        <TextView
+                android:id="@+id/link_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:layout_marginTop="16dp"
+                android:layout_toStartOf="@+id/link_time"
+                android:ellipsize="end"
+                android:gravity="start"
+                android:maxLines="2"
+                android:onClick="@{handlers::onClickTitle}"
+                android:text="@{link.title}"
+                android:textAppearance="@style/LinkTitleText"
+                tools:text="This is the maximum length that a title can be, which is one hundred characters. This is that long!!"/>
 
         <TextView
                 android:id="@+id/link_url"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/link_title"
-                android:layout_toEndOf="@id/link_separator"
                 android:text="@{link.domain}"
                 tools:text="example.com"/>
 
