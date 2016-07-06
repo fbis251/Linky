@@ -8,7 +8,7 @@
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context="com.fernandobarillas.linkshare.LoginActivity">
+              tools:context=".activities.LoginActivity">
 
     <!-- Login progress -->
     <ProgressBar
@@ -30,6 +30,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+            <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_http"
+                    android:id="@+id/http_checkbox"/>
+
             <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -38,10 +44,9 @@
                         android:id="@+id/api_url"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/prompt_api_url"
+                        android:hint="@string/prompt_server_address"
                         android:inputType="textUri"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
+                        android:maxLines="1"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -55,8 +60,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_username"
                         android:inputType="textEmailAddress"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
+                        android:maxLines="1"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -73,8 +77,7 @@
                         android:imeActionLabel="@string/action_sign_in"
                         android:imeOptions="actionUnspecified"
                         android:inputType="textPassword"
-                        android:maxLines="1"
-                        android:singleLine="true"/>
+                        android:maxLines="1"/>
 
             </android.support.design.widget.TextInputLayout>
 

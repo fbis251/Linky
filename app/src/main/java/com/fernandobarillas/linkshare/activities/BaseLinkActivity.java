@@ -63,7 +63,7 @@ public class BaseLinkActivity extends AppCompatActivity {
             launchLoginActivity();
         }
         try {
-            mLinkService = ServiceGenerator.createService(LinkService.class, apiUrl, refreshToken);
+            mLinkService = mLinksApp.getLinkService();
         } catch (InvalidApiUrlException e) {
             Log.e(LOG_TAG, "serviceSetup: Invalid API URL, launching login activity", e);
             launchLoginActivity();

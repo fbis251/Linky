@@ -6,21 +6,41 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fernandobarillas.linkshare.R;
+import com.fernandobarillas.linkshare.api.LinkService;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
+import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
+import com.fernandobarillas.linkshare.models.ErrorResponse;
 import com.fernandobarillas.linkshare.models.LoginRequest;
 import com.fernandobarillas.linkshare.models.LoginResponse;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
+
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,8 +50,12 @@ import retrofit2.Response;
  */
 public class LoginActivity extends BaseLinkActivity {
 
+    private static final String PREFIX_HTTP  = "http://";
+    private static final String PREFIX_HTTPS = "https://";
+
     // UI references.
-    private EditText mApiUrlView;
+    private CheckBox mHttpCheckbox;
+    private EditText mServerAddressView;
     private EditText mUsernameView;
     private EditText mPasswordView;
     private View     mProgressView;
@@ -43,9 +67,14 @@ public class LoginActivity extends BaseLinkActivity {
         setContentView(R.layout.activity_login);
         setupActionBar();
         // Set up the login form.
-        mApiUrlView = (EditText) findViewById(R.id.api_url);
+        mHttpCheckbox = (CheckBox) findViewById(R.id.http_checkbox);
+        mServerAddressView = (EditText) findViewById(R.id.api_url);
         mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
+
+        mServerAddressView.setText(PREFIX_HTTPS);
+        mServerAddressView.setSelection(mServerAddressView.getText().length());
+
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -54,6 +83,69 @@ public class LoginActivity extends BaseLinkActivity {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        InputFilter[] noSpacesInputFilter = new InputFilter[]{
+                new InputFilter() {
+                    @Override
+                    public CharSequence filter(CharSequence charSequence, int i, int i1,
+                            Spanned spanned, int i2, int i3) {
+                        String input = charSequence.toString();
+                        if (input.contains(" ")) {
+                            // Delete all spaces
+                            return input.replaceAll(" ", "");
+                        }
+                        return charSequence;
+                    }
+                }
+        };
+
+        // Don't allow spaces in server address or username
+        mUsernameView.setFilters(noSpacesInputFilter);
+        mServerAddressView.setFilters(noSpacesInputFilter);
+        mServerAddressView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String s = editable.toString();
+                String prefix = mHttpCheckbox.isChecked() ? PREFIX_HTTP : PREFIX_HTTPS;
+
+                // Ensure that the address always starts with http:// or https://
+                if (!s.startsWith(prefix)) {
+                    String deletedPrefix = s.substring(0, prefix.length() - 1);
+                    if (s.startsWith(deletedPrefix)) {
+                        s = prefix + s.replaceAll(deletedPrefix, "");
+                    } else {
+                        s = prefix + s.replaceAll(prefix, "");
+                    }
+                    mServerAddressView.setText(s);
+                    mServerAddressView.setSelection(prefix.length());
+                }
+            }
+        });
+
+        mHttpCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                String currentText = mServerAddressView.getText().toString();
+                int currentSelection = mServerAddressView.getSelectionStart();
+                if (isChecked) {
+                    mServerAddressView.setText(currentText.replaceFirst(PREFIX_HTTPS, PREFIX_HTTP));
+                    currentSelection -= 1;
+                } else {
+                    mServerAddressView.setText(currentText.replaceFirst(PREFIX_HTTP, PREFIX_HTTPS));
+                    currentSelection += 1;
+                }
+                // Move the cursor to the end of the line
+                mServerAddressView.setSelection(currentSelection);
             }
         });
 
@@ -76,12 +168,12 @@ public class LoginActivity extends BaseLinkActivity {
      */
     private void attemptLogin() {
         // Reset errors.
-        mApiUrlView.setError(null);
+        mServerAddressView.setError(null);
         mUsernameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String apiUrl = mApiUrlView.getText().toString();
+        String apiUrlString = mServerAddressView.getText().toString();
         String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
@@ -111,14 +203,22 @@ public class LoginActivity extends BaseLinkActivity {
         }
 
         // Check for a valid API URL
-        if (TextUtils.isEmpty(apiUrl)) {
-            mApiUrlView.setError(getString(R.string.error_field_required));
-            focusView = mApiUrlView;
+        URL apiUrl = null;
+        if (TextUtils.isEmpty(apiUrlString)) {
+            mServerAddressView.setError(getString(R.string.error_field_required));
+            focusView = mServerAddressView;
             cancel = true;
-        } else if (!ServiceGenerator.isApiUrlValid(apiUrl)) {
-            mApiUrlView.setError(getString(R.string.error_invalid_api_url));
-            focusView = mApiUrlView;
-            cancel = true;
+        } else {
+            try {
+                apiUrl = new URL(apiUrlString);
+            } catch (MalformedURLException ignored) {
+            }
+            if (apiUrl == null || !ServiceGenerator.isApiUrlValid(apiUrl)) {
+                Log.e(LOG_TAG, "attemptLogin: API URL was invalid, showing error in UI");
+                mServerAddressView.setError(getString(R.string.error_invalid_server_address));
+                focusView = mServerAddressView;
+                cancel = true;
+            }
         }
 
         if (cancel) {
@@ -133,43 +233,100 @@ public class LoginActivity extends BaseLinkActivity {
         }
     }
 
-    private void doLogin(final String apiUrl, final String username, final String password) {
+    private void doLogin(final URL apiUrl, final String username, final String password) {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        Call<LoginResponse> loginCall = mLinkService.login(loginRequest);
-        loginCall.enqueue(new Callback<LoginResponse>() {
+        try {
+            mLinkService = ServiceGenerator.createService(LinkService.class, apiUrl);
+        } catch (InvalidApiUrlException e) {
+            Log.e(LOG_TAG, "doLogin: ", e);
+            showProgress(false);
+            mServerAddressView.setError(getString(R.string.error_invalid_server_address));
+            return;
+        }
+
+        Call<ResponseBody> loginCall = mLinkService.login(loginRequest);
+        loginCall.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                Log.v(LOG_TAG, "onResponse() called with: " + "response = [" + response + "]");
-                showProgress(false);
-                if (response.isSuccessful()) {
-                    LoginResponse loginResponse = response.body();
-                    if (loginResponse.isSuccess()) {
-                        String refreshToken = loginResponse.getRefreshToken();
-                        if (!TextUtils.isEmpty(refreshToken)) {
-                            mPreferences.setApiUrl(apiUrl);
-                            mPreferences.setRefreshToken(refreshToken);
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.v(LOG_TAG,
+                        "doLogin onResponse() called with: " + "response = [" + response + "]");
+                Log.v(LOG_TAG, "doLogin onResponse: Body: " + response.body());
+                Log.v(LOG_TAG, "doLogin onResponse: Error body: " + response.errorBody());
+                Gson gson = new Gson();
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        LoginResponse loginResponse =
+                                gson.fromJson(response.body().string(), LoginResponse.class);
+                        String authToken = loginResponse.getAuthToken();
+                        if (!TextUtils.isEmpty(authToken)) {
+                            mPreferences.setApiUrl(apiUrl.toString());
+                            mPreferences.setAuthToken(authToken);
                             mPreferences.setUsername(loginResponse.getUsername());
-                            Log.i(LOG_TAG, "Login completed, starting LinksListActivity");
+                            Log.i(LOG_TAG, "doLogin Login completed, starting LinksListActivity");
                             startActivity(
                                     new Intent(getApplicationContext(), LinksListActivity.class));
                             finish();
                             return;
                         }
+                    } else if (response.errorBody() != null) {
+                        ErrorResponse errorResponse =
+                                gson.fromJson(response.errorBody().string(), ErrorResponse.class);
+                        if (errorResponse != null) {
+                            Log.w(LOG_TAG, "doLogin onResponse: API Response message: "
+                                    + errorResponse.getStatusMessage());
+                            handleLoginError(false, null, errorResponse.getStatusMessage());
+                        }
+                        return;
                     }
+                } catch (IOException | JsonSyntaxException e) {
+                    Log.e(LOG_TAG, "doLogin onResponse: ", e);
                 }
 
-                mUsernameView.setError(getString(R.string.error_incorrect_username_or_password));
-                mPasswordView.setError(getString(R.string.error_incorrect_username_or_password));
+                handleLoginError(true, null, null);
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                Log.v(LOG_TAG, "onFailure() called with: " + "t = [" + t + "]");
-                Log.e("LinksListActivity", t.getLocalizedMessage());
-                mUsernameView.setError(getString(R.string.error_incorrect_username_or_password));
-                mPasswordView.setError(getString(R.string.error_incorrect_username_or_password));
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.v(LOG_TAG, "doLogin onFailure() called with: " + "t = [" + t + "]");
+                Log.e(LOG_TAG, "doLogin onFailure: ", t);
+                handleLoginError(true, t, null);
             }
         });
+    }
+
+    private void handleLoginError(boolean isUserOrPasswordError, @Nullable Throwable t,
+            @Nullable String errorMessage) {
+        Log.v(LOG_TAG, "handleLoginError() called with: "
+                + "t = ["
+                + t
+                + "], errorMessage = ["
+                + errorMessage
+                + "]");
+
+        showProgress(false);
+        String uiMessage;
+        if (t instanceof UnknownHostException || t instanceof SSLPeerUnverifiedException) {
+            mServerAddressView.setError(t.getLocalizedMessage());
+            mServerAddressView.requestFocus();
+        }
+
+        if (isUserOrPasswordError) {
+            uiMessage = errorMessage != null ? errorMessage
+                    : getString(R.string.error_incorrect_username_or_password);
+            mUsernameView.setError(uiMessage);
+            mPasswordView.setError(uiMessage);
+            mUsernameView.requestFocus();
+        } else {
+            uiMessage = errorMessage != null ? errorMessage
+                    : getString(R.string.error_invalid_server_address);
+            if (t instanceof UnknownHostException || t instanceof SSLPeerUnverifiedException) {
+                if (t.getLocalizedMessage() != null) {
+                    uiMessage = t.getLocalizedMessage();
+                }
+            }
+            mServerAddressView.setError(uiMessage);
+            mServerAddressView.requestFocus();
+        }
     }
 
     private boolean isPasswordValid(String password) {
@@ -177,7 +334,7 @@ public class LoginActivity extends BaseLinkActivity {
     }
 
     private boolean isUsernameValid(String username) {
-        return username.length() >= 4;
+        return username.length() >= 3;
     }
 
     /**
