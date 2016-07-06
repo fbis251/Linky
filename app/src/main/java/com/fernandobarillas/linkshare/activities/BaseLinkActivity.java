@@ -13,8 +13,6 @@ import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
-import java.net.URL;
-
 public class BaseLinkActivity extends AppCompatActivity {
 
     protected final String LOG_TAG = getClass().getSimpleName();
@@ -56,7 +54,6 @@ public class BaseLinkActivity extends AppCompatActivity {
 
     protected void serviceSetup() {
         Log.v(LOG_TAG, "serviceSetup()");
-        URL apiUrl = mPreferences.getApiUrl();
         String refreshToken = mPreferences.getAuthToken();
         if (TextUtils.isEmpty(refreshToken)) {
             Log.i(LOG_TAG, "serviceSetup: No refresh token stored, starting LoginActivity");
