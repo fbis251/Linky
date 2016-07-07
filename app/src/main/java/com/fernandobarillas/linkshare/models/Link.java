@@ -32,6 +32,17 @@ public class Link implements RealmModel {
     public Link() {
     }
 
+    public Link(long linkId, String category, boolean isArchived, boolean isFavorite,
+            long timestamp, String title, String url) {
+        this.linkId = linkId;
+        this.category = category;
+        this.isArchived = isArchived;
+        this.isFavorite = isFavorite;
+        this.timestamp = timestamp;
+        this.title = title;
+        this.url = url;
+    }
+
     public Link(int linkId, String category, int timestamp, String title, String url) {
         this.linkId = linkId;
         this.category = category;

@@ -195,6 +195,17 @@ public class LinksListActivity extends BaseLinkActivity
         return true;
     }
 
+    public void editLink(final int position) {
+        Link link = mLinksAdapter.getLink(position);
+        if (link == null) {
+            showError("Error: Cannot edit that link. Please refresh");
+            return;
+        }
+        Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
+        editIntent.putExtra(EditLinkActivity.EXTRA_LINK_ID, link.getLinkId());
+        startActivity(editIntent);
+    }
+
     public void openLink(final int position) {
         Log.v(LOG_TAG, "openLink() called with: " + "position = [" + position + "]");
         Link link = mLinksAdapter.getLink(position);

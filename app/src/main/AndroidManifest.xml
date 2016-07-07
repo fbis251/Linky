@@ -17,6 +17,7 @@
                 android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -32,6 +33,11 @@
 
                 <data android:mimeType="text/plain"/>
             </intent-filter>
+        </activity>
+        <activity
+                android:name=".activities.EditLinkActivity"
+                android:label="@string/title_edit_link"
+                android:theme="@style/EditLinkTheme">
         </activity>
         <activity
                 android:name=".activities.LoginActivity"

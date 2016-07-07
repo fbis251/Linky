@@ -1,11 +1,16 @@
 <resources>
     <string name="app_name">Saved Links</string>
     <string name="title_add_link">Save Link</string>
+    <string name="title_edit_link">Edit Link</string>
 
     <!-- Common Strings -->
+    <string name="address">Address</string>
+    <string name="archived">Archived</string>
+    <string name="category">Category</string>
+    <string name="favorite">Favorite</string>
     <string name="retry">Retry</string>
     <string name="save">Save</string>
-    <string name="archived">Archived</string>
+    <string name="title">Title</string>
 
     <!-- LinksListActivity strings -->
     <string name="action_settings">Settings</string>
@@ -41,4 +46,7 @@
 
     <!-- Link view -->
     <string name="link_information_separator" translatable="false">•</string>
+
+    <!-- Edit Link Activity -->
+    <string name="edit_link_error">There was an error editing your link</string>
 </resources>

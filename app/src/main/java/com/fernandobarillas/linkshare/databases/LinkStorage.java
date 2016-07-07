@@ -22,6 +22,7 @@ public class LinkStorage {
     private static final String LOG_TAG = "LinkStorage";
 
     private static final String COLUMN_CATEGORY    = "category";
+    private static final String COLUMN_LINK_ID     = "linkId";
     private static final String COLUMN_IS_ARCHIVED = "isArchived";
     private static final String COLUMN_IS_FAVORITE = "isFavorite";
     private static final String COLUMN_TIMESTAMP   = "timestamp";
@@ -52,6 +53,11 @@ public class LinkStorage {
                 Log.i(LOG_TAG, "add: New count: " + getLinksCount());
             }
         });
+    }
+
+    public Link findByLinkId(long linkId) {
+        Log.v(LOG_TAG, "findByLinkId() called with: " + "linkId = [" + linkId + "]");
+        return mRealm.where(Link.class).equalTo(COLUMN_LINK_ID, linkId).findFirst();
     }
 
     public RealmResults<Link> findByCategory(String category) {

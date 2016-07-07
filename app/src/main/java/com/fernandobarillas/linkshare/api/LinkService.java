@@ -47,9 +47,8 @@ public interface LinkService {
     @DELETE("links/{linkId}/favorite")
     Call<SuccessResponse> unfavoriteLink(@Path("linkId") long linkId);
 
-    // TODO: This needs its own request object
-    @PUT("links/{linkId")
-    Call<AddLinkResponse> updateLink(@Path("linkId") @Body AddLinkRequest linkRequest);
+    @PUT("links/{linkId}")
+    Call<AddLinkResponse> updateLink(@Path("linkId") long linkId, @Body AddLinkRequest linkRequest);
 
     // TODO: Add getUser to get all user info
 }

@@ -10,6 +10,13 @@ public class AddLinkRequest {
         this.link = link;
     }
 
+    @Override
+    public String toString() {
+        return "AddLinkRequest{" +
+                "link=" + link +
+                '}';
+    }
+
     public Link getLink() {
         return link;
     }
