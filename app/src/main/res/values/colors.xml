@@ -20,5 +20,11 @@
 
     <color name="green300">#81c784</color>
     <color name="green500">#4caf50</color>
+    <color name="green900">#1b5e20</color>
 
+    <color name="pink500">#e91e63</color>
+    <color name="pink900">#880e4f</color>
+
+    <color name="red500">#f44336</color>
+    <color name="red900">#b71c1c</color>
 </resources>

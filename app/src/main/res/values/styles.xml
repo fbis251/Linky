@@ -8,7 +8,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="EditLinkTheme" parent="Theme.AppCompat.Dialog"/>
+    <style name="AppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppButton" parent="Widget.AppCompat.Button.Colored"/>
+
+    <style name="AddLinkTheme" parent="AppDialogTheme"/>
+
+    <style name="EditLinkTheme" parent="AppDialogTheme"/>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 

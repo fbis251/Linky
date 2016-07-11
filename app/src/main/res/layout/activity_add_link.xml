@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+                name="addHandler"
+                type="com.fernandobarillas.linkshare.activities.AddLinkActivity.AddLinkHandler"/>
+
+        <variable
+                name="link"
+                type="com.fernandobarillas.linkshare.models.Link"/>
+    </data>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            tools:context=".activities.AddLinkActivity">
+
+        <TextView
+                android:id="@+id/link_save_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{link.title}"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                tools:text="This is Your Link Title"/>
+
+        <TextView
+                android:id="@+id/link_save_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{link.url}"
+                tools:text="http://example.com/test?url=true#anchor"/>
+
+        <ProgressBar
+                android:id="@+id/link_save_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <LinearLayout
+                android:id="@+id/link_save_error_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/link_save_success_error_layout_padding_top"
+                android:visibility="gone">
+
+            <com.varunest.sparkbutton.SparkButton
+                    android:id="@+id/link_save_error_spark"
+                    android:layout_width="@dimen/link_save_spark_size"
+                    android:layout_height="@dimen/link_save_spark_size"
+                    android:layout_gravity="center_horizontal"
+                    app:sparkbutton_activeImage="@drawable/ic_warning_red_32dp"
+                    app:sparkbutton_iconSize="@dimen/link_save_spark_size"
+                    app:sparkbutton_pressOnTouch="false"
+                    app:sparkbutton_primaryColor="@color/red500"
+                    app:sparkbutton_secondaryColor="@color/red900"/>
+
+            <TextView
+                    android:id="@+id/link_save_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_link_error"
+                    android:textColor="@color/red500"/>
+
+            <Button
+                    android:id="@+id/link_save_retry_button"
+                    style="@style/AppButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="@dimen/link_save_button_top_margin"
+                    android:onClick="@{addHandler::onClickRetry}"
+                    android:text="@string/retry"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/link_save_success_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/link_save_success_error_layout_padding_top"
+                android:visibility="gone">
+
+            <com.varunest.sparkbutton.SparkButton
+                    android:id="@+id/link_save_success_spark"
+                    android:layout_width="@dimen/link_save_spark_size"
+                    android:layout_height="@dimen/link_save_spark_size"
+                    android:layout_gravity="center_horizontal"
+                    app:sparkbutton_activeImage="@drawable/ic_checkmark_green_32dp"
+                    app:sparkbutton_iconSize="@dimen/link_save_spark_size"
+                    app:sparkbutton_primaryColor="@color/green500"
+                    app:sparkbutton_secondaryColor="@color/green900"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_link_success"
+                    android:textColor="@color/green500"/>
+
+            <Button
+                    android:id="@+id/link_save_edit_button"
+                    style="@style/AppButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="@dimen/link_save_button_top_margin"
+                    android:onClick="@{addHandler::onClickEdit}"
+                    android:text="@string/add_link_edit"/>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

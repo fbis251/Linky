@@ -47,6 +47,11 @@
     <!-- Link view -->
     <string name="link_information_separator" translatable="false">•</string>
 
+    <!-- Add Link Activity -->
+    <string name="add_link_edit">Edit Link</string>
+    <string name="add_link_error">There was an error adding your link</string>
+    <string name="add_link_success">Successfully added your link</string>
+
     <!-- Edit Link Activity -->
     <string name="edit_link_error">There was an error editing your link</string>
 </resources>

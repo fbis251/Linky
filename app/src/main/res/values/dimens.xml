@@ -14,4 +14,10 @@
     <dimen name="link_information_margin">4dp</dimen>
     <dimen name="link_category_bg_horizontal_padding">2dp</dimen>
     <dimen name="link_category_bg_vertical_padding">0dp</dimen>
+
+    <!-- Add Link Activity -->
+    <dimen name="link_save_button_top_margin">16dp</dimen>
+    <dimen name="link_save_spark_size">32dp</dimen>
+    <dimen name="link_save_success_error_layout_padding_top">16dp</dimen>
+
 </resources>
