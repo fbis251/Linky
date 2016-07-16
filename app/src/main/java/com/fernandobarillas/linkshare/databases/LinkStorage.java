@@ -1,10 +1,14 @@
 package com.fernandobarillas.linkshare.databases;
 
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.fernandobarillas.linkshare.models.Link;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,6 +16,7 @@ import java.util.TreeSet;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -19,8 +24,23 @@ import io.realm.Sort;
  * Created by fb on 2/7/16.
  */
 public class LinkStorage {
+    // Filtering
+    public static final int FILTER_FRESH     = 0;
+    public static final int FILTER_ALL       = 1;
+    public static final int FILTER_FAVORITES = 2;
+    public static final int FILTER_ARCHIVED  = 3;
+    public static final int FILTER_CATEGORY  = 4;
+
+    // Sorting
+    public static final int SORT_TITLE_ASCENDING      = 0;
+    public static final int SORT_TITLE_DESCENDING     = 1;
+    public static final int SORT_TIMESTAMP_ASCENDING  = 2;
+    public static final int SORT_TIMESTAMP_DESCENDING = 3;
+
+    // Logging
     private static final String LOG_TAG = "LinkStorage";
 
+    // Columns/Fields
     private static final String COLUMN_CATEGORY    = "category";
     private static final String COLUMN_LINK_ID     = "linkId";
     private static final String COLUMN_IS_ARCHIVED = "isArchived";
@@ -28,26 +48,18 @@ public class LinkStorage {
     private static final String COLUMN_TIMESTAMP   = "timestamp";
     private static final String COLUMN_TITLE       = "title";
     private static final String COLUMN_URL         = "url";
-
     private Realm mRealm;
 
     public LinkStorage(Realm realm) {
         mRealm = realm;
     }
 
-    public void add(final Link link, final boolean generateNewLinkId) {
+    public void add(final Link link) {
         Log.v(LOG_TAG, "add() called with: " + "link = [" + link + "]");
         Log.i(LOG_TAG, "add: Current count: " + getLinksCount());
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                if (generateNewLinkId) {
-                    // Before the link is gotten from the API, use largest linkId + 1 for this Link
-                    Link lastLink = getLastLink();
-                    long newLinkId =
-                            lastLink != null ? lastLink.getLinkId() + 1 : Long.MAX_VALUE - 1;
-                    link.setLinkId(newLinkId);
-                }
                 realm.copyToRealmOrUpdate(link);
                 Log.i(LOG_TAG, "add: Added " + link);
                 Log.i(LOG_TAG, "add: New count: " + getLinksCount());
@@ -55,16 +67,14 @@ public class LinkStorage {
         });
     }
 
+    public RealmResults<Link> findByCategory(String category, @SortMode int sortMode) {
+        Log.v(LOG_TAG, "findByCategory() called with: " + "category = [" + category + "]");
+        return applyQuerySort(mRealm.where(Link.class), category, FILTER_CATEGORY, sortMode);
+    }
+
     public Link findByLinkId(long linkId) {
         Log.v(LOG_TAG, "findByLinkId() called with: " + "linkId = [" + linkId + "]");
         return mRealm.where(Link.class).equalTo(COLUMN_LINK_ID, linkId).findFirst();
-    }
-
-    public RealmResults<Link> findByCategory(String category) {
-        Log.v(LOG_TAG, "findByCategory() called with: " + "category = [" + category + "]");
-        return mRealm.where(Link.class)
-                .equalTo(COLUMN_CATEGORY, category, Case.INSENSITIVE)
-                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
     }
 
     public RealmResults<Link> findByString(String searchTerm) {
@@ -75,7 +85,7 @@ public class LinkStorage {
                 .contains(COLUMN_TITLE, searchTerm, Case.INSENSITIVE)
                 .or()
                 .contains(COLUMN_URL, searchTerm, Case.INSENSITIVE)
-                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
+                .findAllSorted(COLUMN_TITLE, Sort.ASCENDING);
     }
 
     public RealmResults<Link> findByUrl(String url) {
@@ -83,30 +93,9 @@ public class LinkStorage {
         return mRealm.where(Link.class).equalTo(COLUMN_URL, url).findAll();
     }
 
-    public RealmResults<Link> getAllArchived() {
-        Log.v(LOG_TAG, "getAllArchived()");
-        return mRealm.where(Link.class)
-                .equalTo(COLUMN_IS_ARCHIVED, true)
-                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
-    }
-
-    public RealmResults<Link> getAllFavorites() {
-        Log.v(LOG_TAG, "getAllFavorites()");
-        return mRealm.where(Link.class)
-                .equalTo(COLUMN_IS_FAVORITE, true)
-                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
-    }
-
-    public RealmResults<Link> getAllFreshLinks() {
-        Log.v(LOG_TAG, "getAllFreshLinks()");
-        return mRealm.where(Link.class)
-                .equalTo(COLUMN_IS_ARCHIVED, false)
-                .findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
-    }
-
-    public RealmResults<Link> getAllLinks() {
+    public RealmResults<Link> getAllLinks(@FilterMode int filterMode, @SortMode int sortMode) {
         Log.v(LOG_TAG, "getAllLinks()");
-        return mRealm.where(Link.class).findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
+        return applyQuerySort(mRealm.where(Link.class), null, filterMode, sortMode);
     }
 
     public Set<String> getCategories() {
@@ -122,10 +111,6 @@ public class LinkStorage {
         }
 
         Log.i(LOG_TAG, "getCategories: Unique category count: " + categories.size());
-        for (String category : categories) {
-            Log.d(LOG_TAG, "getCategories: Category: " + category);
-        }
-
         // TODO: It's better if this returns RealmResults<Link> since the caller can then be notified of newly added categories
         return categories;
     }
@@ -206,5 +191,54 @@ public class LinkStorage {
                 Log.i(LOG_TAG, "setFavorite: Edited Link: " + link);
             }
         });
+    }
+
+    private RealmResults<Link> applyQuerySort(RealmQuery<Link> query, @Nullable String searchTerm,
+            @FilterMode int filterMode, @SortMode int sortMode) {
+        switch (filterMode) {
+            case FILTER_FRESH:
+                query = query.equalTo(COLUMN_IS_ARCHIVED, false);
+                break;
+            case FILTER_ALL:
+                // Don't apply filtering in the query to return all results
+                break;
+            case FILTER_FAVORITES:
+                query = query.equalTo(COLUMN_IS_FAVORITE, true);
+                break;
+            case FILTER_ARCHIVED:
+                query = query.equalTo(COLUMN_IS_ARCHIVED, true);
+                break;
+            case FILTER_CATEGORY:
+                query = query.equalTo(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE);
+                break;
+        }
+
+        switch (sortMode) {
+            case SORT_TITLE_ASCENDING:
+                return query.findAllSorted(COLUMN_TITLE, Sort.ASCENDING);
+            case SORT_TITLE_DESCENDING:
+                return query.findAllSorted(COLUMN_TITLE, Sort.DESCENDING);
+            case SORT_TIMESTAMP_ASCENDING:
+                return query.findAllSorted(COLUMN_TIMESTAMP, Sort.ASCENDING);
+            case SORT_TIMESTAMP_DESCENDING:
+                return query.findAllSorted(COLUMN_TIMESTAMP, Sort.DESCENDING);
+        }
+
+        return null;
+    }
+
+    // Query results filtering
+    @IntDef({FILTER_FRESH, FILTER_ALL, FILTER_FAVORITES, FILTER_ARCHIVED, FILTER_CATEGORY})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FilterMode {
+    }
+
+    // Query results sorting
+    @IntDef({
+            SORT_TITLE_ASCENDING, SORT_TITLE_DESCENDING, SORT_TIMESTAMP_ASCENDING,
+            SORT_TIMESTAMP_DESCENDING
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SortMode {
     }
 }

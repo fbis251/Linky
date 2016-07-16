@@ -16,6 +16,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
+import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.models.SuccessResponse;
 import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
@@ -52,7 +54,12 @@ public class LinksListActivity extends BaseLinkActivity
     private RecyclerView       mRecyclerView;
     private LinksAdapter       mLinksAdapter;
 
-    private String mToolbarTitle;
+    // Sorting and filtering for results
+    private String mSearchTerm;
+    @LinkStorage.FilterMode
+    private int    mFilterMode;
+    @LinkStorage.SortMode
+    private int    mSortMode;
 
     @Override
     public void onBackPressed() {
@@ -69,7 +76,7 @@ public class LinksListActivity extends BaseLinkActivity
         Log.v(LOG_TAG, "onResume()");
         super.onResume();
         if (mLinksAdapter == null) {
-            showFreshLinks();
+            showAllLinks();
         }
         if (mLinkStorage.getLinksCount() == 0) {
             getList();
@@ -83,13 +90,16 @@ public class LinksListActivity extends BaseLinkActivity
         Log.v(LOG_TAG, "onChange() called with: " + "element = [" + element + "]");
         if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
         populateDrawerCategories();
-        setTitle();
+        updateToolbarTitle();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         serviceSetup();
+
+        mFilterMode = LinkStorage.FILTER_FRESH;
+        mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
 
         setContentView(R.layout.activity_links_list);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.links_drawer_layout);
@@ -104,7 +114,6 @@ public class LinksListActivity extends BaseLinkActivity
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        mToolbarTitle = getString(R.string.title_fresh_links);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
@@ -154,34 +163,86 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.v(LOG_TAG, "onCreateOptionsMenu() called with: " + "menu = [" + menu + "]");
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_links_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(LOG_TAG, "onOptionsItemSelected() called with: " + "item = [" + item + "]");
+        int id = item.getItemId();
+        boolean isUpdated = false; // True to update the UI with the changes
+
+        switch (id) {
+            case (R.id.sort_title_ascending):
+                Log.d(LOG_TAG, "onOptionsItemSelected: Title Ascending");
+                mSortMode = LinkStorage.SORT_TITLE_ASCENDING;
+                isUpdated = true;
+                break;
+            case (R.id.sort_title_descending):
+                Log.d(LOG_TAG, "onOptionsItemSelected: Title Descending");
+                mSortMode = LinkStorage.SORT_TITLE_DESCENDING;
+                isUpdated = true;
+                break;
+            case (R.id.sort_timestamp_ascending):
+                Log.d(LOG_TAG, "onOptionsItemSelected: Timestamp Ascending");
+                mSortMode = LinkStorage.SORT_TIMESTAMP_ASCENDING;
+                isUpdated = true;
+                break;
+            case (R.id.sort_timestamp_descending):
+                Log.d(LOG_TAG, "onOptionsItemSelected: Timestamp Descending");
+                mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
+                isUpdated = true;
+                break;
+        }
+
+        if (isUpdated) {
+            // TODO: Improve this since there will be more filter modes in the future
+            if (mFilterMode == LinkStorage.FILTER_CATEGORY) {
+                showCategoryLinks(mSearchTerm);
+            } else {
+                showAllLinks();
+            }
+        }
+
+        return isUpdated || super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Log.v(LOG_TAG, "onNavigationItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
         if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
             Log.i(LOG_TAG, "onNavigationItemSelected: Is checkable " + item.isCheckable());
-            String category = item.getTitle().toString();
-            Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + category);
-            showCategoryLinks(category);
-            Log.v(LOG_TAG,
-                    "onNavigationItemSelected: Found links count: " + mLinkStorage.findByCategory(
-                            category).size());
+            mSearchTerm = item.getTitle().toString();
+            Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + mSearchTerm);
+            mFilterMode = LinkStorage.FILTER_CATEGORY;
+            showCategoryLinks(mSearchTerm);
         } else {
+            boolean isUpdated = false; // True to update the UI with the changes
             switch (id) {
                 case (R.id.nav_fresh_links):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying fresh Links");
-                    showFreshLinks();
+                    mFilterMode = LinkStorage.FILTER_FRESH;
+                    isUpdated = true;
                     break;
                 case (R.id.nav_all_links):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying all Links");
-                    showAllLinks();
+                    mFilterMode = LinkStorage.FILTER_ALL;
+                    isUpdated = true;
                     break;
                 case (R.id.nav_favorites):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying favorite Links");
-                    showFavoriteLinks();
+                    mFilterMode = LinkStorage.FILTER_FAVORITES;
+                    isUpdated = true;
                     break;
                 case (R.id.nav_archived):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying archived Links");
-                    showArchivedLinks();
+                    mFilterMode = LinkStorage.FILTER_ARCHIVED;
+                    isUpdated = true;
                     break;
                 case (R.id.nav_settings):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Opening Settings");
@@ -189,6 +250,8 @@ public class LinksListActivity extends BaseLinkActivity
                             Toast.LENGTH_SHORT).show();
                     return false;
             }
+
+            if (isUpdated) showAllLinks();
         }
 
         closeDrawer();
@@ -295,7 +358,7 @@ public class LinksListActivity extends BaseLinkActivity
     private void adapterSetup() {
         Log.v(LOG_TAG, "adapterSetup()");
         if (mLinksAdapter == null) {
-            showFreshLinks();
+            showAllLinks();
         }
         populateDrawerCategories();
         touchHelperSetup();
@@ -432,23 +495,8 @@ public class LinksListActivity extends BaseLinkActivity
         });
     }
 
-    private void setTitle() {
-        if (mLinksAdapter == null) return;
-        String categoriesFormat = getString(R.string.title_links_format);
-        String title = String.format(categoriesFormat, mToolbarTitle, mLinksAdapter.getItemCount());
-        Log.i(LOG_TAG, "setTitle: New Title: " + title);
-        setToolbarTitle(title);
-    }
-
     private void showAllLinks() {
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllLinks());
-        mToolbarTitle = getString(R.string.title_all_links);
-        updateUiAfterAdapterChange();
-    }
-
-    private void showArchivedLinks() {
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllArchived());
-        mToolbarTitle = getString(R.string.title_archived_links);
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage.getAllLinks(mFilterMode, mSortMode));
         updateUiAfterAdapterChange();
     }
 
@@ -458,10 +506,7 @@ public class LinksListActivity extends BaseLinkActivity
         if (category.equalsIgnoreCase(getString(R.string.category_uncategorized))) {
             searchTerm = "";
         }
-        mLinksAdapter =
-                new LinksAdapter(this, mLinkStorage, mLinkStorage.findByCategory(searchTerm));
-        String categoriesFormat = getString(R.string.title_category_links);
-        mToolbarTitle = String.format(categoriesFormat, category);
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByCategory(searchTerm, mSortMode));
         updateUiAfterAdapterChange();
     }
 
@@ -471,18 +516,6 @@ public class LinksListActivity extends BaseLinkActivity
 
     private void showError(String errorMessage) {
         showError(errorMessage, null);
-    }
-
-    private void showFavoriteLinks() {
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllFavorites());
-        mToolbarTitle = getString(R.string.title_favorite_links);
-        updateUiAfterAdapterChange();
-    }
-
-    private void showFreshLinks() {
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage, mLinkStorage.getAllFreshLinks());
-        mToolbarTitle = getString(R.string.title_fresh_links);
-        updateUiAfterAdapterChange();
     }
 
     private void touchHelperSetup() {
@@ -499,11 +532,62 @@ public class LinksListActivity extends BaseLinkActivity
         simpleItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
+    private void updateToolbarTitle() {
+        String title = getString(R.string.title_fresh_links);
+        String subtitle = getString(R.string.sort_timestamp_descending);
+        String format = getString(R.string.title_links_format);
+
+        switch (mFilterMode) {
+            case LinkStorage.FILTER_ALL:
+                title = getString(R.string.title_all_links);
+                break;
+            case LinkStorage.FILTER_ARCHIVED:
+                title = getString(R.string.title_archived_links);
+                break;
+            case LinkStorage.FILTER_FAVORITES:
+                title = getString(R.string.title_favorite_links);
+                break;
+            case LinkStorage.FILTER_FRESH:
+                title = getString(R.string.title_fresh_links);
+                break;
+            case LinkStorage.FILTER_CATEGORY:
+                format = getString(R.string.title_category_links_format);
+                title = mSearchTerm;
+                break;
+        }
+
+        switch (mSortMode) {
+            case LinkStorage.SORT_TIMESTAMP_ASCENDING:
+                subtitle = getString(R.string.sort_timestamp_ascending);
+                break;
+            case LinkStorage.SORT_TIMESTAMP_DESCENDING:
+                subtitle = getString(R.string.sort_timestamp_descending);
+                break;
+            case LinkStorage.SORT_TITLE_ASCENDING:
+                subtitle = getString(R.string.sort_title_ascending);
+                break;
+            case LinkStorage.SORT_TITLE_DESCENDING:
+                subtitle = getString(R.string.sort_title_descending);
+                break;
+        }
+
+        title = String.format(format, title, mLinksAdapter.getItemCount());
+        Log.i(LOG_TAG, "updateToolbarTitle() called with: "
+                + "title = ["
+                + title
+                + "], subtitle = ["
+                + subtitle
+                + "], format = ["
+                + format
+                + "]");
+        setToolbarTitle(title, subtitle);
+    }
+
     private void updateUiAfterAdapterChange() {
         if (mLinksAdapter != null) {
             mRecyclerView.setAdapter(mLinksAdapter);
         }
-        setTitle();
+        updateToolbarTitle();
         addLinksChangeListener();
     }
 }

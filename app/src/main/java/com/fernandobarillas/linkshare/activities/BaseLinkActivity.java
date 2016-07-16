@@ -67,9 +67,16 @@ public class BaseLinkActivity extends AppCompatActivity {
         }
     }
 
-    protected void setToolbarTitle(String title) {
+    protected void setToolbarTitle(String title, String subTitle) {
+        Log.v(LOG_TAG, "setToolbarTitle() called with: "
+                + "title = ["
+                + title
+                + "], subTitle = ["
+                + subTitle
+                + "]");
         ActionBar actionBar = getSupportActionBar();
         if (actionBar == null) return;
         actionBar.setTitle(title);
+        actionBar.setSubtitle(subTitle);
     }
 }

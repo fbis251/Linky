@@ -3,7 +3,7 @@ package com.fernandobarillas.linkshare.adapters;
 import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import com.android.databinding.library.baseAdapters.BR;
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.activities.LinksListActivity;
-import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.databinding.ContentLinkBinding;
 import com.fernandobarillas.linkshare.models.Link;
 
@@ -29,25 +28,20 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
 
     LinksListActivity  mActivity;
-    LinkStorage        mLinkStorage;
     RealmResults<Link> mLinks;
 
     Drawable mFavoriteDrawable;
     Drawable mNotFavorite;
 
-    public LinksAdapter(LinksListActivity activity, LinkStorage linkStorage,
-            @Nullable RealmResults<Link> links) {
+    public LinksAdapter(LinksListActivity activity, @NonNull RealmResults<Link> links) {
         Log.v(LOG_TAG, "LinksAdapter() called with: "
                 + "activity = ["
                 + activity
-                + "], linkStorage = ["
-                + linkStorage
                 + "], links = ["
                 + links
                 + "]");
         mActivity = activity;
-        mLinkStorage = linkStorage;
-        mLinks = (links == null) ? mLinkStorage.getAllFreshLinks() : links;
+        mLinks = links;
 
         // Set up the favorite drawables
         Resources resources = mActivity.getResources();

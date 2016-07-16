@@ -9,6 +9,8 @@
     <string name="category">Category</string>
     <string name="favorite">Favorite</string>
     <string name="retry">Retry</string>
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
     <string name="save">Save</string>
     <string name="title">Title</string>
 
@@ -26,9 +28,13 @@
     <string name="title_links_format" translatable="false">%1$s: %2$d</string>
     <string name="title_all_links">All Links</string>
     <string name="title_archived_links">Archived Links</string>
-    <string name="title_category_links">%1$s Links</string>
+    <string name="title_category_links_format">%1$s Links</string>
     <string name="title_favorite_links">Favorite Links</string>
     <string name="title_fresh_links">Fresh Links</string>
+    <string name="sort_title_ascending">Title A → Z</string>
+    <string name="sort_title_descending">Title Z → A</string>
+    <string name="sort_timestamp_ascending">Oldest → Newest</string>
+    <string name="sort_timestamp_descending">Newest → Oldest</string>
 
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>
