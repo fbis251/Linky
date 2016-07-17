@@ -94,6 +94,11 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             this.holder = holder;
         }
 
+        public void onClickEdit(View view) {
+            Log.v(LOG_TAG, "onClickEdit() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.editLink(getPosition());
+        }
+
         public void onClickFavorite(final View view) {
             Log.v(LOG_TAG, "onClickFavorite() called with: " + "view = [" + view + "]");
             if (view == null || mFavoriteDrawable == null) return;
