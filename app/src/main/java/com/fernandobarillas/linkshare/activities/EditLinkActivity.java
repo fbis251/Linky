@@ -35,22 +35,29 @@ public class EditLinkActivity extends BaseLinkActivity {
     private Switch   mArchivedSwitch;
     private Switch   mFavoriteSwitch;
 
+    private Link mIntentLink;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         serviceSetup();
 
-        Link intentLink = null;
+        mIntentLink = null;
         Intent intent = getIntent();
-        if (savedInstanceState == null && intent != null) {
+        if (savedInstanceState != null) {
+            mIntentLink = mLinkStorage.findByLinkId(savedInstanceState.getLong(EXTRA_LINK_ID));
+        }
+
+        if (intent != null) {
             Bundle extras = getIntent().getExtras();
             if (extras != null && intent.hasExtra(EXTRA_LINK_ID)) {
                 long linkId = intent.getExtras().getLong(EXTRA_LINK_ID);
-                intentLink = mLinkStorage.findByLinkId(linkId);
+                mIntentLink = mLinkStorage.findByLinkId(linkId);
             }
         }
 
-        if (intentLink == null) {
+        if (mIntentLink == null) {
+            Log.e(LOG_TAG, "onCreate: Intent Link was null, cannot edit Link");
             // Show UI error
             finish();
             return;
@@ -58,8 +65,8 @@ public class EditLinkActivity extends BaseLinkActivity {
 
         ActivityEditLinkBinding binding =
                 DataBindingUtil.setContentView(this, R.layout.activity_edit_link);
-        binding.setLink(intentLink);
-        binding.setEditHandler(new EditLinkHandler(intentLink));
+        binding.setLink(mIntentLink);
+        binding.setEditHandler(new EditLinkHandler(mIntentLink));
 
         mTitleEditText = binding.editLinkTitle;
         mUrlEditText = binding.editLinkUrl;
@@ -97,11 +104,21 @@ public class EditLinkActivity extends BaseLinkActivity {
         }
         categoriesAdapter.notifyDataSetChanged();
 
-        String currentCategory = intentLink.getCategory();
+        String currentCategory = mIntentLink.getCategory();
         if (!TextUtils.isEmpty(currentCategory)) {
             mCategoriesSpinner.setSelection(
                     categoriesAdapter.getPosition(currentCategory.toLowerCase()));
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(LOG_TAG, "onSaveInstanceState() called with: " + "outState = [" + outState + "]");
+        // TODO: Save the state of all the form inputs
+        if (mIntentLink != null) {
+            outState.putLong(EXTRA_LINK_ID, mIntentLink.getLinkId());
+        }
+        super.onSaveInstanceState(outState);
     }
 
     private void updateLink(final Link link) {
@@ -138,12 +155,18 @@ public class EditLinkActivity extends BaseLinkActivity {
         });
     }
 
+    private void validateForm() {
+        Log.v(LOG_TAG, "validateForm()");
+        // TODO: implement me
+    }
+
     public class EditLinkHandler {
         private final String LOG_TAG = getClass().getSimpleName();
 
         private Link mOldLink;
 
         public EditLinkHandler(Link oldLink) {
+            Log.v(LOG_TAG, "EditLinkHandler() called with: " + "oldLink = [" + oldLink + "]");
             mOldLink = oldLink;
         }
 
