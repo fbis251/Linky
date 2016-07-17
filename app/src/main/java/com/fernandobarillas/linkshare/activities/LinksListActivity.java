@@ -48,6 +48,11 @@ public class LinksListActivity extends BaseLinkActivity
 
     private static final int CATEGORIES_MENU_GROUP = 2; // Menu Group ID to use for link categories
 
+    // Bundle instance saving
+    private static final String STATE_SEARCH_TERM = "searchTerm";
+    private static final String STATE_FILTER_MODE = "filterMode";
+    private static final String STATE_SORT_MODE   = "sortMode";
+
     private DrawerLayout       mDrawerLayout;
     private NavigationView     mNavigationView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -75,7 +80,10 @@ public class LinksListActivity extends BaseLinkActivity
     protected void onResume() {
         Log.v(LOG_TAG, "onResume()");
         super.onResume();
-        if (mLinksAdapter == null) {
+        if (mFilterMode == LinkStorage.FILTER_CATEGORY) {
+            // TODO: Improve mode matching
+            showCategoryLinks(mSearchTerm);
+        } else {
             showAllLinks();
         }
         if (mLinkStorage.getLinksCount() == 0) {
@@ -98,8 +106,17 @@ public class LinksListActivity extends BaseLinkActivity
         super.onCreate(savedInstanceState);
         serviceSetup();
 
+        mSearchTerm = null;
         mFilterMode = LinkStorage.FILTER_FRESH;
         mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
+
+        if (savedInstanceState != null) {
+            mSearchTerm = savedInstanceState.getString(STATE_SEARCH_TERM);
+            //noinspection WrongConstant
+            mFilterMode = savedInstanceState.getInt(STATE_FILTER_MODE, mFilterMode);
+            //noinspection WrongConstant
+            mSortMode = savedInstanceState.getInt(STATE_SORT_MODE, mSortMode);
+        }
 
         setContentView(R.layout.activity_links_list);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.links_drawer_layout);
@@ -174,28 +191,27 @@ public class LinksListActivity extends BaseLinkActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(LOG_TAG, "onOptionsItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
-        boolean isUpdated = false; // True to update the UI with the changes
+        boolean isUpdated = true; // True to update the UI with the changes
 
         switch (id) {
             case (R.id.sort_title_ascending):
                 Log.d(LOG_TAG, "onOptionsItemSelected: Title Ascending");
                 mSortMode = LinkStorage.SORT_TITLE_ASCENDING;
-                isUpdated = true;
                 break;
             case (R.id.sort_title_descending):
                 Log.d(LOG_TAG, "onOptionsItemSelected: Title Descending");
                 mSortMode = LinkStorage.SORT_TITLE_DESCENDING;
-                isUpdated = true;
                 break;
             case (R.id.sort_timestamp_ascending):
                 Log.d(LOG_TAG, "onOptionsItemSelected: Timestamp Ascending");
                 mSortMode = LinkStorage.SORT_TIMESTAMP_ASCENDING;
-                isUpdated = true;
                 break;
             case (R.id.sort_timestamp_descending):
                 Log.d(LOG_TAG, "onOptionsItemSelected: Timestamp Descending");
                 mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
-                isUpdated = true;
+                break;
+            default:
+                isUpdated = false;
                 break;
         }
 
@@ -256,6 +272,16 @@ public class LinksListActivity extends BaseLinkActivity
 
         closeDrawer();
         return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(LOG_TAG, "onSaveInstanceState() called with: " + "outState = [" + outState + "]");
+        outState.putString(STATE_SEARCH_TERM, mSearchTerm);
+        outState.putInt(STATE_FILTER_MODE, mFilterMode);
+        outState.putInt(STATE_SORT_MODE, mSortMode);
+        Log.d(LOG_TAG, "onSaveInstanceState() returned: " + outState);
+        super.onSaveInstanceState(outState);
     }
 
     public void editLink(final int position) {
