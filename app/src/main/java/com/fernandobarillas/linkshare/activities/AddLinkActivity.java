@@ -73,6 +73,7 @@ public class AddLinkActivity extends BaseLinkActivity {
     public void addLink(final Link newLink) {
         Log.v(LOG_TAG, "addLink() called with: " + "newLink = [" + newLink + "]");
         if (newLink == null) {
+            // TODO: Show error
             return;
         }
 
@@ -104,7 +105,6 @@ public class AddLinkActivity extends BaseLinkActivity {
                     Log.e(LOG_TAG, "onResponse: " + response.body());
                     showResultLayout(false);
                 }
-                finish();
             }
 
             @Override
@@ -129,6 +129,7 @@ public class AddLinkActivity extends BaseLinkActivity {
     private void editLink(final Link link) {
         Log.v(LOG_TAG, "editLink() called with: " + "link = [" + link + "]");
         if (link == null) {
+            Log.e(LOG_TAG, "editLink: Link was null, cannot edit");
             return;
         }
         Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
