@@ -14,10 +14,10 @@
 
     </data>
 
-
     <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/link_layout_height"
+            android:background="?attr/selectableItemBackground"
             android:onLongClick="@{handler::onLongClick}">
 
         <TextView
@@ -78,7 +78,7 @@
                 android:layout_marginStart="@dimen/link_information_margin"
                 android:layout_toEndOf="@id/link_domain"
                 android:background="@{link.category != null ? @drawable/link_category_bg : null}"
-                android:text="@{link.category}"
+                android:text="@{link.category.toLowerCase()}"
                 tools:background="@drawable/link_category_bg"
                 tools:text="@string/category_uncategorized"/>
 
