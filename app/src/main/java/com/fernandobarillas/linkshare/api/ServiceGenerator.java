@@ -3,8 +3,11 @@ package com.fernandobarillas.linkshare.api;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.fernandobarillas.linkshare.BuildConfig;
 import com.fernandobarillas.linkshare.configuration.Constants;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,6 +20,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -72,10 +76,17 @@ public class ServiceGenerator {
             httpClient = httpClient.proxy(proxy);
         }
 
+        if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+            httpClient.addInterceptor(logging);
+        }
+
         client = httpClient.build();
+        Gson gson = new GsonBuilder().serializeNulls().create();
         String baseUrl = getApiUrlString(apiUrl);
         Retrofit.Builder builder = new Retrofit.Builder().baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create());
+                .addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = builder.client(client).build();
         return retrofit.create(serviceClass);
     }
