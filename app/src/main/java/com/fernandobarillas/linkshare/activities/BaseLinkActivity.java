@@ -13,14 +13,17 @@ import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
+import io.realm.Realm;
+
 public class BaseLinkActivity extends AppCompatActivity {
 
     protected final String LOG_TAG = getClass().getSimpleName();
 
-    LinksApp       mLinksApp;
-    LinkStorage    mLinkStorage;
-    LinkService    mLinkService;
-    AppPreferences mPreferences;
+    protected LinksApp       mLinksApp;
+    protected Realm          mRealm;
+    protected LinkStorage    mLinkStorage;
+    protected LinkService    mLinkService;
+    protected AppPreferences mPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +33,9 @@ public class BaseLinkActivity extends AppCompatActivity {
 
         // Initialize the database
         mLinksApp = (LinksApp) getApplicationContext();
-        mLinkStorage = mLinksApp.getLinkStorage();
+
+        mRealm = Realm.getInstance(mLinksApp.getRealmConfiguration());
+        mLinkStorage = new LinkStorage(mRealm);
         mPreferences = mLinksApp.getPreferences();
     }
 
@@ -43,6 +48,11 @@ public class BaseLinkActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.v(LOG_TAG, "onDestroy()");
+        if (mRealm != null) {
+            mRealm.close();
+            mRealm = null;
+        }
+        if (mLinkStorage != null) mLinkStorage = null;
         super.onDestroy();
     }
 

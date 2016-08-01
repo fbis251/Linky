@@ -7,10 +7,8 @@ import android.util.Log;
 import com.fernandobarillas.linkshare.api.LinkService;
 import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
-import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
-import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 /**
@@ -21,8 +19,6 @@ public class LinksApp extends Application {
     private final String LOG_TAG = getClass().getSimpleName();
 
     private AppPreferences mPreferences;
-    private Realm          mRealm;
-    private LinkStorage    mLinkStorage;
     private LinkService    mLinkService;
 
     @Override
@@ -54,14 +50,6 @@ public class LinksApp extends Application {
         return mLinkService;
     }
 
-    public LinkStorage getLinkStorage() {
-        Log.v(LOG_TAG, "getLinkStorage()");
-        if (mLinkStorage == null) {
-            databaseSetup();
-        }
-        return mLinkStorage;
-    }
-
     public AppPreferences getPreferences() {
         if (mPreferences == null) {
             mPreferences = new AppPreferences(this);
@@ -69,21 +57,7 @@ public class LinksApp extends Application {
         return mPreferences;
     }
 
-    public Realm getRealm() {
-        Log.v(LOG_TAG, "getRealm()");
-        if (mRealm == null) {
-            databaseSetup();
-        }
-
-        return mRealm;
-    }
-
-    private void databaseSetup() {
-        Log.v(LOG_TAG, "databaseSetup()");
-        RealmConfiguration realmConfig =
-                // FIXME: Add actual database migration
-                new RealmConfiguration.Builder(this).deleteRealmIfMigrationNeeded().build();
-        mRealm = Realm.getInstance(realmConfig);
-        mLinkStorage = new LinkStorage(mRealm);
+    public RealmConfiguration getRealmConfiguration() {
+        return new RealmConfiguration.Builder(this).deleteRealmIfMigrationNeeded().build();
     }
 }
