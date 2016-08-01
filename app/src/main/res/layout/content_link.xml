@@ -5,7 +5,7 @@
     <data>
 
         <variable
-                name="handlers"
+                name="handler"
                 type="com.fernandobarillas.linkshare.adapters.LinksAdapter.LinkHandler"/>
 
         <variable
@@ -14,9 +14,11 @@
 
     </data>
 
+
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/link_layout_height">
+            android:layout_height="@dimen/link_layout_height"
+            android:onLongClick="@{handler::onLongClick}">
 
         <TextView
                 android:id="@+id/link_time"
@@ -38,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignEnd="@+id/link_time"
                 android:layout_below="@+id/link_time"
-                android:onClick="@{link.favorite ? handlers::onClickNotFavorite : handlers::onClickFavorite}"
+                android:onClick="@{link.favorite ? handler::onClickNotFavorite : handler::onClickFavorite}"
                 android:paddingStart="@dimen/link_favorite_padding"
                 android:paddingTop="@dimen/link_favorite_padding"
                 android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
@@ -54,17 +56,17 @@
                 android:ellipsize="end"
                 android:gravity="start"
                 android:maxLines="2"
-                android:onClick="@{handlers::onClickTitle}"
+                android:onClick="@{handler::onClickTitle}"
                 android:text="@{link.title}"
                 android:textAppearance="@style/LinkTitleText"
                 tools:text="This is the maximum length that a title can be, which is one hundred characters. This is that long!!"/>
 
         <TextView
-                android:id="@+id/link_url"
+                android:id="@+id/link_domain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/link_title"
-                android:onClick="@{handlers::onClickEdit}"
+                android:onClick="@{handler::onClickDomain}"
                 android:text="@{link.domain}"
                 tools:text="example.com"/>
 
@@ -74,11 +76,11 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/link_title"
                 android:layout_marginStart="@dimen/link_information_margin"
-                android:layout_toEndOf="@id/link_url"
+                android:layout_toEndOf="@id/link_domain"
                 android:background="@{link.category != null ? @drawable/link_category_bg : null}"
                 android:text="@{link.category}"
                 tools:background="@drawable/link_category_bg"
-                tools:text="Uncategorized"/>
+                tools:text="@string/category_uncategorized"/>
 
         <View
                 android:layout_width="match_parent"

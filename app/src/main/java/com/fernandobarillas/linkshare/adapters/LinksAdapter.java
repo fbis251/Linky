@@ -94,9 +94,9 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             this.holder = holder;
         }
 
-        public void onClickEdit(View view) {
-            Log.v(LOG_TAG, "onClickEdit() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.editLink(getPosition());
+        public void onClickDomain(View view) {
+            Log.v(LOG_TAG, "onClickDomain() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.openLink(getPosition());
         }
 
         public void onClickFavorite(final View view) {
@@ -120,6 +120,13 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             if (mActivity != null) mActivity.openLink(getPosition());
         }
 
+        public boolean onLongClick(View view) {
+            Log.v(LOG_TAG, "onLongClick() called with: " + "view = [" + view + "]");
+            // TODO: Show link BottomSheet for sharing, edit, delete, copy text etc
+            if (mActivity != null) mActivity.editLink(getPosition());
+            return true;
+        }
+
         private int getPosition() {
             return holder.getAdapterPosition();
         }
@@ -135,7 +142,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         public LinkViewHolder(View view) {
             super(view);
             mBinding = DataBindingUtil.bind(view);
-            mBinding.setHandlers(new LinkHandler(this));
+            mBinding.setHandler(new LinkHandler(this));
         }
 
         public ContentLinkBinding getBinding() {
