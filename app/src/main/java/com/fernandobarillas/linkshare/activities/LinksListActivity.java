@@ -83,7 +83,7 @@ public class LinksListActivity extends BaseLinkActivity
         if (mFilterMode == LinkStorage.FILTER_CATEGORY) {
             // TODO: Improve mode matching
             showCategoryLinks(mSearchTerm);
-        } else {
+        } else if (mLinksAdapter == null) {
             showAllLinks();
         }
         if (mLinkStorage.getLinksCount() == 0) {
@@ -96,7 +96,6 @@ public class LinksListActivity extends BaseLinkActivity
     @Override
     public void onChange(RealmResults<Link> element) {
         Log.v(LOG_TAG, "onChange() called with: " + "element = [" + element + "]");
-        if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
         populateDrawerCategories();
         updateToolbarTitle();
     }
@@ -369,6 +368,13 @@ public class LinksListActivity extends BaseLinkActivity
                 if (response.isSuccessful()) {
                     Log.d(LOG_TAG, "setFavorite onResponse: Successful");
                     if (mLinkStorage != null) mLinkStorage.setFavorite(link, isFavorite);
+                    if (mLinksAdapter != null) {
+                        if (mFilterMode == LinkStorage.FILTER_FAVORITES && !isFavorite) {
+                            mLinksAdapter.notifyItemRemoved(position);
+                        } else {
+                            mLinksAdapter.notifyItemChanged(position);
+                        }
+                    }
                 } else {
                     showError(errorMessage, retryAction);
                 }
@@ -422,7 +428,14 @@ public class LinksListActivity extends BaseLinkActivity
                 if (response.isSuccessful()) {
                     if (mRecyclerView == null) return;
                     Snacks.showMessage(mRecyclerView, successMessage);
-                    mLinkStorage.setArchived(link, true);
+                    if (mLinkStorage != null) mLinkStorage.setArchived(link, true);
+                    if (mLinksAdapter != null) {
+                        if (mFilterMode == LinkStorage.FILTER_FRESH) {
+                            mLinksAdapter.notifyItemRemoved(position);
+                        } else {
+                            mLinksAdapter.notifyItemChanged(position);
+                        }
+                    }
                     return;
                 }
 
@@ -474,6 +487,7 @@ public class LinksListActivity extends BaseLinkActivity
                 // Store the links in the database
                 mLinkStorage.replaceLinks(downloadedLinks);
                 mSwipeRefreshLayout.setRefreshing(false);
+                if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
                 adapterSetup();
                 String message = String.format("Downloaded %d %s", mLinkStorage.getLinksCount(),
                         mLinkStorage.getLinksCount() == 1 ? "link" : "links");
