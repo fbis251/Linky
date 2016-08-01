@@ -98,6 +98,17 @@
                 android:onClick="@{editHandler::onClickSave}"
                 android:text="@string/save"/>
 
+        <Button
+                android:id="@+id/edit_link_cancel_button"
+                style="@style/AppButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/edit_link_archived_switch"
+                android:layout_gravity="end"
+                android:layout_toStartOf="@+id/edit_link_save_button"
+                android:onClick="@{editHandler::onClickCancel}"
+                android:text="@string/cancel"/>
+
     </RelativeLayout>
 
 </layout>

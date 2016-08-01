@@ -20,4 +20,6 @@
     <dimen name="link_save_spark_size">32dp</dimen>
     <dimen name="link_save_success_error_layout_padding_top">16dp</dimen>
 
+    <!-- Edit Link Activity -->
+    <dimen name="add_new_category_name_layout_bottom_margin">32dp</dimen>
 </resources>

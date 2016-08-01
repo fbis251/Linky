@@ -11,6 +11,7 @@
     <string name="retry">Retry</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
+    <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="title">Title</string>
 
@@ -60,4 +61,7 @@
 
     <!-- Edit Link Activity -->
     <string name="edit_link_error">There was an error editing your link</string>
+    <string name="category_add_new">Add new category…</string>
+    <string name="add_new_category_title">New Category</string>
+    <string name="add_new_category_empty_error">Category cannot be empty</string>
 </resources>

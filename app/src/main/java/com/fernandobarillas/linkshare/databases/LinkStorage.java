@@ -1,6 +1,7 @@
 package com.fernandobarillas.linkshare.databases;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -155,6 +156,21 @@ public class LinkStorage {
                 for (Link link : newLinksList) {
                     mRealm.copyToRealmOrUpdate(link);
                 }
+            }
+        });
+    }
+
+    public void setCategory(@NonNull final Link link, @Nullable final String category) {
+        Log.v(LOG_TAG, "setCategory() called with: "
+                + "link = ["
+                + link
+                + "], category = ["
+                + category
+                + "]");
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                link.setCategory(category);
             }
         });
     }
