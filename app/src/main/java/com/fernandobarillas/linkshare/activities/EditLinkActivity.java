@@ -25,8 +25,10 @@ import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.AddLinkResponse;
 import com.fernandobarillas.linkshare.models.Link;
 
+import java.io.IOException;
 import java.util.Set;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -179,6 +181,14 @@ public class EditLinkActivity extends BaseLinkActivity
                 } else {
                     // TODO: Show UI error
                     Log.e(LOG_TAG, "onResponse: Unsuccessful response");
+                    ResponseBody errorResponse = response.errorBody();
+                    if (errorResponse != null) {
+                        try {
+                            Log.e(LOG_TAG, "onResponse: " + errorResponse.string());
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "onResponse: Could not parse error response", e);
+                        }
+                    }
                 }
                 finish();
             }
