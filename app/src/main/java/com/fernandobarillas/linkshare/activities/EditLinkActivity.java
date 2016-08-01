@@ -241,6 +241,8 @@ public class EditLinkActivity extends BaseLinkActivity
                     category = spinnerCategory;
                 }
             }
+
+            if (category == null) category = "";
             Link editedLink = new Link(mOldLink.getLinkId(), category, mArchivedSwitch.isChecked(),
                     mFavoriteSwitch.isChecked(), mOldLink.getTimestamp(),
                     mTitleEditText.getText().toString(), mUrlEditText.getText().toString());
