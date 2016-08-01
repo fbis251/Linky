@@ -46,6 +46,10 @@ public class LinksListActivity extends BaseLinkActivity
         implements RealmChangeListener<RealmResults<Link>>,
         NavigationView.OnNavigationItemSelectedListener {
 
+    /** An invalid position for a Link within an Adapter */
+    public static final int INVALID_LINK_POSITION = -1;
+
+    private static final int EDIT_LINK_REQUEST     = 1;// Request code for EditLinkActivity
     private static final int CATEGORIES_MENU_GROUP = 2; // Menu Group ID to use for link categories
 
     // Bundle instance saving
@@ -65,6 +69,26 @@ public class LinksListActivity extends BaseLinkActivity
     private int    mFilterMode;
     @LinkStorage.SortMode
     private int    mSortMode;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(LOG_TAG, "onActivityResult() called with: "
+                + "requestCode = ["
+                + requestCode
+                + "], resultCode = ["
+                + resultCode
+                + "], data = ["
+                + data
+                + "]");
+        if (requestCode == EDIT_LINK_REQUEST && resultCode == RESULT_OK) {
+            // We can't reliably tell what operation the user performed on the Link, so it's best
+            // to just tell the adapter the entire dataset changed. Examples of not being able
+            // to tell include setting favorite to false when browsing favorites
+            if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     @Override
     public void onBackPressed() {
@@ -291,7 +315,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
         Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
         editIntent.putExtra(EditLinkActivity.EXTRA_LINK_ID, link.getLinkId());
-        startActivity(editIntent);
+        startActivityForResult(editIntent, EDIT_LINK_REQUEST);
     }
 
     public void openLink(final int position) {

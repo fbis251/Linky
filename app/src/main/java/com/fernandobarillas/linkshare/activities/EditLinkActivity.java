@@ -54,16 +54,20 @@ public class EditLinkActivity extends BaseLinkActivity
         serviceSetup();
 
         mIntentLink = null;
-        Intent intent = getIntent();
         if (savedInstanceState != null) {
             mIntentLink = mLinkStorage.findByLinkId(savedInstanceState.getLong(EXTRA_LINK_ID));
         }
 
+        Intent intent = getIntent();
         if (intent != null) {
+            Log.i(LOG_TAG, "onCreate: Intent: " + intent);
             Bundle extras = getIntent().getExtras();
-            if (extras != null && intent.hasExtra(EXTRA_LINK_ID)) {
-                long linkId = intent.getExtras().getLong(EXTRA_LINK_ID);
-                mIntentLink = mLinkStorage.findByLinkId(linkId);
+            if (extras != null) {
+                if (intent.hasExtra(EXTRA_LINK_ID)) {
+                    long linkId = extras.getLong(EXTRA_LINK_ID);
+                    Log.i(LOG_TAG, "onCreate: Intent link ID: " + linkId);
+                    mIntentLink = mLinkStorage.findByLinkId(linkId);
+                }
             }
         }
 
@@ -178,6 +182,8 @@ public class EditLinkActivity extends BaseLinkActivity
                         + "]");
                 if (response.isSuccessful()) {
                     mLinkStorage.add(link);
+                    // Let the caller know that it's okay to update the adapter with the new changes
+                    setResult(RESULT_OK, new Intent());
                 } else {
                     // TODO: Show UI error
                     Log.e(LOG_TAG, "onResponse: Unsuccessful response");
@@ -190,6 +196,7 @@ public class EditLinkActivity extends BaseLinkActivity
                         }
                     }
                 }
+
                 finish();
             }
 
