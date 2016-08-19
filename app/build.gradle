@@ -47,7 +47,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.1.1'
 
     // UI
-    compile 'com.github.varunest:sparkbutton:1.0.0'
+    compile 'com.github.varunest:sparkbutton:1.0.1'
 
     // HTTP
     compile 'com.google.code.gson:gson:2.7'
