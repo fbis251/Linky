@@ -3,7 +3,7 @@ apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.0'
+    buildToolsVersion '24.0.2'
     defaultConfig {
         applicationId "com.fernandobarillas.linkshare"
         minSdkVersion 19
@@ -21,10 +21,11 @@ android {
     }
     lintOptions {
         checkReleaseBuilds true
-        abortOnError false
+        abortOnError true
     }
     buildTypes {
         release {
+            debuggable false
             signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
@@ -42,12 +43,13 @@ android {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:design:24.1.1'
-    compile 'com.android.support:recyclerview-v7:24.1.1'
+    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:design:24.2.0'
+    compile 'com.android.support:recyclerview-v7:24.2.0'
 
     // UI
     compile 'com.github.varunest:sparkbutton:1.0.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
 
     // HTTP
     compile 'com.google.code.gson:gson:2.7'
