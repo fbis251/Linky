@@ -131,6 +131,14 @@
                     android:layout_marginStart="@dimen/link_options_horizontal_margin"
                     android:onClick="@{handler::onClickDelete}"
                     android:src="@drawable/ic_archived_24dp"/>
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
+                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
+                    android:onClick="@{handler::onClickShare}"
+                    android:src="@drawable/ic_share_black_24dp"/>
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 </layout>

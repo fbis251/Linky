@@ -99,11 +99,13 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         public void onClickDelete(View view) {
             Log.v(LOG_TAG, "onClickDelete() called with: " + "view = [" + view + "]");
             if (mActivity != null) mActivity.deleteLink(getPosition());
+            showTools(false);
         }
 
         public void onClickEdit(View view) {
             Log.v(LOG_TAG, "onClickEdit() called with: " + "view = [" + view + "]");
             if (mActivity != null) mActivity.editLink(getPosition());
+            showTools(false);
         }
 
         public void onClickFavorite(final View view) {
@@ -120,6 +122,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         public void onClickRemoveFavorite(final View view) {
             Log.v(LOG_TAG, "onClickRemoveFavorite() called with: " + "view = [" + view + "]");
             setFavorite(false);
+            showTools(false);
+        }
+
+        public void onClickShare(View view) {
+            Log.v(LOG_TAG, "onClickShare() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.shareLink(getPosition());
             showTools(false);
         }
 
@@ -142,6 +150,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         private void showTools(final boolean show) {
             Log.v(LOG_TAG, "showTools() called with: " + "show = [" + show + "]");
             if (linkTools == null) return;
+            // TODO: Add animation to showing and hiding
             linkTools.setVisibility(show ? View.VISIBLE : View.GONE);
         }
 
