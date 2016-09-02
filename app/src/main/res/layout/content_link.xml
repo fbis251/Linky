@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding ="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -14,79 +15,122 @@
 
     </data>
 
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/link_layout_height"
-            android:background="?attr/selectableItemBackground"
-            android:onLongClick="@{handler::onLongClick}">
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/link_layout_height">
+
+        <View
+                android:id="@+id/link_click_view"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/link_layout_height"
+                android:background="?attr/selectableItemBackground"
+                android:onClick="@{handler::onClickLayout}"
+                android:onLongClick="@{handler::onLongClick}"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/link_time"
+                app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
                 android:id="@+id/link_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignTop="@+id/link_title"
                 android:fontFamily="sans-serif-condensed"
                 android:gravity="end"
                 android:maxLines="1"
-                android:minWidth="@dimen/link_time_min_width"
                 android:text="@{link.timeString}"
+                android:textAlignment="textEnd"
                 android:textAppearance="@style/LinkSecondaryText"
-                tools:text="1 hr"/>
+                app:layout_constraintBaseline_toBaselineOf="@+id/link_title"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:text="1 hr ago"/>
 
         <ImageView
                 android:id="@+id/link_is_favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/link_time"
-                android:layout_below="@+id/link_time"
-                android:onClick="@{link.favorite ? handler::onClickNotFavorite : handler::onClickFavorite}"
-                android:paddingStart="@dimen/link_favorite_padding"
-                android:paddingTop="@dimen/link_favorite_padding"
+                android:layout_marginTop="@dimen/link_favorite_top_margin"
+                android:onClick="@{link.favorite ? handler::onClickRemoveFavorite : handler::onClickFavorite}"
                 android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:src="@drawable/ic_favorite_filled_24dp"/>
 
         <TextView
                 android:id="@+id/link_title"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="false"
                 android:layout_marginTop="16dp"
-                android:layout_toStartOf="@+id/link_time"
                 android:ellipsize="end"
-                android:gravity="start"
                 android:maxLines="2"
-                android:onClick="@{handler::onClickTitle}"
                 android:text="@{link.title}"
                 android:textAppearance="@style/LinkTitleText"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/link_time"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="This is the maximum length that a title can be, which is one hundred characters. This is that long!!"/>
 
         <TextView
                 android:id="@+id/link_domain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/link_title"
-                android:onClick="@{handler::onClickDomain}"
                 android:text="@{link.domain}"
+                app:layout_constraintLeft_toLeftOf="@+id/link_title"
+                app:layout_constraintTop_toBottomOf="@+id/link_title"
                 tools:text="example.com"/>
 
         <TextView
                 android:id="@+id/link_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/link_title"
                 android:layout_marginStart="@dimen/link_information_margin"
-                android:layout_toEndOf="@id/link_domain"
                 android:background="@{link.category != null ? @drawable/link_category_bg : null}"
                 android:text="@{link.category.toLowerCase()}"
+                app:layout_constraintLeft_toRightOf="@+id/link_domain"
+                app:layout_constraintTop_toBottomOf="@+id/link_title"
                 tools:background="@drawable/link_category_bg"
                 tools:text="@string/category_uncategorized"/>
 
         <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:background="@color/gray300"/>
+                android:id="@+id/bottom_spacer"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/link_bottom_spacer_height"
+                android:layout_marginTop="@dimen/link_bottom_spacer_margin_top"
+                android:background="@color/gray300"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-    </RelativeLayout>
+        <LinearLayout
+                android:id="@+id/link_tools_layout"
+                android:layout_width="0dp"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_spacer"
+                tools:layout_editor_absoluteX="0dp">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
+                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
+                    android:onClick="@{handler::onClickEdit}"
+                    android:src="@drawable/ic_all_links_24dp"/>
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
+                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
+                    android:onClick="@{handler::onClickDelete}"
+                    android:src="@drawable/ic_archived_24dp"/>
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 </layout>

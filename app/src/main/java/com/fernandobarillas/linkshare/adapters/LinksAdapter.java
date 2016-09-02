@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.android.databinding.library.baseAdapters.BR;
 import com.fernandobarillas.linkshare.R;
@@ -89,46 +89,69 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
     public class LinkHandler {
         private LinkViewHolder holder;
+        private LinearLayout   linkTools;
 
         public LinkHandler(LinkViewHolder holder) {
             this.holder = holder;
+            linkTools = holder.getBinding().linkToolsLayout;
         }
 
-        public void onClickDomain(View view) {
-            Log.v(LOG_TAG, "onClickDomain() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.openLink(getPosition());
+        public void onClickDelete(View view) {
+            Log.v(LOG_TAG, "onClickDelete() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.deleteLink(getPosition());
+        }
+
+        public void onClickEdit(View view) {
+            Log.v(LOG_TAG, "onClickEdit() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.editLink(getPosition());
         }
 
         public void onClickFavorite(final View view) {
             Log.v(LOG_TAG, "onClickFavorite() called with: " + "view = [" + view + "]");
-            if (view == null || mFavoriteDrawable == null) return;
-            if (!(view instanceof ImageView)) return;
-            Log.d(LOG_TAG, "onClickNotFavorite: Making setFavorite call");
-            if (mActivity != null) mActivity.setFavorite(getPosition(), true);
+            setFavorite(true);
+            showTools(false);
         }
 
-        public void onClickNotFavorite(final View view) {
-            Log.v(LOG_TAG, "onClickNotFavorite() called with: " + "view = [" + view + "]");
-            if (view == null || mNotFavorite == null) return;
-            if (!(view instanceof ImageView)) return;
-            Log.d(LOG_TAG, "onClickNotFavorite: Making setFavorite call");
-            if (mActivity != null) mActivity.setFavorite(getPosition(), false);
-        }
-
-        public void onClickTitle(View view) {
-            Log.v(LOG_TAG, "onClickTitle() called with: " + "view = [" + view + "]");
+        public void onClickLayout(View view) {
+            Log.v(LOG_TAG, "onClickLayout() called with: " + "view = [" + view + "]");
             if (mActivity != null) mActivity.openLink(getPosition());
+        }
+
+        public void onClickRemoveFavorite(final View view) {
+            Log.v(LOG_TAG, "onClickRemoveFavorite() called with: " + "view = [" + view + "]");
+            setFavorite(false);
+            showTools(false);
         }
 
         public boolean onLongClick(View view) {
             Log.v(LOG_TAG, "onLongClick() called with: " + "view = [" + view + "]");
             // TODO: Show link BottomSheet for sharing, edit, delete, copy text etc
-            if (mActivity != null) mActivity.editLink(getPosition());
+            toggleTools();
             return true;
         }
 
         private int getPosition() {
             return holder.getAdapterPosition();
+        }
+
+        private void setFavorite(final boolean isFavorite) {
+            Log.v(LOG_TAG, "setFavorite() called with: " + "isFavorite = [" + isFavorite + "]");
+            if (mActivity != null) mActivity.setFavorite(getPosition(), isFavorite);
+        }
+
+        private void showTools(final boolean show) {
+            Log.v(LOG_TAG, "showTools() called with: " + "show = [" + show + "]");
+            if (linkTools == null) return;
+            linkTools.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+
+        private void toggleTools() {
+            Log.v(LOG_TAG, "toggleTools()");
+            if (linkTools == null) {
+                Log.e(LOG_TAG, "toggleTools: Tools was null!");
+                return;
+            }
+            showTools(linkTools.getVisibility() != View.VISIBLE);
         }
     }
 

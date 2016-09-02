@@ -307,6 +307,17 @@ public class LinksListActivity extends BaseLinkActivity
         super.onSaveInstanceState(outState);
     }
 
+    public void deleteLink(final int position) {
+        Log.v(LOG_TAG, "deleteLink() called with: " + "position = [" + position + "]");
+        final Link link = mLinksAdapter.getLink(position);
+        if (link == null) {
+            Log.e(LOG_TAG, "archiveLink: Link instance was null before making archive API call");
+            // TODO: Show UI error
+            return;
+        }
+        // TODO: Implement me
+    }
+
     public void editLink(final int position) {
         Link link = mLinksAdapter.getLink(position);
         if (link == null) {
@@ -431,7 +442,7 @@ public class LinksListActivity extends BaseLinkActivity
         Log.v(LOG_TAG, "archiveLink() called with: " + "position = [" + position + "]");
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
-            Log.e(LOG_TAG, "archiveLink: Link instance was null before making delete API call");
+            Log.e(LOG_TAG, "archiveLink: Link instance was null before making archive API call");
             // TODO: Show UI error
             return;
         }
