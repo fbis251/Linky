@@ -14,7 +14,7 @@
                 type="com.fernandobarillas.linkshare.models.Link"/>
     </data>
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal"
@@ -31,30 +31,46 @@
                 android:layout_height="wrap_content"
                 android:text="@{link.title}"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                tools:text="This is Your Link Title"/>
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="This is Your Link Title"
+                />
 
         <TextView
                 android:id="@+id/link_save_url"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="@{link.url}"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/link_save_title"
                 tools:text="http://example.com/test?url=true#anchor"/>
 
         <ProgressBar
                 android:id="@+id/link_save_progress_bar"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/link_save_url"/>
 
         <LinearLayout
                 android:id="@+id/link_save_error_layout"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:paddingTop="@dimen/link_save_success_error_layout_padding_top"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:layout_editor_absoluteX="944dp"
+                tools:layout_editor_absoluteY="1009dp">
 
             <com.varunest.sparkbutton.SparkButton
                     android:id="@+id/link_save_error_spark"
@@ -87,14 +103,19 @@
 
         <LinearLayout
                 android:id="@+id/link_save_success_layout"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:paddingTop="@dimen/link_save_success_error_layout_padding_top"
-                android:visibility="gone">
+                android:visibility="gone"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/link_save_progress_bar"
+                tools:visibility="visible">
 
             <com.varunest.sparkbutton.SparkButton
                     android:id="@+id/link_save_success_spark"
@@ -122,5 +143,5 @@
                     android:onClick="@{addHandler::onClickEdit}"
                     android:text="@string/add_link_edit"/>
         </LinearLayout>
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 </layout>
