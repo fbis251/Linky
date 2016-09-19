@@ -24,7 +24,13 @@ android {
         abortOnError true
     }
     buildTypes {
+        buildTypes.each {
+            it.buildConfigField 'boolean', 'USE_HTTP_PROXY', USE_HTTP_PROXY
+            it.buildConfigField 'String', 'HTTP_PROXY_ADDRESS', HTTP_PROXY_ADDRESS
+            it.buildConfigField 'int', 'HTTP_PROXY_PORT', HTTP_PROXY_PORT
+        }
         release {
+            buildConfigField 'boolean', 'USE_HTTP_PROXY', 'false'
             debuggable false
             signingConfig signingConfigs.release
             minifyEnabled true

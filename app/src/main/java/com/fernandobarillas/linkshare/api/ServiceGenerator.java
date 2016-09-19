@@ -4,7 +4,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.fernandobarillas.linkshare.BuildConfig;
-import com.fernandobarillas.linkshare.configuration.Constants;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -69,9 +68,9 @@ public class ServiceGenerator {
         }
 
         OkHttpClient client;
-        if (Constants.USE_HTTP_PROXY) {
+        if(BuildConfig.DEBUG && BuildConfig.USE_HTTP_PROXY) {
             SocketAddress proxyAddress =
-                    new InetSocketAddress(Constants.HTTP_PROXY_ADDRESS, Constants.HTTP_PROXY_PORT);
+                    new InetSocketAddress(BuildConfig.HTTP_PROXY_ADDRESS, BuildConfig.HTTP_PROXY_PORT);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
             httpClient = httpClient.proxy(proxy);
         }
