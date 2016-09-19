@@ -16,7 +16,7 @@
     <dimen name="link_information_margin">8dp</dimen>
     <dimen name="link_category_bg_horizontal_padding">4dp</dimen>
     <dimen name="link_category_bg_vertical_padding">0dp</dimen>
-    <dimen name="link_options_horizontal_margin">8dp</dimen>
+    <dimen name="link_options_horizontal_margin">16dp</dimen>
     <dimen name="link_bottom_spacer_height">1dp</dimen>
     <dimen name="link_bottom_spacer_margin_top">
         <!-- link_layout_height minus link_bottom_spacer_height -->

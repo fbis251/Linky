@@ -8,6 +8,7 @@
     <string name="archived">Archived</string>
     <string name="category">Category</string>
     <string name="favorite">Favorite</string>
+    <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>

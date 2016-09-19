@@ -121,16 +121,24 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/link_options_horizontal_margin"
                     android:layout_marginStart="@dimen/link_options_horizontal_margin"
-                    android:onClick="@{handler::onClickEdit}"
-                    android:src="@drawable/ic_all_links_24dp"/>
+                    android:onClick="@{handler::onClickDelete}"
+                    android:src="@drawable/ic_delete_white_24dp"/>
 
             <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/link_options_horizontal_margin"
                     android:layout_marginStart="@dimen/link_options_horizontal_margin"
-                    android:onClick="@{handler::onClickDelete}"
-                    android:src="@drawable/ic_archived_24dp"/>
+                    android:onClick="@{handler::onClickEdit}"
+                    android:src="@drawable/ic_edit_white_24dp"/>
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
+                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
+                    android:onClick="@{handler::onClickCopy}"
+                    android:src="@drawable/ic_copy_white_24dp"/>
 
             <ImageView
                     android:layout_width="wrap_content"
@@ -138,7 +146,7 @@
                     android:layout_marginEnd="@dimen/link_options_horizontal_margin"
                     android:layout_marginStart="@dimen/link_options_horizontal_margin"
                     android:onClick="@{handler::onClickShare}"
-                    android:src="@drawable/ic_share_black_24dp"/>
+                    android:src="@drawable/ic_share_white_24dp"/>
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 </layout>

@@ -62,8 +62,11 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     @Override
     public void onBindViewHolder(final LinkViewHolder holder, final int position) {
         final Link link = mLinks.get(position);
-        holder.getBinding().setVariable(BR.link, link);
-        holder.getBinding().executePendingBindings();
+        ContentLinkBinding binding = holder.getBinding();
+        if(binding != null) {
+            binding.setVariable(BR.link, link);
+            binding.executePendingBindings();
+        }
     }
 
     @Override
@@ -94,6 +97,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         public LinkHandler(LinkViewHolder holder) {
             this.holder = holder;
             linkTools = holder.getBinding().linkToolsLayout;
+        }
+
+        public void onClickCopy(View view) {
+            Log.v(LOG_TAG, "onClickDelete() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.copyUrl(getPosition());
+            showTools(false);
         }
 
         public void onClickDelete(View view) {
@@ -167,17 +176,17 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     /**
      * ViewHolder that displays individual reddit Links. It uses a CardView in the UI.
      */
-    public class LinkViewHolder extends RecyclerView.ViewHolder {
+    class LinkViewHolder extends RecyclerView.ViewHolder {
 
-        protected ContentLinkBinding mBinding;
+        ContentLinkBinding mBinding;
 
-        public LinkViewHolder(View view) {
+        LinkViewHolder(View view) {
             super(view);
             mBinding = DataBindingUtil.bind(view);
             mBinding.setHandler(new LinkHandler(this));
         }
 
-        public ContentLinkBinding getBinding() {
+        ContentLinkBinding getBinding() {
             return mBinding;
         }
     }

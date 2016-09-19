@@ -102,6 +102,12 @@ public class BaseLinkActivity extends AppCompatActivity {
         Snacks.showError(view, message, action);
     }
 
+    public void showSnackSuccess(final String message) {
+        View view = findViewById(android.R.id.content);
+        if (view == null) return;
+        Snacks.showMessage(view, message);
+    }
+
     protected void launchLoginActivity() {
         Log.v(LOG_TAG, "launchLoginActivity()");
         startActivity(new Intent(this, LoginActivity.class));
