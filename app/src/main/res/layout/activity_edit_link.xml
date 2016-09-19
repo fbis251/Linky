@@ -39,6 +39,7 @@
                     android:hint="@string/title"
                     android:maxLength="100"
                     android:text="@{link.title}"
+                    android:minHeight="?android:attr/listPreferredItemHeight"
                     tools:text="The max length of the title is 100 characters. This is what it looks like to have 100 characters!!!!"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -56,6 +57,7 @@
                     android:hint="@string/address"
                     android:inputType="textUri"
                     android:text="@{link.url}"
+                    android:minHeight="?android:attr/listPreferredItemHeight"
                     tools:text="http://www.example.com/some_page.html"/>
 
         </android.support.design.widget.TextInputLayout>
