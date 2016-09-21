@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
@@ -46,7 +48,7 @@ import retrofit2.Response;
 
 public class LinksListActivity extends BaseLinkActivity
         implements RealmChangeListener<RealmResults<Link>>,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
 
     /** An invalid position for a Link within an Adapter */
     public static final int INVALID_LINK_POSITION = -1;
@@ -58,9 +60,11 @@ public class LinksListActivity extends BaseLinkActivity
     private static final String CLIPBOARD_LABEL = "LINK_URL";
 
     // Bundle instance saving
-    private static final String STATE_SEARCH_TERM = "searchTerm";
-    private static final String STATE_FILTER_MODE = "filterMode";
-    private static final String STATE_SORT_MODE   = "sortMode";
+    private static final String STATE_CATEGORY             = "category";
+    private static final String STATE_SEARCH_TERM          = "searchTerm";
+    private static final String STATE_FILTER_MODE          = "filterMode";
+    private static final String STATE_PREVIOUS_FILTER_MODE = "previousFilterMode";
+    private static final String STATE_SORT_MODE            = "sortMode";
 
     private DrawerLayout       mDrawerLayout;
     private NavigationView     mNavigationView;
@@ -69,7 +73,10 @@ public class LinksListActivity extends BaseLinkActivity
     private LinksAdapter       mLinksAdapter;
 
     // Sorting and filtering for results
+    private String mCategory;
     private String mSearchTerm;
+    @LinkStorage.FilterMode
+    private int    mPreviousFilterMode;
     @LinkStorage.FilterMode
     private int    mFilterMode;
     @LinkStorage.SortMode
@@ -109,12 +116,7 @@ public class LinksListActivity extends BaseLinkActivity
     protected void onResume() {
         Log.v(LOG_TAG, "onResume()");
         super.onResume();
-        if (mFilterMode == LinkStorage.FILTER_CATEGORY) {
-            // TODO: Improve mode matching
-            showCategoryLinks(mSearchTerm);
-        } else if (mLinksAdapter == null) {
-            showAllLinks();
-        }
+        updateUiAfterFilterModeChange();
         if (mLinkStorage.getLinksCount() == 0) {
             getList();
         } else {
@@ -134,14 +136,19 @@ public class LinksListActivity extends BaseLinkActivity
         super.onCreate(savedInstanceState);
         serviceSetup();
 
+        mCategory = null;
         mSearchTerm = null;
         mFilterMode = LinkStorage.FILTER_FRESH;
         mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
 
         if (savedInstanceState != null) {
+            mCategory = savedInstanceState.getString(STATE_CATEGORY);
             mSearchTerm = savedInstanceState.getString(STATE_SEARCH_TERM);
             //noinspection WrongConstant
             mFilterMode = savedInstanceState.getInt(STATE_FILTER_MODE, mFilterMode);
+            //noinspection WrongConstant
+            mPreviousFilterMode =
+                    savedInstanceState.getInt(STATE_PREVIOUS_FILTER_MODE, mPreviousFilterMode);
             //noinspection WrongConstant
             mSortMode = savedInstanceState.getInt(STATE_SORT_MODE, mSortMode);
         }
@@ -212,6 +219,22 @@ public class LinksListActivity extends BaseLinkActivity
         Log.v(LOG_TAG, "onCreateOptionsMenu() called with: " + "menu = [" + menu + "]");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_links_list, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = null;
+        if (searchItem != null) {
+            searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        }
+        if (searchView != null) {
+            searchView.setOnQueryTextListener(this);
+            // Not sure why passing in mSearchTerm into setQuery() below isn't working
+            // Creating a copy of the String inside the if block below didn't work either
+            final String searchTerm = mSearchTerm;
+            if (!TextUtils.isEmpty(searchTerm)) {
+                Log.v(LOG_TAG, "onCreateOptionsMenu: searchTerm = [" + searchTerm + "]");
+                searchView.onActionViewExpanded();
+                searchView.setQuery(searchTerm, false);
+            }
+        }
         return true;
     }
 
@@ -243,15 +266,7 @@ public class LinksListActivity extends BaseLinkActivity
                 break;
         }
 
-        if (isUpdated) {
-            // TODO: Improve this since there will be more filter modes in the future
-            if (mFilterMode == LinkStorage.FILTER_CATEGORY) {
-                showCategoryLinks(mSearchTerm);
-            } else {
-                showAllLinks();
-            }
-        }
-
+        if (isUpdated) updateUiAfterFilterModeChange();
         return isUpdated || super.onOptionsItemSelected(item);
     }
 
@@ -261,10 +276,10 @@ public class LinksListActivity extends BaseLinkActivity
         int id = item.getItemId();
         if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
             Log.i(LOG_TAG, "onNavigationItemSelected: Is checkable " + item.isCheckable());
-            mSearchTerm = item.getTitle().toString();
-            Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + mSearchTerm);
+            mCategory = item.getTitle().toString();
+            Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + mCategory);
             mFilterMode = LinkStorage.FILTER_CATEGORY;
-            showCategoryLinks(mSearchTerm);
+            showCategoryLinks(mCategory);
         } else {
             boolean isUpdated = false; // True to update the UI with the changes
             switch (id) {
@@ -303,10 +318,26 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
+    public boolean onQueryTextSubmit(String query) {
+        Log.v(LOG_TAG, "onQueryTextSubmit() called with: " + "query = [" + query + "]");
+        handleSearch(query);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        Log.v(LOG_TAG, "onQueryTextChange() called with: " + "newText = [" + newText + "]");
+        handleSearch(newText);
+        return true;
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.v(LOG_TAG, "onSaveInstanceState() called with: " + "outState = [" + outState + "]");
         outState.putString(STATE_SEARCH_TERM, mSearchTerm);
+        outState.putString(STATE_CATEGORY, mCategory);
         outState.putInt(STATE_FILTER_MODE, mFilterMode);
+        outState.putInt(STATE_PREVIOUS_FILTER_MODE, mPreviousFilterMode);
         outState.putInt(STATE_SORT_MODE, mSortMode);
         Log.d(LOG_TAG, "onSaveInstanceState() returned: " + outState);
         super.onSaveInstanceState(outState);
@@ -608,6 +639,20 @@ public class LinksListActivity extends BaseLinkActivity
         });
     }
 
+    private void handleSearch(String query) {
+        Log.v(LOG_TAG, "handleSearch() called with: " + "query = [" + query + "]");
+        mSearchTerm = query;
+        if (!mSearchTerm.isEmpty()) {
+            if (mFilterMode != LinkStorage.FILTER_SEARCH) mPreviousFilterMode = mFilterMode;
+            mFilterMode = LinkStorage.FILTER_SEARCH;
+            showSearchResultLinks(mSearchTerm);
+        } else {
+            // Restore the pre-search view state
+            mFilterMode = mPreviousFilterMode;
+            updateUiAfterFilterModeChange();
+        }
+    }
+
     private void populateDrawerCategories() {
         Log.v(LOG_TAG, "populateDrawerCategories()");
         Set<String> categories = mLinkStorage.getCategories();
@@ -651,6 +696,13 @@ public class LinksListActivity extends BaseLinkActivity
         updateUiAfterAdapterChange();
     }
 
+    private void showSearchResultLinks(String searchTerm) {
+        Log.v(LOG_TAG,
+                "showSearchResultLinks() called with: " + "searchTerm = [" + searchTerm + "]");
+        mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByString(searchTerm, mSortMode));
+        updateUiAfterAdapterChange();
+    }
+
     private void touchHelperSetup() {
         Log.v(LOG_TAG, "touchHelperSetup()");
         ItemTouchHelperCallback callback =
@@ -685,7 +737,11 @@ public class LinksListActivity extends BaseLinkActivity
                 break;
             case LinkStorage.FILTER_CATEGORY:
                 format = getString(R.string.title_category_links_format);
-                title = mSearchTerm;
+                title = mCategory;
+                break;
+            case LinkStorage.FILTER_SEARCH:
+                format = getString(R.string.title_category_links_format);
+                title = mSearchTerm; // TODO: "Search Results"
                 break;
         }
 
@@ -722,5 +778,31 @@ public class LinksListActivity extends BaseLinkActivity
         }
         updateToolbarTitle();
         addLinksChangeListener();
+    }
+
+    /**
+     * Handles updating the Toolbar title with the current mode the application is in. These modes
+     * include which section the user was browsing (All, Archived, etc) and the sorting options they
+     * used. This method should be called during onResume(), after a search is cancelled and
+     * whenever the user decides to change the current section to browse (All, Archived, etc.)
+     */
+    private void updateUiAfterFilterModeChange() {
+        Log.v(LOG_TAG, "updateUiAfterFilterModeChange()");
+        switch (mFilterMode) {
+            case LinkStorage.FILTER_CATEGORY:
+                showCategoryLinks(mCategory);
+                break;
+            case LinkStorage.FILTER_SEARCH:
+                showSearchResultLinks(mSearchTerm);
+                break;
+            case LinkStorage.FILTER_ALL:
+            case LinkStorage.FILTER_ARCHIVED:
+            case LinkStorage.FILTER_FAVORITES:
+            case LinkStorage.FILTER_FRESH:
+            default:
+                // showAllLinks() handles the above filters, keep the fall-through!
+                showAllLinks();
+                break;
+        }
     }
 }

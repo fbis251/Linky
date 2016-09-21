@@ -31,6 +31,7 @@ public class LinkStorage {
     public static final int FILTER_FAVORITES = 2;
     public static final int FILTER_ARCHIVED  = 3;
     public static final int FILTER_CATEGORY  = 4;
+    public static final int FILTER_SEARCH    = 5;
 
     // Sorting
     public static final int SORT_TITLE_ASCENDING      = 0;
@@ -78,15 +79,15 @@ public class LinkStorage {
         return mRealm.where(Link.class).equalTo(COLUMN_LINK_ID, linkId).findFirst();
     }
 
-    public RealmResults<Link> findByString(String searchTerm) {
+    public RealmResults<Link> findByString(String searchTerm, @SortMode int sortMode) {
         Log.v(LOG_TAG, "findByString() called with: " + "searchTerm = [" + searchTerm + "]");
-        return mRealm.where(Link.class)
+        RealmQuery<Link> query = mRealm.where(Link.class)
                 .contains(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE)
                 .or()
                 .contains(COLUMN_TITLE, searchTerm, Case.INSENSITIVE)
                 .or()
-                .contains(COLUMN_URL, searchTerm, Case.INSENSITIVE)
-                .findAllSorted(COLUMN_TITLE, Sort.ASCENDING);
+                .contains(COLUMN_URL, searchTerm, Case.INSENSITIVE);
+        return applyQuerySort(query, null, FILTER_ALL, sortMode);
     }
 
     public RealmResults<Link> findByUrl(String url) {
@@ -160,21 +161,6 @@ public class LinkStorage {
         });
     }
 
-    public void setCategory(@NonNull final Link link, @Nullable final String category) {
-        Log.v(LOG_TAG, "setCategory() called with: "
-                + "link = ["
-                + link
-                + "], category = ["
-                + category
-                + "]");
-        mRealm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                link.setCategory(category);
-            }
-        });
-    }
-
     public void setArchived(final Link link, final boolean isArchived) {
         Log.v(LOG_TAG, "setArchived() called with: "
                 + "link = ["
@@ -188,6 +174,21 @@ public class LinkStorage {
             public void execute(Realm realm) {
                 link.setArchived(isArchived);
                 Log.i(LOG_TAG, "setArchived: Edited Link: " + link);
+            }
+        });
+    }
+
+    public void setCategory(@NonNull final Link link, @Nullable final String category) {
+        Log.v(LOG_TAG, "setCategory() called with: "
+                + "link = ["
+                + link
+                + "], category = ["
+                + category
+                + "]");
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                link.setCategory(category);
             }
         });
     }
@@ -244,7 +245,10 @@ public class LinkStorage {
     }
 
     // Query results filtering
-    @IntDef({FILTER_FRESH, FILTER_ALL, FILTER_FAVORITES, FILTER_ARCHIVED, FILTER_CATEGORY})
+    @IntDef({
+            FILTER_FRESH, FILTER_ALL, FILTER_FAVORITES, FILTER_ARCHIVED, FILTER_CATEGORY,
+            FILTER_SEARCH
+    })
     @Retention(RetentionPolicy.SOURCE)
     public @interface FilterMode {
     }
