@@ -39,10 +39,10 @@ public class ServiceGenerator {
             }
         }
 
-        return createService(serviceClass, apiUrl, null);
+        return createService(serviceClass, apiUrl, -1, null);
     }
 
-    public static <S> S createService(Class<S> serviceClass, final URL apiUrl,
+    public static <S> S createService(Class<S> serviceClass, final URL apiUrl, final long userId,
             final String authToken) throws InvalidApiUrlException {
         if (!isApiUrlValid(apiUrl)) {
             throw new InvalidApiUrlException();
@@ -57,8 +57,9 @@ public class ServiceGenerator {
                 public Response intercept(Interceptor.Chain chain) throws IOException {
                     Request original = chain.request();
 
+                    String userIdString = Long.valueOf(userId).toString();
                     Request.Builder requestBuilder = original.newBuilder()
-                            .header("Authorization", Credentials.basic(authToken, ""))
+                            .header("Authorization", Credentials.basic(userIdString, authToken))
                             .method(original.method(), original.body());
 
                     Request request = requestBuilder.build();

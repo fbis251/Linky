@@ -116,8 +116,8 @@ public class BaseLinkActivity extends AppCompatActivity {
 
     protected void serviceSetup() {
         Log.v(LOG_TAG, "serviceSetup()");
-        String refreshToken = mPreferences.getAuthToken();
-        if (TextUtils.isEmpty(refreshToken)) {
+        String authToken = mPreferences.getAuthString();
+        if (TextUtils.isEmpty(authToken)) {
             Log.i(LOG_TAG, "serviceSetup: No refresh token stored, starting LoginActivity");
             launchLoginActivity();
         }

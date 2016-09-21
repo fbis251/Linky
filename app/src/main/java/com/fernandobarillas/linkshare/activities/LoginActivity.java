@@ -257,10 +257,13 @@ public class LoginActivity extends BaseLinkActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         LoginResponse loginResponse =
                                 gson.fromJson(response.body().string(), LoginResponse.class);
-                        String authToken = loginResponse.getAuthToken();
-                        if (!TextUtils.isEmpty(authToken)) {
+                        long userId = loginResponse.getUserId();
+                        String authString = loginResponse.getAuthString();
+                        if (!TextUtils.isEmpty(authString)
+                                && userId != LoginResponse.INVALID_USER_ID) {
                             mPreferences.setApiUrl(apiUrl.toString());
-                            mPreferences.setAuthToken(authToken);
+                            mPreferences.setUserId(userId);
+                            mPreferences.setAuthString(authString);
                             mPreferences.setUsername(loginResponse.getUsername());
                             Log.i(LOG_TAG, "doLogin Login completed, starting LinksListActivity");
                             startActivity(

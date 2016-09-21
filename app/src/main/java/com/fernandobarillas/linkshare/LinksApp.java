@@ -45,7 +45,7 @@ public class LinksApp extends Application {
             getPreferences();
             mLinkService =
                     ServiceGenerator.createService(LinkService.class, mPreferences.getApiUrl(),
-                            mPreferences.getAuthToken());
+                            mPreferences.getUserId(), mPreferences.getAuthString());
         }
         return mLinkService;
     }
