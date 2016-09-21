@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -71,6 +72,7 @@ public class LinksListActivity extends BaseLinkActivity
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView       mRecyclerView;
     private LinksAdapter       mLinksAdapter;
+    private SearchView         mSearchView;
 
     // Sorting and filtering for results
     private String mCategory;
@@ -220,19 +222,19 @@ public class LinksListActivity extends BaseLinkActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_links_list, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = null;
+        mSearchView = null;
         if (searchItem != null) {
-            searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+            mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         }
-        if (searchView != null) {
-            searchView.setOnQueryTextListener(this);
+        if (mSearchView != null) {
+            mSearchView.setOnQueryTextListener(this);
             // Not sure why passing in mSearchTerm into setQuery() below isn't working
             // Creating a copy of the String inside the if block below didn't work either
             final String searchTerm = mSearchTerm;
             if (!TextUtils.isEmpty(searchTerm)) {
                 Log.v(LOG_TAG, "onCreateOptionsMenu: searchTerm = [" + searchTerm + "]");
-                searchView.onActionViewExpanded();
-                searchView.setQuery(searchTerm, false);
+                mSearchView.onActionViewExpanded();
+                mSearchView.setQuery(searchTerm, false);
             }
         }
         return true;
@@ -242,8 +244,9 @@ public class LinksListActivity extends BaseLinkActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(LOG_TAG, "onOptionsItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
-        boolean isUpdated = true; // True to update the UI with the changes
 
+        // Keep track of the current SortMode to update the UI if it changes
+        int lastSortMode = mSortMode;
         switch (id) {
             case (R.id.sort_title_ascending):
                 Log.d(LOG_TAG, "onOptionsItemSelected: Title Ascending");
@@ -262,57 +265,57 @@ public class LinksListActivity extends BaseLinkActivity
                 mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
                 break;
             default:
-                isUpdated = false;
                 break;
         }
 
-        if (isUpdated) updateUiAfterFilterModeChange();
-        return isUpdated || super.onOptionsItemSelected(item);
+        if (lastSortMode != mSortMode) {
+            updateUiAfterFilterModeChange();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Log.v(LOG_TAG, "onNavigationItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
+
+        // Keep track of the current filter mode to update the UI if it changes
+        int lastFilterMode = mFilterMode;
         if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
-            Log.i(LOG_TAG, "onNavigationItemSelected: Is checkable " + item.isCheckable());
+            mFilterMode = LinkStorage.FILTER_CATEGORY;
             mCategory = item.getTitle().toString();
             Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + mCategory);
-            mFilterMode = LinkStorage.FILTER_CATEGORY;
-            showCategoryLinks(mCategory);
         } else {
-            boolean isUpdated = false; // True to update the UI with the changes
             switch (id) {
                 case (R.id.nav_fresh_links):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying fresh Links");
                     mFilterMode = LinkStorage.FILTER_FRESH;
-                    isUpdated = true;
                     break;
                 case (R.id.nav_all_links):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying all Links");
                     mFilterMode = LinkStorage.FILTER_ALL;
-                    isUpdated = true;
                     break;
                 case (R.id.nav_favorites):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying favorite Links");
                     mFilterMode = LinkStorage.FILTER_FAVORITES;
-                    isUpdated = true;
                     break;
                 case (R.id.nav_archived):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Displaying archived Links");
                     mFilterMode = LinkStorage.FILTER_ARCHIVED;
-                    isUpdated = true;
                     break;
                 case (R.id.nav_settings):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Opening Settings");
                     Toast.makeText(LinksListActivity.this, "Settings coming soon",
                             Toast.LENGTH_SHORT).show();
                     return false;
+                default:
+                    break;
             }
-
-            if (isUpdated) showAllLinks();
         }
 
+        if (lastFilterMode != mFilterMode) updateUiAfterFilterModeChange();
         closeDrawer();
         return true;
     }
@@ -642,15 +645,24 @@ public class LinksListActivity extends BaseLinkActivity
     private void handleSearch(String query) {
         Log.v(LOG_TAG, "handleSearch() called with: " + "query = [" + query + "]");
         mSearchTerm = query;
+        // Keep track of the current filter mode to update the UI if it changes
+        int lastFilterMode = mFilterMode;
+
         if (!mSearchTerm.isEmpty()) {
-            if (mFilterMode != LinkStorage.FILTER_SEARCH) mPreviousFilterMode = mFilterMode;
+            Log.v(LOG_TAG, "handleSearch: Searching for mSearchTerm = [" + mSearchTerm + "]");
+            if (mFilterMode != LinkStorage.FILTER_SEARCH) {
+                // mPreviousFilterMode keeps track of the pre-search filter mode to make restoring
+                // that mode easy during onResume(), etc
+                mPreviousFilterMode = mFilterMode;
+            }
             mFilterMode = LinkStorage.FILTER_SEARCH;
             showSearchResultLinks(mSearchTerm);
         } else {
-            // Restore the pre-search view state
+            Log.v(LOG_TAG, "handleSearch: Restoring previous view state");
             mFilterMode = mPreviousFilterMode;
-            updateUiAfterFilterModeChange();
         }
+
+        if (lastFilterMode != mFilterMode) updateUiAfterFilterModeChange();
     }
 
     private void populateDrawerCategories() {
@@ -788,20 +800,24 @@ public class LinksListActivity extends BaseLinkActivity
      */
     private void updateUiAfterFilterModeChange() {
         Log.v(LOG_TAG, "updateUiAfterFilterModeChange()");
+        boolean skipShowAllLinks = false;
         switch (mFilterMode) {
-            case LinkStorage.FILTER_CATEGORY:
-                showCategoryLinks(mCategory);
-                break;
             case LinkStorage.FILTER_SEARCH:
                 showSearchResultLinks(mSearchTerm);
                 break;
+            case LinkStorage.FILTER_CATEGORY:
+                showCategoryLinks(mCategory);
+                skipShowAllLinks = true; // Don't call showAllLinks() after fallthrough
+                // Don't call break to handle hiding the SearchView below!
             case LinkStorage.FILTER_ALL:
             case LinkStorage.FILTER_ARCHIVED:
             case LinkStorage.FILTER_FAVORITES:
             case LinkStorage.FILTER_FRESH:
             default:
-                // showAllLinks() handles the above filters, keep the fall-through!
-                showAllLinks();
+                // showAllLinks() handles the above filters, keep the fallthrough!
+                if (!skipShowAllLinks) showAllLinks();
+                mPreviousFilterMode = mFilterMode;
+                if (mSearchView != null) mSearchView.onActionViewCollapsed();
                 break;
         }
     }
