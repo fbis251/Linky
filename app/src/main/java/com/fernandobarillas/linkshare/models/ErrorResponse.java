@@ -4,7 +4,7 @@ package com.fernandobarillas.linkshare.models;
  * Created by fb on 6/29/16.
  */
 public class ErrorResponse {
-    String statusMessage;
+    private String statusMessage;
 
     @Override
     public String toString() {

@@ -20,14 +20,14 @@ import io.realm.annotations.RealmClass;
 public class Link implements RealmModel {
 
     @PrimaryKey
-    long   linkId;
+    private long    linkId;
     @Index
-    String category;
-    boolean isArchived;
-    boolean isFavorite;
-    long    timestamp;
-    String  title;
-    String  url;
+    private String  category;
+    private boolean isArchived;
+    private boolean isFavorite;
+    private long    timestamp;
+    private String  title;
+    private String  url;
 
     public Link() {
     }
