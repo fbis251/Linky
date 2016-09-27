@@ -118,7 +118,6 @@ public class LinksListActivity extends BaseLinkActivity
     protected void onResume() {
         Log.v(LOG_TAG, "onResume()");
         super.onResume();
-        updateUiAfterFilterModeChange();
         if (mLinkStorage.getLinksCount() == 0) {
             getList();
         } else {
@@ -147,12 +146,13 @@ public class LinksListActivity extends BaseLinkActivity
             mCategory = savedInstanceState.getString(STATE_CATEGORY);
             mSearchTerm = savedInstanceState.getString(STATE_SEARCH_TERM);
             //noinspection WrongConstant
-            mFilterMode = savedInstanceState.getInt(STATE_FILTER_MODE, mFilterMode);
+            mFilterMode = savedInstanceState.getInt(STATE_FILTER_MODE, LinkStorage.FILTER_FRESH);
             //noinspection WrongConstant
             mPreviousFilterMode =
-                    savedInstanceState.getInt(STATE_PREVIOUS_FILTER_MODE, mPreviousFilterMode);
+                    savedInstanceState.getInt(STATE_PREVIOUS_FILTER_MODE, LinkStorage.FILTER_FRESH);
             //noinspection WrongConstant
-            mSortMode = savedInstanceState.getInt(STATE_SORT_MODE, mSortMode);
+            mSortMode = savedInstanceState.getInt(STATE_SORT_MODE,
+                    LinkStorage.SORT_TIMESTAMP_DESCENDING);
         }
 
         setContentView(R.layout.activity_links_list);
@@ -753,7 +753,7 @@ public class LinksListActivity extends BaseLinkActivity
                 break;
             case LinkStorage.FILTER_SEARCH:
                 format = getString(R.string.title_category_links_format);
-                title = mSearchTerm; // TODO: "Search Results"
+                title = mSearchTerm;
                 break;
         }
 
