@@ -38,8 +38,7 @@ public class BaseLinkActivity extends AppCompatActivity {
 
         // Initialize the database
         mLinksApp = (LinksApp) getApplicationContext();
-
-        mRealm = Realm.getInstance(mLinksApp.getRealmConfiguration());
+        mRealm = Realm.getDefaultInstance();
         mLinkStorage = new LinkStorage(mRealm);
         mPreferences = mLinksApp.getPreferences();
     }
