@@ -16,7 +16,7 @@
 
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:gravity="center_horizontal"
@@ -38,8 +38,8 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/title"
                     android:maxLength="100"
-                    android:text="@{link.title}"
                     android:minHeight="?android:attr/listPreferredItemHeight"
+                    android:text="@{link.title}"
                     tools:text="The max length of the title is 100 characters. This is what it looks like to have 100 characters!!!!"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -56,18 +56,26 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/address"
                     android:inputType="textUri"
-                    android:text="@{link.url}"
                     android:minHeight="?android:attr/listPreferredItemHeight"
+                    android:text="@{link.url}"
                     tools:text="http://www.example.com/some_page.html"/>
 
         </android.support.design.widget.TextInputLayout>
 
-        <Spinner
-                android:id="@+id/edit_link_categories_spinner"
+        <android.support.design.widget.TextInputLayout
+                android:id="@+id/edit_link_category_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/edit_link_url_layout"
-                android:minHeight="?android:attr/listPreferredItemHeight"/>
+                android:layout_below="@id/edit_link_url_layout">
+
+            <AutoCompleteTextView
+                    android:id="@+id/edit_link_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/category"
+                    android:minHeight="?android:attr/listPreferredItemHeight"
+                    android:text="@{link.category}"/>
+        </android.support.design.widget.TextInputLayout>
 
         <Switch
                 android:id="@+id/edit_link_archived_switch"
@@ -83,8 +91,8 @@
                 android:id="@id/edit_link_favorite_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignEnd="@id/edit_link_categories_spinner"
-                android:layout_below="@id/edit_link_categories_spinner"
+                android:layout_alignEnd="@id/edit_link_category_layout"
+                android:layout_below="@id/edit_link_category_layout"
                 android:checked="@{link.favorite}"
                 android:minHeight="?android:attr/listPreferredItemHeight"
                 android:text="@string/favorite"/>
