@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -17,30 +18,33 @@
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:minWidth="500dp"
             tools:context=".activities.EditLinkActivity">
 
-        <RelativeLayout
+        <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:gravity="center_horizontal"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                >
+                android:paddingTop="@dimen/activity_vertical_margin">
 
             <android.support.design.widget.TextInputLayout
                     android:id="@+id/edit_link_title_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                 <EditText
                         android:id="@+id/edit_link_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/title"
+                        android:inputType="textCapWords"
                         android:maxLength="100"
                         android:minHeight="?android:attr/listPreferredItemHeight"
                         android:text="@{link.title}"
@@ -50,9 +54,12 @@
 
             <android.support.design.widget.TextInputLayout
                     android:id="@+id/edit_link_url_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/edit_link_title_layout">
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_link_title_layout">
 
                 <EditText
                         android:id="@+id/edit_link_url"
@@ -68,16 +75,21 @@
 
             <android.support.design.widget.TextInputLayout
                     android:id="@+id/edit_link_category_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/edit_link_url_layout">
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_link_url_layout">
 
                 <AutoCompleteTextView
                         android:id="@+id/edit_link_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/category"
+                        android:imeOptions="actionDone"
                         android:minHeight="?android:attr/listPreferredItemHeight"
+                        android:singleLine="true"
                         android:text="@{link.category}"/>
             </android.support.design.widget.TextInputLayout>
 
@@ -85,44 +97,46 @@
                     android:id="@+id/edit_link_archived_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/edit_link_favorite_switch"
-                    android:layout_toStartOf="@id/edit_link_favorite_switch"
+                    android:layout_marginEnd="8dp"
                     android:checked="@{link.archived}"
                     android:minHeight="?android:attr/listPreferredItemHeight"
-                    android:text="@string/archived"/>
+                    android:text="@string/archived"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/edit_link_favorite_switch"
+                    app:layout_constraintRight_toLeftOf="@+id/edit_link_favorite_switch"/>
 
             <Switch
-                    android:id="@id/edit_link_favorite_switch"
+                    android:id="@+id/edit_link_favorite_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignEnd="@id/edit_link_category_layout"
-                    android:layout_below="@id/edit_link_category_layout"
+                    android:layout_marginTop="8dp"
                     android:checked="@{link.favorite}"
                     android:minHeight="?android:attr/listPreferredItemHeight"
-                    android:text="@string/favorite"/>
+                    android:text="@string/favorite"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_link_category_layout"/>
 
             <Button
                     android:id="@+id/edit_link_save_button"
                     style="@style/AppButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/edit_link_favorite_switch"
-                    android:layout_gravity="end"
-                    android:layout_toEndOf="@id/edit_link_archived_switch"
+                    android:layout_marginTop="8dp"
                     android:onClick="@{editHandler::onClickSave}"
-                    android:text="@string/save"/>
+                    android:text="@string/save"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_link_favorite_switch"/>
 
             <Button
                     android:id="@+id/edit_link_cancel_button"
                     style="@style/AppButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/edit_link_archived_switch"
-                    android:layout_gravity="end"
-                    android:layout_toStartOf="@+id/edit_link_save_button"
+                    android:layout_marginEnd="8dp"
                     android:onClick="@{editHandler::onClickCancel}"
-                    android:text="@string/cancel"/>
+                    android:text="@string/cancel"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/edit_link_save_button"
+                    app:layout_constraintRight_toLeftOf="@+id/edit_link_save_button"/>
 
-        </RelativeLayout>
+        </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </layout>
