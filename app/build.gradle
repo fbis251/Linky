@@ -5,7 +5,7 @@ android {
     compileSdkVersion 24
     buildToolsVersion '24.0.2'
     defaultConfig {
-        applicationId "com.fernandobarillas.linkshare"
+        applicationId 'com.fernandobarillas.linkshare'
         minSdkVersion 15
         targetSdkVersion 24
         versionCode 9
@@ -45,6 +45,14 @@ android {
             applicationIdSuffix '.debug'
         }
     }
+    splits {
+        abi {
+            enable project.hasProperty('abiSplitBuild')
+            reset()
+            include 'armeabi-v7a', 'mips', 'x86'
+            universalApk true
+        }
+    }
 }
 
 dependencies {
@@ -72,6 +80,6 @@ def readKeystoreProperties() {
         android.signingConfigs[configName].storePassword = props['storePassword']
         android.signingConfigs[configName].keyAlias = props['keyAlias']
         android.signingConfigs[configName].keyPassword = props['keyPassword']
-        println "===== read keystore properties success ====="
+        println '===== read keystore properties success ====='
     }
 }
