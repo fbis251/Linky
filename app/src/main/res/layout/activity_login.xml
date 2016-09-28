@@ -31,10 +31,10 @@
                 android:orientation="vertical">
 
             <CheckBox
+                    android:id="@+id/http_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/prompt_http"
-                    android:id="@+id/http_checkbox"/>
+                    android:text="@string/prompt_http"/>
 
             <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
@@ -83,9 +83,10 @@
 
             <Button
                     android:id="@+id/sign_in_button"
-                    style="?android:textAppearanceSmall"
-                    android:layout_width="match_parent"
+                    style="@style/AppButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="end"
                     android:layout_marginTop="16dp"
                     android:text="@string/action_sign_in"
                     android:textStyle="bold"/>
