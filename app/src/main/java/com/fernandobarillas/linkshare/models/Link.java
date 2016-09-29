@@ -1,6 +1,5 @@
 package com.fernandobarillas.linkshare.models;
 
-
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 

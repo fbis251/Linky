@@ -69,9 +69,9 @@ public class ServiceGenerator {
         }
 
         OkHttpClient client;
-        if(BuildConfig.DEBUG && BuildConfig.USE_HTTP_PROXY) {
-            SocketAddress proxyAddress =
-                    new InetSocketAddress(BuildConfig.HTTP_PROXY_ADDRESS, BuildConfig.HTTP_PROXY_PORT);
+        if (BuildConfig.DEBUG && BuildConfig.USE_HTTP_PROXY) {
+            SocketAddress proxyAddress = new InetSocketAddress(BuildConfig.HTTP_PROXY_ADDRESS,
+                    BuildConfig.HTTP_PROXY_PORT);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
             httpClient = httpClient.proxy(proxy);
         }
