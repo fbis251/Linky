@@ -64,7 +64,7 @@ public class BaseLinkActivity extends AppCompatActivity {
         Log.v(LOG_TAG, "openUrlExternally() called with: " + "url = [" + url + "]");
         if (url == null) return;
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-
+        browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         // Make sure that we have applications installed that can handle this intent
         if (browserIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(browserIntent);
