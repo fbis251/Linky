@@ -1,6 +1,3 @@
-*.iml
-/.idea/workspace.xml
-/.idea/libraries
 .DS_Store
 
 # ---> Android
@@ -36,3 +33,10 @@ proguard/
 
 # Android Studio captures folder
 captures/
+
+# Intellij
+*.iml
+.idea/*
+!.idea/.name
+!.idea/codeStyleSettings.xml
+!.idea/copyright
