@@ -3,6 +3,7 @@ package com.fernandobarillas.linkshare.activities;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
@@ -10,7 +11,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.Switch;
 
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.databinding.ActivityEditLinkBinding;
@@ -34,8 +34,8 @@ public class EditLinkActivity extends BaseLinkActivity {
     private EditText             mTitleEditText;
     private EditText             mUrlEditText;
     private AutoCompleteTextView mCategoryEditText;
-    private Switch               mArchivedSwitch;
-    private Switch               mFavoriteSwitch;
+    private SwitchCompat         mArchivedSwitch;
+    private SwitchCompat         mFavoriteSwitch;
 
     private Link mIntentLink;
 
@@ -97,6 +97,7 @@ public class EditLinkActivity extends BaseLinkActivity {
         };
 
         mTitleEditText.setFilters(noReturnsInputFilter);
+        mCategoryEditText.setFilters(noReturnsInputFilter);
 
         List<String> categoryList = new ArrayList<>(mLinkStorage.getCategories());
         ArrayAdapter<String> adapter =
