@@ -123,18 +123,26 @@ public class BaseLinkActivity extends AppCompatActivity {
         finish();
     }
 
+    protected void performLogout() {
+        Log.v(LOG_TAG, "performLogout()");
+        mPreferences.deleteAllPreferences();
+        mLinkStorage.deleteAllLinks();
+        launchLoginActivity();
+    }
+
     protected void serviceSetup() {
         Log.v(LOG_TAG, "serviceSetup()");
         String authToken = mPreferences.getAuthString();
         if (TextUtils.isEmpty(authToken)) {
             Log.i(LOG_TAG, "serviceSetup: No refresh token stored, starting LoginActivity");
-            launchLoginActivity();
+            performLogout();
+            return;
         }
         try {
             mLinkService = mLinksApp.getLinkService();
         } catch (InvalidApiUrlException e) {
             Log.e(LOG_TAG, "serviceSetup: Invalid API URL, launching login activity", e);
-            launchLoginActivity();
+            performLogout();
         }
     }
 

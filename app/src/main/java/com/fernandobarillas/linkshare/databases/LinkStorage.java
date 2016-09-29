@@ -69,6 +69,17 @@ public class LinkStorage {
         });
     }
 
+    public void deleteAllLinks() {
+        Log.v(LOG_TAG, "deleteAllLinks()");
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                mRealm.deleteAll();
+                Log.i(LOG_TAG, "deleteAllLinks execute: Deleted all links from the database");
+            }
+        });
+    }
+
     public RealmResults<Link> findByCategory(String category, @SortMode int sortMode) {
         Log.v(LOG_TAG, "findByCategory() called with: " + "category = [" + category + "]");
         return applyQuerySort(mRealm.where(Link.class), category, FILTER_CATEGORY, sortMode);
@@ -90,11 +101,6 @@ public class LinkStorage {
         return applyQuerySort(query, null, FILTER_ALL, sortMode);
     }
 
-    public RealmResults<Link> findByUrl(String url) {
-        Log.v(LOG_TAG, "findByUrl() called with: " + "url = [" + url + "]");
-        return mRealm.where(Link.class).equalTo(COLUMN_URL, url).findAll();
-    }
-
     public RealmResults<Link> getAllLinks(@FilterMode int filterMode, @SortMode int sortMode) {
         Log.v(LOG_TAG, "getAllLinks()");
         return applyQuerySort(mRealm.where(Link.class), null, filterMode, sortMode);
@@ -113,7 +119,6 @@ public class LinkStorage {
         }
 
         Log.i(LOG_TAG, "getCategories: Unique category count: " + categories.size());
-        // TODO: It's better if this returns RealmResults<Link> since the caller can then be notified of newly added categories
         return categories;
     }
 

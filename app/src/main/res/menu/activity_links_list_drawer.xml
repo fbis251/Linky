@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+            android:id="@+id/nav_drawer_account">
+        <item
+                android:id="@+id/nav_log_out"
+                android:icon="@drawable/ic_delete_grey_600_24dp"
+                android:title="@string/nav_log_out"/>
+    </group>
 
-    <group android:checkableBehavior="single">
+    <group
+            android:id="@+id/nav_drawer_main"
+            android:checkableBehavior="single">
         <item
                 android:id="@+id/nav_fresh_links"
                 android:icon="@drawable/ic_fresh_links_24dp"

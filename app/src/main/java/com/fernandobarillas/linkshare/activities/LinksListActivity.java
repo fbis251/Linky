@@ -70,6 +70,7 @@ public class LinksListActivity extends BaseLinkActivity
     private static final String STATE_SORT_MODE            = "sortMode";
 
     private DrawerLayout       mDrawerLayout;
+    private TextView           mDrawerUsername;
     private NavigationView     mNavigationView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView       mRecyclerView;
@@ -171,7 +172,10 @@ public class LinksListActivity extends BaseLinkActivity
         toggle.syncState();
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-        mNavigationView.setNavigationItemSelectedListener(this);
+        if (mNavigationView != null) {
+            mNavigationView.setNavigationItemSelectedListener(this);
+            showNavAccountMenu(false);
+        }
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -198,12 +202,14 @@ public class LinksListActivity extends BaseLinkActivity
         // Set up the drawer's username
         View header = mNavigationView.getHeaderView(0);
         if (header != null) {
-            TextView drawerUsername = (TextView) header.findViewById(R.id.nav_drawer_username);
-            if (drawerUsername != null) {
+            mDrawerUsername = (TextView) header.findViewById(R.id.nav_drawer_username);
+            if (mDrawerUsername != null) {
                 String title = String.format(getString(R.string.nav_welcome_format),
                         mPreferences.getUsername());
-                drawerUsername.setText(title);
-                Log.i(LOG_TAG, "onCreate: userdrawer Set drawer text: " + drawerUsername.getText());
+                mDrawerUsername.setText(title);
+                Log.i(LOG_TAG,
+                        "onCreate: userdrawer Set drawer text: " + mDrawerUsername.getText());
+                mDrawerUsername.setOnClickListener(navAccountShowListener());
             }
         }
     }
@@ -285,7 +291,10 @@ public class LinksListActivity extends BaseLinkActivity
 
         // Keep track of the current filter mode to update the UI if it changes
         int lastFilterMode = mFilterMode;
-        if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
+        if (item.getGroupId() == R.id.nav_drawer_account) {
+            Log.v(LOG_TAG, "onNavigationItemSelected: item = [" + item + "]");
+            performLogout();
+        } else if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
             mFilterMode = LinkStorage.FILTER_CATEGORY;
             mCategory = item.getTitle().toString();
             Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + mCategory);
@@ -677,6 +686,31 @@ public class LinksListActivity extends BaseLinkActivity
         if (lastFilterMode != mFilterMode) updateUiAfterFilterModeChange();
     }
 
+    private View.OnClickListener navAccountHideListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNavAccountMenu(false);
+                if (mDrawerUsername != null) {
+                    mDrawerUsername.setOnClickListener(navAccountShowListener());
+                }
+            }
+        };
+    }
+
+    private View.OnClickListener navAccountShowListener() {
+        return new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showNavAccountMenu(true);
+                if (mDrawerUsername != null) {
+                    mDrawerUsername.setOnClickListener(navAccountHideListener());
+                }
+            }
+        };
+    }
+
     private void populateDrawerCategories() {
         Log.v(LOG_TAG, "populateDrawerCategories()");
         Set<String> categories = mLinkStorage.getCategories();
@@ -718,6 +752,14 @@ public class LinksListActivity extends BaseLinkActivity
         }
         mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByCategory(searchTerm, mSortMode));
         updateUiAfterAdapterChange();
+    }
+
+    private void showNavAccountMenu(final boolean show) {
+        Log.v(LOG_TAG, "showNavAccountMenu() called with: " + "show = [" + show + "]");
+        if (mNavigationView == null) return;
+        Menu menu = mNavigationView.getMenu();
+        if (menu == null) return;
+        menu.setGroupVisible(R.id.nav_drawer_account, show);
     }
 
     private void showSearchResultLinks(String searchTerm) {
@@ -837,10 +879,6 @@ public class LinksListActivity extends BaseLinkActivity
     class BottomSheetLinkListener implements BottomSheetListener {
         private int mLinkPosition;
 
-        BottomSheetLinkListener(int linkPosition) {
-            mLinkPosition = linkPosition;
-        }
-
         @Override
         public void onSheetShown(@NonNull BottomSheet bottomSheet) {
         }
@@ -879,6 +917,10 @@ public class LinksListActivity extends BaseLinkActivity
 
         @Override
         public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {
+        }
+
+        BottomSheetLinkListener(int linkPosition) {
+            mLinkPosition = linkPosition;
         }
     }
 }

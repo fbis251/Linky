@@ -20,6 +20,10 @@ public class AppPreferences {
         mPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
     }
 
+    public void deleteAllPreferences() {
+        mPreferences.edit().clear().commit();
+    }
+
     public URL getApiUrl() {
         try {
             return new URL(mPreferences.getString(KEY_API_URL, null));
