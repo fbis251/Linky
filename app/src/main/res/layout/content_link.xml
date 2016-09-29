@@ -85,6 +85,7 @@
                 android:id="@+id/link_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/link_information_margin"
                 android:layout_marginStart="@dimen/link_information_margin"
                 android:background="@{link.category != null ? @drawable/link_category_bg : null}"
                 android:text="@{link.category.toLowerCase()}"
@@ -103,50 +104,5 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
-        <LinearLayout
-                android:id="@+id/link_tools_layout"
-                android:layout_width="0dp"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/bottom_spacer"
-                tools:layout_editor_absoluteX="0dp">
-
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
-                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
-                    android:onClick="@{handler::onClickDelete}"
-                    android:src="@drawable/ic_delete_white_24dp"/>
-
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
-                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
-                    android:onClick="@{handler::onClickEdit}"
-                    android:src="@drawable/ic_edit_white_24dp"/>
-
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
-                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
-                    android:onClick="@{handler::onClickCopy}"
-                    android:src="@drawable/ic_copy_white_24dp"/>
-
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/link_options_horizontal_margin"
-                    android:layout_marginStart="@dimen/link_options_horizontal_margin"
-                    android:onClick="@{handler::onClickShare}"
-                    android:src="@drawable/ic_share_white_24dp"/>
-        </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 </layout>

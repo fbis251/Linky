@@ -63,7 +63,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     public void onBindViewHolder(final LinkViewHolder holder, final int position) {
         final Link link = mLinks.get(position);
         ContentLinkBinding binding = holder.getBinding();
-        if(binding != null) {
+        if (binding != null) {
             binding.setVariable(BR.link, link);
             binding.executePendingBindings();
         }
@@ -92,35 +92,14 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
     public class LinkHandler {
         private LinkViewHolder holder;
-        private LinearLayout   linkTools;
 
         public LinkHandler(LinkViewHolder holder) {
             this.holder = holder;
-            linkTools = holder.getBinding().linkToolsLayout;
-        }
-
-        public void onClickCopy(View view) {
-            Log.v(LOG_TAG, "onClickDelete() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.copyUrl(getPosition());
-            showTools(false);
-        }
-
-        public void onClickDelete(View view) {
-            Log.v(LOG_TAG, "onClickDelete() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.deleteLink(getPosition());
-            showTools(false);
-        }
-
-        public void onClickEdit(View view) {
-            Log.v(LOG_TAG, "onClickEdit() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.editLink(getPosition());
-            showTools(false);
         }
 
         public void onClickFavorite(final View view) {
             Log.v(LOG_TAG, "onClickFavorite() called with: " + "view = [" + view + "]");
             setFavorite(true);
-            showTools(false);
         }
 
         public void onClickLayout(View view) {
@@ -131,19 +110,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         public void onClickRemoveFavorite(final View view) {
             Log.v(LOG_TAG, "onClickRemoveFavorite() called with: " + "view = [" + view + "]");
             setFavorite(false);
-            showTools(false);
-        }
-
-        public void onClickShare(View view) {
-            Log.v(LOG_TAG, "onClickShare() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.shareLink(getPosition());
-            showTools(false);
         }
 
         public boolean onLongClick(View view) {
             Log.v(LOG_TAG, "onLongClick() called with: " + "view = [" + view + "]");
             // TODO: Show link BottomSheet for sharing, edit, delete, copy text etc
-            toggleTools();
+            mActivity.displayBottomSheet(getPosition());
             return true;
         }
 
@@ -155,22 +127,6 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             Log.v(LOG_TAG, "setFavorite() called with: " + "isFavorite = [" + isFavorite + "]");
             if (mActivity != null) mActivity.setFavorite(getPosition(), isFavorite);
         }
-
-        private void showTools(final boolean show) {
-            Log.v(LOG_TAG, "showTools() called with: " + "show = [" + show + "]");
-            if (linkTools == null) return;
-            // TODO: Add animation to showing and hiding
-            linkTools.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-
-        private void toggleTools() {
-            Log.v(LOG_TAG, "toggleTools()");
-            if (linkTools == null) {
-                Log.e(LOG_TAG, "toggleTools: Tools was null!");
-                return;
-            }
-            showTools(linkTools.getVisibility() != View.VISIBLE);
-        }
     }
 
     /**
@@ -180,14 +136,14 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
         ContentLinkBinding mBinding;
 
+        ContentLinkBinding getBinding() {
+            return mBinding;
+        }
+
         LinkViewHolder(View view) {
             super(view);
             mBinding = DataBindingUtil.bind(view);
             mBinding.setHandler(new LinkHandler(this));
-        }
-
-        ContentLinkBinding getBinding() {
-            return mBinding;
         }
     }
 }

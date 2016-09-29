@@ -37,6 +37,8 @@ import com.fernandobarillas.linkshare.models.SuccessResponse;
 import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
 import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ResponsePrinter;
+import com.kennyc.bottomsheet.BottomSheet;
+import com.kennyc.bottomsheet.BottomSheetListener;
 
 import java.util.List;
 import java.util.Set;
@@ -346,7 +348,7 @@ public class LinksListActivity extends BaseLinkActivity
         super.onSaveInstanceState(outState);
     }
 
-    public void copyUrl(final int position) {
+    public void copyLink(final int position) {
         Log.v(LOG_TAG, "copyUrl() called with: " + "position = [" + position + "]");
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
@@ -403,6 +405,16 @@ public class LinksListActivity extends BaseLinkActivity
                 showSnackError(errorMessage, false);
             }
         });
+    }
+
+    public void displayBottomSheet(final int position) {
+        Log.v(LOG_TAG, "displayBottomSheet() called with: " + "position = [" + position + "]");
+        Link link = mLinksAdapter.getLink(position);
+        if (link == null) return;
+        new BottomSheet.Builder(this).setSheet(R.menu.link_options)
+                .setTitle(link.getTitle())
+                .setListener(new BottomSheetLinkListener(position))
+                .show();
     }
 
     public void editLink(final int position) {
@@ -819,6 +831,54 @@ public class LinksListActivity extends BaseLinkActivity
                 mPreviousFilterMode = mFilterMode;
                 if (mSearchView != null) mSearchView.onActionViewCollapsed();
                 break;
+        }
+    }
+
+    class BottomSheetLinkListener implements BottomSheetListener {
+        private int mLinkPosition;
+
+        BottomSheetLinkListener(int linkPosition) {
+            mLinkPosition = linkPosition;
+        }
+
+        @Override
+        public void onSheetShown(@NonNull BottomSheet bottomSheet) {
+        }
+
+        @Override
+        public void onSheetItemSelected(@NonNull BottomSheet bottomSheet, MenuItem menuItem) {
+            Log.v(LOG_TAG, "onSheetItemSelected() called with: "
+                    + "bottomSheet = ["
+                    + bottomSheet
+                    + "], menuItem = ["
+                    + menuItem
+                    + "]");
+
+            int id = menuItem.getItemId();
+            switch (id) {
+                case (R.id.link_edit):
+                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Edit");
+                    editLink(mLinkPosition);
+                    break;
+                case (R.id.link_share):
+                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Share");
+                    shareLink(mLinkPosition);
+                    break;
+                case (R.id.link_copy):
+                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Copy");
+                    copyLink(mLinkPosition);
+                    break;
+                case (R.id.link_delete):
+                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Delete");
+                    deleteLink(mLinkPosition);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {
         }
     }
 }

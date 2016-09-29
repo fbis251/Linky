@@ -7,6 +7,9 @@
     <string name="address">Address</string>
     <string name="archived">Archived</string>
     <string name="category">Category</string>
+    <string name="copy">Copy</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="favorite">Favorite</string>
     <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
