@@ -1,5 +1,6 @@
 package com.fernandobarillas.linkshare.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.R;
@@ -58,6 +60,17 @@ public class BaseLinkActivity extends AppCompatActivity {
         }
         if (mLinkStorage != null) mLinkStorage = null;
         super.onDestroy();
+    }
+
+    public void closeSoftKeyboard() {
+        Log.v(LOG_TAG, "closeSoftKeyboard()");
+        View view = getCurrentFocus();
+        if (view != null) {
+            Log.i(LOG_TAG, "closeSoftKeyboard: Closing soft keyboard");
+            InputMethodManager imm =
+                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public void openUrlExternally(final String url) {

@@ -77,7 +77,11 @@ public class LoginActivity extends BaseLinkActivity {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == EditorInfo.IME_ACTION_DONE
+                        || id == R.id.login
+                        || id == EditorInfo.IME_NULL) {
+                    Log.i(LOG_TAG, "onEditorAction: Form submit request");
+                    closeSoftKeyboard();
                     attemptLogin();
                     return true;
                 }
