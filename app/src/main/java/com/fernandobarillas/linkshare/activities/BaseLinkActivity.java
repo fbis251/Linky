@@ -107,9 +107,19 @@ public class BaseLinkActivity extends AppCompatActivity {
         Snacks.showMessage(view, message);
     }
 
+    protected void launchLinksListActivity() {
+        Log.v(LOG_TAG, "launchLinksListActivity()");
+        Intent listIntent = new Intent(this, LinksListActivity.class);
+        listIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(listIntent);
+        finish();
+    }
+
     protected void launchLoginActivity() {
         Log.v(LOG_TAG, "launchLoginActivity()");
-        startActivity(new Intent(this, LoginActivity.class));
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(loginIntent);
         finish();
     }
 

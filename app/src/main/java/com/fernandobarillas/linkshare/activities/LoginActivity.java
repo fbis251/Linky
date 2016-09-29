@@ -3,7 +3,6 @@ package com.fernandobarillas.linkshare.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -266,9 +265,7 @@ public class LoginActivity extends BaseLinkActivity {
                             mPreferences.setAuthString(authString);
                             mPreferences.setUsername(loginResponse.getUsername());
                             Log.i(LOG_TAG, "doLogin Login completed, starting LinksListActivity");
-                            startActivity(
-                                    new Intent(getApplicationContext(), LinksListActivity.class));
-                            finish();
+                            launchLinksListActivity();
                             return;
                         }
                     } else if (response.errorBody() != null) {
