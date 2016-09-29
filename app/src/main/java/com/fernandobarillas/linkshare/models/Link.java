@@ -7,6 +7,7 @@ import android.text.format.DateUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.RealmModel;
 import io.realm.annotations.Index;
@@ -144,6 +145,6 @@ public class Link implements RealmModel {
     }
 
     public void setTimestamp(Date date) {
-        this.timestamp = date.getTime() / 1000;
+        this.timestamp = TimeUnit.MILLISECONDS.toSeconds(date.getTime());
     }
 }
