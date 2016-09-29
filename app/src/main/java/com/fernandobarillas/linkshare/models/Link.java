@@ -107,8 +107,8 @@ public class Link implements RealmModel {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setTimestamp(Date date) {
+        this.timestamp = TimeUnit.MILLISECONDS.toSeconds(date.getTime());
     }
 
     public String getTitle() {
@@ -143,7 +143,7 @@ public class Link implements RealmModel {
         isFavorite = favorite;
     }
 
-    public void setTimestamp(Date date) {
-        this.timestamp = TimeUnit.MILLISECONDS.toSeconds(date.getTime());
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }
