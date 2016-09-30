@@ -429,7 +429,7 @@ public class LinksListActivity extends BaseLinkActivity
         if (link == null) return;
         new BottomSheet.Builder(this).setSheet(R.menu.link_options)
                 .setTitle(link.getTitle())
-                .setListener(new BottomSheetLinkListener(position))
+                .setListener(new BottomSheetLinkMenuListener(position))
                 .show();
     }
 
@@ -883,7 +883,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
     }
 
-    class BottomSheetLinkListener implements BottomSheetListener {
+    class BottomSheetLinkMenuListener implements BottomSheetListener {
         private int mLinkPosition;
 
         @Override
@@ -926,7 +926,7 @@ public class LinksListActivity extends BaseLinkActivity
         public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {
         }
 
-        BottomSheetLinkListener(int linkPosition) {
+        BottomSheetLinkMenuListener(int linkPosition) {
             mLinkPosition = linkPosition;
         }
     }
