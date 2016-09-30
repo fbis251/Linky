@@ -4,10 +4,14 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -162,6 +166,8 @@ public class LinksListActivity extends BaseLinkActivity
         mDrawerLayout = (DrawerLayout) findViewById(R.id.links_drawer_layout);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.links_swipe_refresh_layout);
         mRecyclerView = (RecyclerView) findViewById(R.id.links_recycler_view);
+        Drawable dividerDrawable = ContextCompat.getDrawable(this, R.drawable.link_divider);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(dividerDrawable));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -883,8 +889,12 @@ public class LinksListActivity extends BaseLinkActivity
         }
     }
 
-    class BottomSheetLinkMenuListener implements BottomSheetListener {
+    private class BottomSheetLinkMenuListener implements BottomSheetListener {
         private int mLinkPosition;
+
+        private BottomSheetLinkMenuListener(int linkPosition) {
+            mLinkPosition = linkPosition;
+        }
 
         @Override
         public void onSheetShown(@NonNull BottomSheet bottomSheet) {
@@ -925,9 +935,46 @@ public class LinksListActivity extends BaseLinkActivity
         @Override
         public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {
         }
+    }
 
-        BottomSheetLinkMenuListener(int linkPosition) {
-            mLinkPosition = linkPosition;
+    // Courtesy of https://www.bignerdranch.com/blog/a-view-divided-adding-dividers-to-your-recyclerview-with-itemdecoration/
+    private class DividerItemDecoration extends RecyclerView.ItemDecoration {
+        private Drawable mDivider;
+
+        private DividerItemDecoration(Drawable divider) {
+            mDivider = divider;
+        }
+
+        @Override
+        public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
+            int dividerLeft = parent.getPaddingLeft();
+            int dividerRight = parent.getWidth() - parent.getPaddingRight();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount - 1; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params =
+                        ((RecyclerView.LayoutParams) child.getLayoutParams());
+                int dividerTop = child.getBottom() + params.bottomMargin;
+                int dividerBottom = dividerTop + mDivider.getIntrinsicHeight();
+
+                mDivider.setBounds(dividerLeft, dividerTop, dividerRight, dividerBottom);
+                mDivider.draw(canvas);
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+
+            if (parent.getChildAdapterPosition(view) == 0) {
+                // Don't decorate the first child
+                return;
+            }
+
+            outRect.top = mDivider.getIntrinsicHeight();
         }
     }
 }
