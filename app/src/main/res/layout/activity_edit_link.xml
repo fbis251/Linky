@@ -35,6 +35,8 @@
                     android:id="@+id/edit_link_title_layout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="100"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -78,6 +80,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="50"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/edit_link_url_layout">
@@ -88,6 +92,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/category"
                         android:imeOptions="actionDone"
+                        android:maxLength="50"
                         android:minHeight="?android:attr/listPreferredItemHeight"
                         android:singleLine="true"
                         android:text="@{link.category}"/>

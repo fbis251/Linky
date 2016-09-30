@@ -19,6 +19,9 @@ import io.realm.annotations.RealmClass;
 @RealmClass
 public class Link implements RealmModel {
 
+    public static final int TITLE_MAX_LENGTH    = 100;
+    public static final int CATEGORY_MAX_LENGTH = 50;
+
     @PrimaryKey
     private long    linkId;
     @Index
@@ -34,21 +37,21 @@ public class Link implements RealmModel {
 
     public Link(long linkId, String category, boolean isArchived, boolean isFavorite,
             long timestamp, String title, String url) {
-        this.linkId = linkId;
-        this.category = category;
-        this.isArchived = isArchived;
-        this.isFavorite = isFavorite;
-        this.timestamp = timestamp;
-        this.title = title;
-        this.url = url;
+        setLinkId(linkId);
+        setCategory(category);
+        setArchived(isArchived);
+        setFavorite(isFavorite);
+        setTimestamp(timestamp);
+        setTitle(title);
+        setUrl(url);
     }
 
     public Link(int linkId, String category, int timestamp, String title, String url) {
-        this.linkId = linkId;
-        this.category = category;
-        this.timestamp = timestamp;
-        this.title = title;
-        this.url = url;
+        setLinkId(linkId);
+        setCategory(category);
+        setTimestamp(timestamp);
+        setTitle(title);
+        setUrl(url);
     }
 
     public Link(String url) {
@@ -73,7 +76,12 @@ public class Link implements RealmModel {
     }
 
     public void setCategory(String category) {
-        this.category = category;
+        // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
+        if (category == null) {
+            this.category = null;
+            return;
+        }
+        this.category = category.substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
     }
 
     public String getDomain() {
@@ -116,7 +124,12 @@ public class Link implements RealmModel {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
+        if (title == null) {
+            this.title = null;
+            return;
+        }
+        this.title = title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH));
     }
 
     public String getUrl() {
