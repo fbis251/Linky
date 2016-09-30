@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center_horizontal"
-            android:text="@string/about_app_author"
+            android:text="@string/app_author"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             app:layout_constraintLeft_toLeftOf="@+id/about_text"
             app:layout_constraintRight_toRightOf="@+id/about_text"
@@ -46,5 +46,30 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
+
+    <ImageButton
+            android:id="@+id/github_button"
+            style="@style/AppButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/about_github_content_description"
+            android:src="@drawable/ic_github_grey_600_24dp"
+            app:layout_constraintLeft_toLeftOf="@+id/about_text"
+            app:layout_constraintTop_toBottomOf="@+id/about_app_author"/>
+
+    <ImageButton
+            android:id="@+id/website_button"
+            style="@style/AppButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/about_website_content_description"
+            android:src="@drawable/ic_browser_grey_600_24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/github_button"
+            app:layout_constraintLeft_toRightOf="@+id/github_button"
+            app:layout_constraintRight_toRightOf="@+id/about_text"
+            app:layout_constraintTop_toTopOf="@+id/github_button"/>
 
 </android.support.constraint.ConstraintLayout>

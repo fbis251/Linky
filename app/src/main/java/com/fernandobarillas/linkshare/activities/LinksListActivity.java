@@ -320,6 +320,7 @@ public class LinksListActivity extends BaseLinkActivity
                     Log.i(LOG_TAG, "onNavigationItemSelected: Opening Settings");
                     Toast.makeText(LinksListActivity.this, "Settings coming soon",
                             Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, AboutActivity.class));
                     return false;
                 default:
                     break;

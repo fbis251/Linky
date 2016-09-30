@@ -17,16 +17,17 @@
 package com.fernandobarillas.linkshare.activities;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.fernandobarillas.linkshare.R;
 
-import de.psdev.licensesdialog.LicensesDialogFragment;
+import de.psdev.licensesdialog.LicensesDialog;
 
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends BaseActivity {
     private final String LOG_TAG = getClass().getSimpleName();
 
     @Override
@@ -45,12 +46,29 @@ public class AboutActivity extends AppCompatActivity {
                 }
             });
         }
+
+        ImageButton githubButton = (ImageButton) findViewById(R.id.github_button);
+        ImageButton websiteButton = (ImageButton) findViewById(R.id.website_button);
+        setButtonUrlListener(githubButton, R.string.author_github_url);
+        setButtonUrlListener(websiteButton, R.string.author_website_url);
     }
 
     private void openLicensesDialog() {
-        Log.v(LOG_TAG, "multipleLicenses()");
-        LicensesDialogFragment fragment =
-                new LicensesDialogFragment.Builder(this).setNotices(R.raw.notices).build();
-        fragment.show(getSupportFragmentManager(), null);
+        Log.v(LOG_TAG, "openLicensesDialog()");
+        new LicensesDialog.Builder(this).setNotices(R.raw.notices)
+                .setThemeResourceId(R.style.AppDialogTheme)
+                .build()
+                .showAppCompat();
+    }
+
+    private void setButtonUrlListener(final ImageButton button, @StringRes final int urlStringRes) {
+        if (button == null) return;
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String buttonUrl = getString(urlStringRes);
+                openUrlExternally(buttonUrl);
+            }
+        });
     }
 }
