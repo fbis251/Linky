@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/green300"/>
+    <solid android:color="@color/gray300"/>
     <corners android:radius="4dip"/>
     <padding
             android:bottom="@dimen/link_category_bg_vertical_padding"
