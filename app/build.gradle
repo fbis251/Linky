@@ -8,8 +8,8 @@ android {
         applicationId 'com.fernandobarillas.linkshare'
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 10
-        versionName '2.4 API/0.6'
+        versionCode 11
+        versionName '2.5 API/0.6'
     }
     dataBinding {
         enabled = true
