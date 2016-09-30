@@ -23,14 +23,12 @@
 
     <style name="AppButton" parent="Widget.AppCompat.Button.Colored"/>
 
-    <style name="LoginTheme" parent="AppTheme.DarkActionBar"/>
-
+    <style name="AboutTheme" parent="AppTheme.DarkActionBar"/>
     <style name="AddLinkTheme" parent="AppDialogTheme"/>
-
+    <style name="LoginTheme" parent="AppTheme.DarkActionBar"/>
     <style name="EditLinkTheme" parent="AppDialogTheme"/>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="LinkTitleText">

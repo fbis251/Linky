@@ -51,6 +51,12 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".activities.LinksListActivity"/>
         </activity>
+        <activity
+                android:name=".activities.AboutActivity"
+                android:label="@string/title_about"
+                android:parentActivityName=".activities.LinksListActivity"
+                android:theme="@style/AboutTheme">
+        </activity>
     </application>
 
 </manifest>

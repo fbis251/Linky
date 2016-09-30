@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Saved DEBUG</string>
-    <string name="title_add_link">Save DEBUG</string>
-
+    <string name="app_name" translatable="false">Linky DEBUG</string>
 </resources>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<notices>
+    <notice>
+        <name>Linky</name>
+        <url>https://fernandobarillas.com</url>
+        <copyright>© 2016 Fernando Barillas</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>AppCompat</name>
+        <url>https://www.android.com/</url>
+        <copyright>Copyright (C) 2012 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Design</name>
+        <url>https://www.android.com/</url>
+        <copyright>Copyright (C) 2015 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>RecyclerView</name>
+        <url>https://www.android.com/</url>
+        <copyright>Copyright (C) 2014 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>BottomSheet</name>
+        <url>https://github.com/Kennyc1012/BottomSheet</url>
+        <copyright>Copyright 2015 Kenny Campagna</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>SparkButton</name>
+        <url>https://github.com/varunest/SparkButton</url>
+        <copyright>Copyright 2016 varunest</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Gson</name>
+        <url>https://github.com/google/gson</url>
+        <copyright>Copyright 2008 Google Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>OkHttp</name>
+        <url>https://square.github.io/okhttp/</url>
+        <copyright>Copyright 2016 Square, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Retrofit</name>
+        <url>https://square.github.io/retrofit/</url>
+        <copyright>Copyright 2013 Square, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+</notices>

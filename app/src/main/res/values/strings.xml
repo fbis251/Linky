@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">Saved Links</string>
-    <string name="title_add_link">Save Link</string>
+    <string name="app_name" translatable="false">Link</string>
+    <string name="title_about">About Linky</string>
+    <string name="title_add_link">Save to Linky</string>
     <string name="title_edit_link">Edit Link</string>
 
     <!-- Common Strings -->
@@ -60,6 +61,11 @@
 
     <!-- Link view -->
     <string name="link_information_separator" translatable="false">•</string>
+
+    <!-- About Activity -->
+    <string name="about_text">Proudly made in the USA by</string>
+    <string name="about_app_author" translatable="false">Fernando Barillas</string>
+    <string name="view_licenses">View licenses</string>
 
     <!-- Add Link Activity -->
     <string name="add_link_edit">Edit Link</string>
