@@ -1,6 +1,6 @@
 <resources>
     <!-- App Name and Information -->
-    <string name="app_name" translatable="false">Link</string>
+    <string name="app_name" translatable="false">Linky</string>
     <string name="app_author" translatable="false">Fernando Barillas</string>
     <string name="author_github_url" translatable="false">https://github.com/fbis251</string>
     <string name="author_website_url" translatable="false">https://fernandobarillas.com</string>
