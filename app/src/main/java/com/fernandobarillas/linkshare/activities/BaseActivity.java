@@ -58,13 +58,19 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void closeSoftKeyboard() {
         Log.v(LOG_TAG, "closeSoftKeyboard()");
-        View view = getCurrentFocus();
-        if (view != null) {
-            Log.i(LOG_TAG, "closeSoftKeyboard: Closing soft keyboard");
-            InputMethodManager imm =
-                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        closeSoftKeyboard(getCurrentFocus());
+    }
+
+    public void closeSoftKeyboard(final View view) {
+        Log.v(LOG_TAG, "closeSoftKeyboard() called with: " + "view = [" + view + "]");
+        if (view == null) {
+            Log.d(LOG_TAG, "closeSoftKeyboard: View was null, not closing keyboard");
+            return;
         }
+        Log.d(LOG_TAG, "closeSoftKeyboard: Closing soft keyboard");
+        InputMethodManager imm =
+                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public void openUrlExternally(final String url) {

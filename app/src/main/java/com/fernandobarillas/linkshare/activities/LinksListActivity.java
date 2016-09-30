@@ -235,6 +235,12 @@ public class LinksListActivity extends BaseLinkActivity
             mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         }
         if (mSearchView != null) {
+            mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if (!hasFocus) closeSoftKeyboard(view);
+                }
+            });
             mSearchView.setOnQueryTextListener(this);
             // Not sure why passing in mSearchTerm into setQuery() below isn't working
             // Creating a copy of the String inside the if block below didn't work either
