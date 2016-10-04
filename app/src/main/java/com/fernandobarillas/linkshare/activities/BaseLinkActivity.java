@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.api.LinkService;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
@@ -25,7 +26,8 @@ public abstract class BaseLinkActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         // Initialize the database
-        mRealm = Realm.getDefaultInstance();
+        mLinksApp = (LinksApp) getApplicationContext();
+        mRealm = Realm.getInstance(mLinksApp.getRealmConfiguration());
         mLinkStorage = new LinkStorage(mRealm);
     }
 

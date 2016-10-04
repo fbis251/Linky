@@ -9,7 +9,6 @@ import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
-import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 /**
@@ -26,8 +25,6 @@ public class LinksApp extends Application {
     public void onCreate() {
         Log.v(LOG_TAG, "onCreate()");
         super.onCreate();
-        Realm.init(this);
-        Realm.setDefaultConfiguration(getRealmConfiguration());
     }
 
     @Override
@@ -61,6 +58,6 @@ public class LinksApp extends Application {
     }
 
     public RealmConfiguration getRealmConfiguration() {
-        return new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
+        return new RealmConfiguration.Builder(this).deleteRealmIfMigrationNeeded().build();
     }
 }
