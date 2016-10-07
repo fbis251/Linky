@@ -55,4 +55,10 @@
         <copyright>Copyright 2013 Square, Inc.</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
+    <notice>
+        <name>realm-java</name>
+        <url>https://github.com/realm/realm-java</url>
+        <copyright>Copyright 2016 Realm Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
 </notices>
