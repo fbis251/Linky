@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/LinkShare.iml" filepath="$PROJECT_DIR$/LinkShare.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Linky.iml" filepath="$PROJECT_DIR$/Linky.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
