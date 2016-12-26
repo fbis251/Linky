@@ -85,6 +85,25 @@ public class LinkStorage {
         return applyQuerySort(mRealm.where(Link.class), category, FILTER_CATEGORY, sortMode);
     }
 
+    public Set<String> findByCategoryString(String searchTerm) {
+        Log.v(LOG_TAG,
+                "findByCategoryString() called with: " + "searchTerm = [" + searchTerm + "]");
+        Set<String> categories = new TreeSet<>();
+        RealmResults<Link> result = mRealm.where(Link.class)
+                .contains(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE)
+                .distinct(COLUMN_CATEGORY);
+        Log.i(LOG_TAG, "getCategories: Category count: " + result.size());
+        for (Link link : result) {
+            String category = link.getCategory();
+            if (!TextUtils.isEmpty(category)) {
+                categories.add(category.toLowerCase());
+            }
+        }
+
+        Log.i(LOG_TAG, "getCategories: Unique category count: " + categories.size());
+        return categories;
+    }
+
     public Link findByLinkId(long linkId) {
         Log.v(LOG_TAG, "findByLinkId() called with: " + "linkId = [" + linkId + "]");
         return mRealm.where(Link.class).equalTo(COLUMN_LINK_ID, linkId).findFirst();

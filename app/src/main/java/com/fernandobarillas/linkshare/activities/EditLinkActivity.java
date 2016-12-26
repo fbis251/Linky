@@ -8,19 +8,17 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import com.fernandobarillas.linkshare.R;
+import com.fernandobarillas.linkshare.adapters.CategoriesArrayAdapter;
 import com.fernandobarillas.linkshare.databinding.ActivityEditLinkBinding;
 import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.AddLinkResponse;
 import com.fernandobarillas.linkshare.models.Link;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -84,8 +82,13 @@ public class EditLinkActivity extends BaseLinkActivity {
         InputFilter[] noReturnsInputFilter = new InputFilter[]{
                 new InputFilter() {
                     @Override
-                    public CharSequence filter(CharSequence charSequence, int i, int i1,
-                            Spanned spanned, int i2, int i3) {
+                    public CharSequence filter(
+                            CharSequence charSequence,
+                            int i,
+                            int i1,
+                            Spanned spanned,
+                            int i2,
+                            int i3) {
                         String input = charSequence.toString();
                         if (input.contains("\n")) {
                             // Delete all spaces
@@ -99,10 +102,10 @@ public class EditLinkActivity extends BaseLinkActivity {
         mTitleEditText.setFilters(noReturnsInputFilter);
         mCategoryEditText.setFilters(noReturnsInputFilter);
 
-        List<String> categoryList = new ArrayList<>(mLinkStorage.getCategories());
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categoryList);
-        mCategoryEditText.setAdapter(adapter);
+        CategoriesArrayAdapter categoriesAdapter = new CategoriesArrayAdapter(this,
+                android.R.layout.simple_dropdown_item_1line,
+                mLinksApp);
+        mCategoryEditText.setAdapter(categoriesAdapter);
     }
 
     @Override
@@ -122,12 +125,13 @@ public class EditLinkActivity extends BaseLinkActivity {
         mLinkService.updateLink(link.getLinkId(), request).enqueue(new Callback<AddLinkResponse>() {
             @Override
             public void onResponse(Call<AddLinkResponse> call, Response<AddLinkResponse> response) {
-                Log.v(LOG_TAG, "updateLink onResponse() called with: "
-                        + "call = ["
-                        + call
-                        + "], response = ["
-                        + response
-                        + "]");
+                Log.v(LOG_TAG,
+                        "updateLink onResponse() called with: "
+                                + "call = ["
+                                + call
+                                + "], response = ["
+                                + response
+                                + "]");
                 if (response.isSuccessful()) {
                     mLinkStorage.add(link);
                     // Let the caller know that it's okay to update the adapter with the new changes
@@ -150,12 +154,13 @@ public class EditLinkActivity extends BaseLinkActivity {
 
             @Override
             public void onFailure(Call<AddLinkResponse> call, Throwable t) {
-                Log.v(LOG_TAG, "updateLink onFailure() called with: "
-                        + "call = ["
-                        + call
-                        + "], t = ["
-                        + t
-                        + "]");
+                Log.v(LOG_TAG,
+                        "updateLink onFailure() called with: "
+                                + "call = ["
+                                + call
+                                + "], t = ["
+                                + t
+                                + "]");
             }
         });
     }
@@ -187,9 +192,12 @@ public class EditLinkActivity extends BaseLinkActivity {
                 return;
             }
 
-            Link editedLink = new Link(mOldLink.getLinkId(), mCategoryEditText.getText().toString(),
-                    mArchivedSwitch.isChecked(), mFavoriteSwitch.isChecked(),
-                    mOldLink.getTimestamp(), mTitleEditText.getText().toString(),
+            Link editedLink = new Link(mOldLink.getLinkId(),
+                    mCategoryEditText.getText().toString(),
+                    mArchivedSwitch.isChecked(),
+                    mFavoriteSwitch.isChecked(),
+                    mOldLink.getTimestamp(),
+                    mTitleEditText.getText().toString(),
                     mUrlEditText.getText().toString());
 
             updateLink(editedLink);
