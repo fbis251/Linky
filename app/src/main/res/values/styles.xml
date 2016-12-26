@@ -15,7 +15,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppDialogTheme" parent="Base.Theme.AppCompat.Light.Dialog.MinWidth">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
