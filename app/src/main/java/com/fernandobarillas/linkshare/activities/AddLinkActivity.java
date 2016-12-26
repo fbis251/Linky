@@ -28,7 +28,7 @@ import retrofit2.Response;
 public class AddLinkActivity extends BaseLinkActivity {
     private static final String LOG_TAG = "AddLinkActivity";
 
-    private static final int SPARK_ANIMATION_DELAY = 150; // ms before spark animation plays
+    private static final int SPARK_ANIMATION_DELAY = 200; // ms before spark animation plays
 
     private ActivityAddLinkBinding mBinding;
     private ProgressBar            mProgressBar;
