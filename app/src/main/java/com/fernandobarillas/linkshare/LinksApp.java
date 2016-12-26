@@ -9,6 +9,7 @@ import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
+import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 /**
@@ -43,9 +44,10 @@ public class LinksApp extends Application {
     public LinkService getLinkService() throws InvalidApiUrlException {
         if (mLinkService == null) {
             getPreferences();
-            mLinkService =
-                    ServiceGenerator.createService(LinkService.class, mPreferences.getApiUrl(),
-                            mPreferences.getUserId(), mPreferences.getAuthString());
+            mLinkService = ServiceGenerator.createService(LinkService.class,
+                    mPreferences.getApiUrl(),
+                    mPreferences.getUserId(),
+                    mPreferences.getAuthString());
         }
         return mLinkService;
     }
@@ -58,6 +60,7 @@ public class LinksApp extends Application {
     }
 
     public RealmConfiguration getRealmConfiguration() {
-        return new RealmConfiguration.Builder(this).deleteRealmIfMigrationNeeded().build();
+        Realm.init(this);
+        return new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
     }
 }
