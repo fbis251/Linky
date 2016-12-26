@@ -167,12 +167,13 @@ public class LinkStorage {
     }
 
     public void setArchived(final Link link, final boolean isArchived) {
-        Log.v(LOG_TAG, "setArchived() called with: "
-                + "link = ["
-                + link
-                + "], isArchived = ["
-                + isArchived
-                + "]");
+        Log.v(LOG_TAG,
+                "setArchived() called with: "
+                        + "link = ["
+                        + link
+                        + "], isArchived = ["
+                        + isArchived
+                        + "]");
         if (link == null) return; // TODO: Show UI error
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
@@ -184,12 +185,13 @@ public class LinkStorage {
     }
 
     public void setCategory(@NonNull final Link link, @Nullable final String category) {
-        Log.v(LOG_TAG, "setCategory() called with: "
-                + "link = ["
-                + link
-                + "], category = ["
-                + category
-                + "]");
+        Log.v(LOG_TAG,
+                "setCategory() called with: "
+                        + "link = ["
+                        + link
+                        + "], category = ["
+                        + category
+                        + "]");
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -199,12 +201,13 @@ public class LinkStorage {
     }
 
     public void setFavorite(final Link link, final boolean isFavorite) {
-        Log.v(LOG_TAG, "setFavorite() called with: "
-                + "link = ["
-                + link
-                + "], isFavorite = ["
-                + isFavorite
-                + "]");
+        Log.v(LOG_TAG,
+                "setFavorite() called with: "
+                        + "link = ["
+                        + link
+                        + "], isFavorite = ["
+                        + isFavorite
+                        + "]");
         if (link == null) return; // TODO: Show UI error
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
@@ -215,8 +218,11 @@ public class LinkStorage {
         });
     }
 
-    private RealmResults<Link> applyQuerySort(RealmQuery<Link> query, @Nullable String searchTerm,
-            @FilterMode int filterMode, @SortMode int sortMode) {
+    private RealmResults<Link> applyQuerySort(
+            RealmQuery<Link> query,
+            @Nullable String searchTerm,
+            @FilterMode int filterMode,
+            @SortMode int sortMode) {
         switch (filterMode) {
             case FILTER_FRESH:
                 query = query.equalTo(COLUMN_IS_ARCHIVED, false);
@@ -251,7 +257,11 @@ public class LinkStorage {
 
     // Query results filtering
     @IntDef({
-            FILTER_FRESH, FILTER_ALL, FILTER_FAVORITES, FILTER_ARCHIVED, FILTER_CATEGORY,
+            FILTER_FRESH,
+            FILTER_ALL,
+            FILTER_FAVORITES,
+            FILTER_ARCHIVED,
+            FILTER_CATEGORY,
             FILTER_SEARCH
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -260,7 +270,9 @@ public class LinkStorage {
 
     // Query results sorting
     @IntDef({
-            SORT_TITLE_ASCENDING, SORT_TITLE_DESCENDING, SORT_TIMESTAMP_ASCENDING,
+            SORT_TITLE_ASCENDING,
+            SORT_TITLE_DESCENDING,
+            SORT_TIMESTAMP_ASCENDING,
             SORT_TIMESTAMP_DESCENDING
     })
     @Retention(RetentionPolicy.SOURCE)
