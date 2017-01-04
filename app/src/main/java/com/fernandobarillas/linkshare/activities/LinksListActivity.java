@@ -38,6 +38,7 @@ import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.models.SuccessResponse;
+import com.fernandobarillas.linkshare.models.UserInfoResponse;
 import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
 import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ResponsePrinter;
@@ -93,14 +94,15 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v(LOG_TAG, "onActivityResult() called with: "
-                + "requestCode = ["
-                + requestCode
-                + "], resultCode = ["
-                + resultCode
-                + "], data = ["
-                + data
-                + "]");
+        Log.v(LOG_TAG,
+                "onActivityResult() called with: "
+                        + "requestCode = ["
+                        + requestCode
+                        + "], resultCode = ["
+                        + resultCode
+                        + "], data = ["
+                        + data
+                        + "]");
         if (requestCode == EDIT_LINK_REQUEST && resultCode == RESULT_OK) {
             // We can't reliably tell what operation the user performed on the Link, so it's best
             // to just tell the adapter the entire dataset changed. Examples of not being able
@@ -128,7 +130,7 @@ public class LinksListActivity extends BaseLinkActivity
         if (mLinkStorage.getLinksCount() == 0) {
             getList();
         } else {
-            adapterSetup();
+            getListIfUpdatedOnServer();
         }
     }
 
@@ -172,8 +174,11 @@ public class LinksListActivity extends BaseLinkActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
+                mDrawerLayout,
+                toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -193,7 +198,7 @@ public class LinksListActivity extends BaseLinkActivity
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    getList();
+                    getListIfUpdatedOnServer();
                 }
             });
         }
@@ -201,7 +206,7 @@ public class LinksListActivity extends BaseLinkActivity
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getList();
+                getListIfUpdatedOnServer();
             }
         });
 
@@ -330,7 +335,8 @@ public class LinksListActivity extends BaseLinkActivity
                     break;
                 case (R.id.nav_settings):
                     Log.i(LOG_TAG, "onNavigationItemSelected: Opening Settings");
-                    Toast.makeText(LinksListActivity.this, "Settings coming soon",
+                    Toast.makeText(LinksListActivity.this,
+                            "Settings coming soon",
                             Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(this, AboutActivity.class));
                     return false;
@@ -416,8 +422,10 @@ public class LinksListActivity extends BaseLinkActivity
                 }
 
                 Log.e(LOG_TAG, "deleteLink: onResponse: " + errorMessage);
-                Log.e(LOG_TAG, String.format("deleteLink: onResponse: %d %s", response.code(),
-                        response.message()));
+                Log.e(LOG_TAG,
+                        String.format("deleteLink: onResponse: %d %s",
+                                response.code(),
+                                response.message()));
                 showSnackError(errorMessage, false);
             }
 
@@ -470,12 +478,13 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     public void setFavorite(final int position, final boolean isFavorite) {
-        Log.v(LOG_TAG, "setFavorite() called with: "
-                + "position = ["
-                + position
-                + "], isFavorite = ["
-                + isFavorite
-                + "]");
+        Log.v(LOG_TAG,
+                "setFavorite() called with: "
+                        + "position = ["
+                        + position
+                        + "], isFavorite = ["
+                        + isFavorite
+                        + "]");
         final Link link = mLinksAdapter.getLink(position);
         Log.i(LOG_TAG, "setFavorite: Link: " + link);
         if (link == null) {
@@ -485,18 +494,19 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         // TODO: Extract strings
-        final String errorMessage =
-                String.format("API Error %s favorite: %s", isFavorite ? "adding" : "removing",
-                        link.getTitle());
+        final String errorMessage = String.format("API Error %s favorite: %s",
+                isFavorite ? "adding" : "removing",
+                link.getTitle());
 
         final Snacks.Action retryAction =
                 new Snacks.Action(R.string.retry, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.v(LOG_TAG, "setFavorite retryAction onClick() called with: "
-                                + "view = ["
-                                + view
-                                + "]");
+                        Log.v(LOG_TAG,
+                                "setFavorite retryAction onClick() called with: "
+                                        + "view = ["
+                                        + view
+                                        + "]");
                         setFavorite(position, isFavorite);
                     }
                 });
@@ -509,12 +519,13 @@ public class LinksListActivity extends BaseLinkActivity
         call.enqueue(new Callback<SuccessResponse>() {
             @Override
             public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
-                Log.v(LOG_TAG, "setFavorite onResponse() called with: "
-                        + "call = ["
-                        + call
-                        + "], response = ["
-                        + response
-                        + "]");
+                Log.v(LOG_TAG,
+                        "setFavorite onResponse() called with: "
+                                + "call = ["
+                                + call
+                                + "], response = ["
+                                + response
+                                + "]");
                 if (response.isSuccessful()) {
                     Log.d(LOG_TAG, "setFavorite onResponse: Successful");
                     if (mLinkStorage != null) mLinkStorage.setFavorite(link, isFavorite);
@@ -532,6 +543,7 @@ public class LinksListActivity extends BaseLinkActivity
 
             @Override
             public void onFailure(Call<SuccessResponse> call, Throwable t) {
+                Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
                 showSnackError(errorMessage, retryAction);
             }
         });
@@ -581,10 +593,11 @@ public class LinksListActivity extends BaseLinkActivity
         archiveCall.enqueue(new Callback<SuccessResponse>() {
             @Override
             public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
-                Log.v(LOG_TAG, "archiveLink: onResponse() called with: "
-                        + "response = ["
-                        + response
-                        + "]");
+                Log.v(LOG_TAG,
+                        "archiveLink: onResponse() called with: "
+                                + "response = ["
+                                + response
+                                + "]");
                 if (response.isSuccessful()) {
                     if (mRecyclerView == null) return;
                     showSnackSuccess(successMessage);
@@ -600,8 +613,10 @@ public class LinksListActivity extends BaseLinkActivity
                 }
 
                 Log.e(LOG_TAG, "archiveLink: onResponse: " + errorMessage);
-                Log.e(LOG_TAG, String.format("archiveLink: onResponse: %d %s", response.code(),
-                        response.message()));
+                Log.e(LOG_TAG,
+                        String.format("archiveLink: onResponse: %d %s",
+                                response.code(),
+                                response.message()));
                 showSnackError(errorMessage, false);
             }
 
@@ -649,7 +664,8 @@ public class LinksListActivity extends BaseLinkActivity
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
                 adapterSetup();
-                String message = String.format("Downloaded %d %s", mLinkStorage.getLinksCount(),
+                String message = String.format("Downloaded %d %s",
+                        mLinkStorage.getLinksCount(),
                         mLinkStorage.getLinksCount() == 1 ? "link" : "links");
                 Log.i(LOG_TAG, "getLinks: onResponse: " + message);
                 showSnackSuccess(message);
@@ -657,7 +673,7 @@ public class LinksListActivity extends BaseLinkActivity
 
             @Override
             public void onFailure(Call<List<Link>> call, Throwable t) {
-                Log.v(LOG_TAG, "getLinks: onFailure() called with: " + "t = [" + t + "]");
+                Log.e(LOG_TAG, "getLinks: onFailure() called with: " + "t = [" + t + "]");
                 String errorMessage =
                         "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
                 Log.e(LOG_TAG, errorMessage);
@@ -667,11 +683,58 @@ public class LinksListActivity extends BaseLinkActivity
         });
     }
 
+    private void getListIfUpdatedOnServer() {
+        Log.v(LOG_TAG, "getListIfUpdatedOnServer()");
+        getUserInfo();
+    }
+
     private Snacks.Action getRefreshSnackAction() {
         return new Snacks.Action(getString(R.string.refresh), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getList();
+            }
+        });
+    }
+
+    private void getUserInfo() {
+        Log.v(LOG_TAG, "getUserInfo()");
+        Call<UserInfoResponse> call = mLinkService.getUserInfo();
+        final String errorMessage = "Error getting user info";
+        call.enqueue(new Callback<UserInfoResponse>() {
+            @Override
+            public void onResponse(
+                    Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
+                Log.v(LOG_TAG,
+                        "getUserInfo: onResponse: " + ResponsePrinter.httpCodeString(response));
+                mSwipeRefreshLayout.setRefreshing(false);
+                UserInfoResponse userInfoResponse = response.body();
+                if (userInfoResponse == null) {
+                    Log.e(LOG_TAG, "getUserInfo: onResponse: UserInfoResponse was null");
+                    showSnackError(errorMessage, false);
+                    return;
+                }
+                Log.d(LOG_TAG, "getUserInfo: onResponse: " + userInfoResponse);
+                long serverTimestamp = userInfoResponse.getLastUpdateTimestamp();
+                long localTimestamp = mPreferences.getLastUpdateTimestamp();
+                boolean needsUpdate = localTimestamp < serverTimestamp;
+                if (needsUpdate) {
+                    Log.i(LOG_TAG,
+                            "onResponse: onResponse: Data on server is newer, updating locally");
+                    mPreferences.setLastUpdateTimestamp(userInfoResponse.getLastUpdateTimestamp());
+                    getList();
+                } else {
+                    Log.i(LOG_TAG, "onResponse: onResponse: Local data is up to date");
+                    adapterSetup();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserInfoResponse> call, Throwable t) {
+                Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
+                String errorMessage =
+                        "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
+                showSnackError(errorMessage, false);
             }
         });
     }
@@ -730,9 +793,13 @@ public class LinksListActivity extends BaseLinkActivity
         if (categories.size() > 0) {
             Menu navMenu = mNavigationView.getMenu();
             navMenu.removeGroup(CATEGORIES_MENU_GROUP); // Avoid duplicate SubMenus
-            SubMenu categoriesMenu = navMenu.addSubMenu(CATEGORIES_MENU_GROUP, Menu.NONE, Menu.NONE,
+            SubMenu categoriesMenu = navMenu.addSubMenu(CATEGORIES_MENU_GROUP,
+                    Menu.NONE,
+                    Menu.NONE,
                     getString(R.string.title_categories));
-            categoriesMenu.add(CATEGORIES_MENU_GROUP, Menu.NONE, Menu.NONE,
+            categoriesMenu.add(CATEGORIES_MENU_GROUP,
+                    Menu.NONE,
+                    Menu.NONE,
                     getString(R.string.category_uncategorized));
             for (String category : categories) {
                 categoriesMenu.add(CATEGORIES_MENU_GROUP, Menu.NONE, Menu.NONE, category);
@@ -840,14 +907,15 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         title = String.format(format, title, mLinksAdapter.getItemCount());
-        Log.i(LOG_TAG, "updateToolbarTitle() called with: "
-                + "title = ["
-                + title
-                + "], subtitle = ["
-                + subtitle
-                + "], format = ["
-                + format
-                + "]");
+        Log.i(LOG_TAG,
+                "updateToolbarTitle() called with: "
+                        + "title = ["
+                        + title
+                        + "], subtitle = ["
+                        + subtitle
+                        + "], format = ["
+                        + format
+                        + "]");
         setToolbarTitle(title, subtitle);
     }
 
@@ -902,12 +970,13 @@ public class LinksListActivity extends BaseLinkActivity
 
         @Override
         public void onSheetItemSelected(@NonNull BottomSheet bottomSheet, MenuItem menuItem) {
-            Log.v(LOG_TAG, "onSheetItemSelected() called with: "
-                    + "bottomSheet = ["
-                    + bottomSheet
-                    + "], menuItem = ["
-                    + menuItem
-                    + "]");
+            Log.v(LOG_TAG,
+                    "onSheetItemSelected() called with: "
+                            + "bottomSheet = ["
+                            + bottomSheet
+                            + "], menuItem = ["
+                            + menuItem
+                            + "]");
 
             int id = menuItem.getItemId();
             switch (id) {
@@ -965,8 +1034,8 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                RecyclerView.State state) {
+        public void getItemOffsets(
+                Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
 
             if (parent.getChildAdapterPosition(view) == 0) {

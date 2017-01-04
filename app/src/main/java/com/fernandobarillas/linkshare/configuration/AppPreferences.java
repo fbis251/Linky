@@ -10,10 +10,11 @@ import java.net.URL;
  * Created by fb on 2/1/16.
  */
 public class AppPreferences {
-    private static final String KEY_API_URL     = "api_url";
-    private static final String KEY_AUTH_STRING = "auth_string";
-    private static final String KEY_USERNAME    = "username";
-    private static final String KEY_USER_ID     = "user_id";
+    private static final String KEY_API_URL               = "api_url";
+    private static final String KEY_AUTH_STRING           = "auth_string";
+    private static final String KEY_USERNAME              = "username";
+    private static final String KEY_USER_ID               = "user_id";
+    private static final String KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp";
     private SharedPreferences mPreferences;
 
     public AppPreferences(Context context) {
@@ -42,6 +43,14 @@ public class AppPreferences {
 
     public void setAuthString(String authString) {
         mPreferences.edit().putString(KEY_AUTH_STRING, authString).apply();
+    }
+
+    public long getLastUpdateTimestamp() {
+        return mPreferences.getLong(KEY_LAST_UPDATE_TIMESTAMP, -1);
+    }
+
+    public void setLastUpdateTimestamp(long lastUpdateTimestamp) {
+        mPreferences.edit().putLong(KEY_LAST_UPDATE_TIMESTAMP, lastUpdateTimestamp).apply();
     }
 
     public long getUserId() {
