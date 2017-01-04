@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -49,6 +50,7 @@ public class AddLinkActivity extends BaseLinkActivity {
         if (intentReader.isShareIntent()) {
             String title = intentReader.getSubject();
             String url = intentReader.getText().toString();
+            if (TextUtils.isEmpty(title)) title = "";
             intentLink = new Link(url);
             intentLink.setTitle(title);
             intentLink.setCategory("");
