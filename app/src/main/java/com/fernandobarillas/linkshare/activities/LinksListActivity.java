@@ -347,7 +347,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         boolean updateUi;
-        if (lastFilterMode == LinkStorage.FILTER_CATEGORY) {
+        if (mFilterMode == LinkStorage.FILTER_CATEGORY) {
             // Only update UI if category has changed
             updateUi = mCategory != null && !mCategory.equalsIgnoreCase(lastCategory);
         } else {
