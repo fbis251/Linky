@@ -55,6 +55,7 @@
                 android:src="@{link.favorite ? @drawable/ic_favorite_filled_24dp : @drawable/ic_favorite_border_24dp}"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription"
                 tools:src="@drawable/ic_favorite_filled_24dp"/>
 
         <TextView
@@ -87,11 +88,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/link_information_margin"
                 android:layout_marginStart="@dimen/link_information_margin"
-                android:background="@{link.category != null ? @drawable/link_category_bg : null}"
+                android:background="@drawable/link_category_bg"
                 android:text="@{link.category.toLowerCase()}"
                 app:layout_constraintLeft_toRightOf="@+id/link_domain"
                 app:layout_constraintTop_toBottomOf="@+id/link_title"
-                tools:background="@drawable/link_category_bg"
                 tools:text="@string/category_uncategorized"/>
 
     </android.support.constraint.ConstraintLayout>

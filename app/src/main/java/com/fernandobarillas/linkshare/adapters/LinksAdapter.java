@@ -1,11 +1,9 @@
 package com.fernandobarillas.linkshare.adapters;
 
-import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,29 +24,19 @@ import io.realm.RealmResults;
 public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHolder> {
     private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
 
-    LinksListActivity  mActivity;
-    RealmResults<Link> mLinks;
-
-    Drawable mFavoriteDrawable;
-    Drawable mNotFavorite;
+    private LinksListActivity  mActivity;
+    private RealmResults<Link> mLinks;
 
     public LinksAdapter(LinksListActivity activity, @NonNull RealmResults<Link> links) {
-        Log.v(LOG_TAG, "LinksAdapter() called with: "
-                + "activity = ["
-                + activity
-                + "], links = ["
-                + links
-                + "]");
+        Log.v(LOG_TAG,
+                "LinksAdapter() called with: "
+                        + "activity = ["
+                        + activity
+                        + "], links = ["
+                        + links
+                        + "]");
         mActivity = activity;
         mLinks = links;
-
-        // Set up the favorite drawables
-        Resources resources = mActivity.getResources();
-        if (resources == null) return;
-        mFavoriteDrawable =
-                ResourcesCompat.getDrawable(resources, R.drawable.ic_favorite_filled_24dp, null);
-        mNotFavorite =
-                ResourcesCompat.getDrawable(resources, R.drawable.ic_favorite_border_24dp, null);
     }
 
     @Override
@@ -65,6 +53,10 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         if (binding != null) {
             binding.setVariable(BR.link, link);
             binding.executePendingBindings();
+
+            // Hide category background drawable if link has no category
+            int visibility = TextUtils.isEmpty(link.getCategory()) ? View.GONE : View.VISIBLE;
+            binding.linkCategory.setVisibility(visibility);
         }
     }
 
