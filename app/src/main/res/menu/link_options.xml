@@ -6,6 +6,10 @@
             android:icon="@drawable/ic_edit_grey_600_24dp"
             android:title="@string/edit"/>
     <item
+            android:id="@+id/link_category"
+            android:icon="@drawable/ic_category_grey_600_24dp"
+            android:title="@string/category"/>
+    <item
             android:id="@+id/link_share"
             android:icon="@drawable/ic_share_grey_600_24dp"
             android:title="@string/share"/>

@@ -796,6 +796,37 @@ public class LinksListActivity extends BaseLinkActivity
         };
     }
 
+    /**
+     * Handles updating the Toolbar title and the links that are displayed with the current mode the
+     * application is in. These modes include which section the user was browsing (All, Archived,
+     * etc) and the sorting options they used. This method should be called during onResume(), after
+     * a search is cancelled and whenever the user decides to change the current section to browse
+     * (All, Archived, etc.)
+     */
+    private void performUiUpdate() {
+        Log.v(LOG_TAG, "performUiUpdate()");
+        boolean skipShowAllLinks = false; // Call showAllLinks() after setting the filter mode
+        switch (mFilterMode) {
+            case LinkStorage.FILTER_SEARCH:
+                showSearchResultLinks(mSearchTerm);
+                break;
+            case LinkStorage.FILTER_CATEGORY:
+                showCategoryLinks(mCategory);
+                skipShowAllLinks = true; // Don't call showAllLinks(), this is a category change
+                // Don't call break to handle hiding the SearchView below!
+            case LinkStorage.FILTER_ALL:
+            case LinkStorage.FILTER_ARCHIVED:
+            case LinkStorage.FILTER_FAVORITES:
+            case LinkStorage.FILTER_FRESH:
+            default:
+                // showAllLinks() handles the above filters, keep the fallthrough!
+                if (!skipShowAllLinks) showAllLinks();
+                mPreviousFilterMode = mFilterMode;
+                if (mSearchView != null) mSearchView.onActionViewCollapsed();
+                break;
+        }
+    }
+
     private void populateDrawerCategories() {
         Log.v(LOG_TAG, "populateDrawerCategories()");
         Set<String> categories = mLinkStorage.getCategories();
@@ -841,6 +872,22 @@ public class LinksListActivity extends BaseLinkActivity
         }
         mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByCategory(searchTerm, mSortMode));
         updateUiAfterAdapterChange();
+    }
+
+    private void showLinkCategory(final int position) {
+        Link link = mLinksAdapter.getLink(position);
+        if (link == null) {
+            showSnackError(getString(R.string.error_cannot_show_category), getRefreshSnackAction());
+            return;
+        }
+        String category = link.getCategory();
+        if (TextUtils.isEmpty(category)) {
+            showSnackError(getString(R.string.error_category_blank), false);
+            return;
+        }
+        mFilterMode = LinkStorage.FILTER_CATEGORY;
+        mCategory = category;
+        performUiUpdate();
     }
 
     private void showNavAccountMenu(final boolean show) {
@@ -936,37 +983,6 @@ public class LinksListActivity extends BaseLinkActivity
         addLinksChangeListener();
     }
 
-    /**
-     * Handles updating the Toolbar title and the links that are displayed with the current mode the
-     * application is in. These modes include which section the user was browsing (All, Archived,
-     * etc) and the sorting options they used. This method should be called during onResume(), after
-     * a search is cancelled and whenever the user decides to change the current section to browse
-     * (All, Archived, etc.)
-     */
-    private void performUiUpdate() {
-        Log.v(LOG_TAG, "performUiUpdate()");
-        boolean skipShowAllLinks = false; // Call showAllLinks() after setting the filter mode
-        switch (mFilterMode) {
-            case LinkStorage.FILTER_SEARCH:
-                showSearchResultLinks(mSearchTerm);
-                break;
-            case LinkStorage.FILTER_CATEGORY:
-                showCategoryLinks(mCategory);
-                skipShowAllLinks = true; // Don't call showAllLinks(), this is a category change
-                // Don't call break to handle hiding the SearchView below!
-            case LinkStorage.FILTER_ALL:
-            case LinkStorage.FILTER_ARCHIVED:
-            case LinkStorage.FILTER_FAVORITES:
-            case LinkStorage.FILTER_FRESH:
-            default:
-                // showAllLinks() handles the above filters, keep the fallthrough!
-                if (!skipShowAllLinks) showAllLinks();
-                mPreviousFilterMode = mFilterMode;
-                if (mSearchView != null) mSearchView.onActionViewCollapsed();
-                break;
-        }
-    }
-
     private class BottomSheetLinkMenuListener implements BottomSheetListener {
         private int mLinkPosition;
 
@@ -993,6 +1009,10 @@ public class LinksListActivity extends BaseLinkActivity
                 case (R.id.link_edit):
                     Log.d(LOG_TAG, "onOptionsItemSelected: Link Edit");
                     editLink(mLinkPosition);
+                    break;
+                case (R.id.link_category):
+                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Edit");
+                    showLinkCategory(mLinkPosition);
                     break;
                 case (R.id.link_share):
                     Log.d(LOG_TAG, "onOptionsItemSelected: Link Share");
