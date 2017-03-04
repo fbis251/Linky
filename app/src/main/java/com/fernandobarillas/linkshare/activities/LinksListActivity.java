@@ -294,7 +294,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         if (lastSortMode != mSortMode) {
-            updateUiAfterFilterModeChange();
+            performUiUpdate();
             return true;
         }
 
@@ -354,7 +354,7 @@ public class LinksListActivity extends BaseLinkActivity
             // Only update UI if filter mode has changed
             updateUi = lastFilterMode != mFilterMode;
         }
-        if (updateUi) updateUiAfterFilterModeChange();
+        if (updateUi) performUiUpdate();
         closeDrawer();
         return true;
     }
@@ -768,7 +768,7 @@ public class LinksListActivity extends BaseLinkActivity
             mFilterMode = mPreviousFilterMode;
         }
 
-        if (lastFilterMode != mFilterMode) updateUiAfterFilterModeChange();
+        if (lastFilterMode != mFilterMode) performUiUpdate();
     }
 
     private View.OnClickListener navAccountHideListener() {
@@ -937,21 +937,22 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     /**
-     * Handles updating the Toolbar title with the current mode the application is in. These modes
-     * include which section the user was browsing (All, Archived, etc) and the sorting options they
-     * used. This method should be called during onResume(), after a search is cancelled and
-     * whenever the user decides to change the current section to browse (All, Archived, etc.)
+     * Handles updating the Toolbar title and the links that are displayed with the current mode the
+     * application is in. These modes include which section the user was browsing (All, Archived,
+     * etc) and the sorting options they used. This method should be called during onResume(), after
+     * a search is cancelled and whenever the user decides to change the current section to browse
+     * (All, Archived, etc.)
      */
-    private void updateUiAfterFilterModeChange() {
-        Log.v(LOG_TAG, "updateUiAfterFilterModeChange()");
-        boolean skipShowAllLinks = false;
+    private void performUiUpdate() {
+        Log.v(LOG_TAG, "performUiUpdate()");
+        boolean skipShowAllLinks = false; // Call showAllLinks() after setting the filter mode
         switch (mFilterMode) {
             case LinkStorage.FILTER_SEARCH:
                 showSearchResultLinks(mSearchTerm);
                 break;
             case LinkStorage.FILTER_CATEGORY:
                 showCategoryLinks(mCategory);
-                skipShowAllLinks = true; // Don't call showAllLinks() after fallthrough
+                skipShowAllLinks = true; // Don't call showAllLinks(), this is a category change
                 // Don't call break to handle hiding the SearchView below!
             case LinkStorage.FILTER_ALL:
             case LinkStorage.FILTER_ARCHIVED:
