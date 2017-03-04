@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
+import com.fernandobarillas.linkshare.BuildConfig;
 import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 
@@ -54,10 +55,10 @@ public class CategoriesArrayAdapter extends ArrayAdapter<String> {
             mRealm = Realm.getInstance(mRealmConfiguration);
             mLinkStorage = new LinkStorage(mRealm);
             Set<String> categoriesSet = mLinkStorage.findByCategoryString(searchString);
-            if (categoriesSet.size() > 0) {
-                ArrayList<String> categoriesResults = new ArrayList<>(categoriesSet);
-                results.values = categoriesResults;
-                results.count = categoriesResults.size();
+            ArrayList<String> categoriesResults = new ArrayList<>(categoriesSet);
+            results.values = categoriesResults;
+            results.count = categoriesResults.size();
+            if (BuildConfig.DEBUG) {
                 for (String result : categoriesResults) {
                     Log.v(LOG_TAG, "performFiltering: result = [" + result + "]");
                 }
