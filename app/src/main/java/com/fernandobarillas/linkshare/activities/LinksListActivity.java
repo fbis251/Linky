@@ -306,8 +306,9 @@ public class LinksListActivity extends BaseLinkActivity
         Log.v(LOG_TAG, "onNavigationItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
 
-        // Keep track of the current filter mode to update the UI if it changes
+        // Keep track of the current filter mode and category to update the UI if they change
         int lastFilterMode = mFilterMode;
+        String lastCategory = mCategory;
         if (item.getGroupId() == R.id.nav_drawer_account) {
             Log.v(LOG_TAG, "onNavigationItemSelected: item = [" + item + "]");
             performLogout();
@@ -345,7 +346,15 @@ public class LinksListActivity extends BaseLinkActivity
             }
         }
 
-        if (lastFilterMode != mFilterMode) updateUiAfterFilterModeChange();
+        boolean updateUi;
+        if (lastFilterMode == LinkStorage.FILTER_CATEGORY) {
+            // Only update UI if category has changed
+            updateUi = mCategory != null && !mCategory.equalsIgnoreCase(lastCategory);
+        } else {
+            // Only update UI if filter mode has changed
+            updateUi = lastFilterMode != mFilterMode;
+        }
+        if (updateUi) updateUiAfterFilterModeChange();
         closeDrawer();
         return true;
     }
