@@ -198,7 +198,7 @@ public class LinksListActivity extends BaseLinkActivity
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    getListIfUpdatedOnServer();
+                    getList();
                 }
             });
         }
@@ -206,7 +206,7 @@ public class LinksListActivity extends BaseLinkActivity
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getListIfUpdatedOnServer();
+                getList();
             }
         });
 
