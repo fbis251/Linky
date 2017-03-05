@@ -571,6 +571,22 @@ public class LinksListActivity extends BaseLinkActivity
         shareUrl(link.getTitle(), link.getUrl());
     }
 
+    public void showLinkCategory(final int position) {
+        Link link = mLinksAdapter.getLink(position);
+        if (link == null) {
+            showSnackError(getString(R.string.error_cannot_show_category), getRefreshSnackAction());
+            return;
+        }
+        String category = link.getCategory();
+        if (TextUtils.isEmpty(category)) {
+            showSnackError(getString(R.string.error_category_blank), false);
+            return;
+        }
+        mFilterMode = LinkStorage.FILTER_CATEGORY;
+        mCategory = category;
+        performUiUpdate();
+    }
+
     private void adapterSetup() {
         Log.v(LOG_TAG, "adapterSetup()");
         if (mLinksAdapter == null) {
@@ -875,22 +891,6 @@ public class LinksListActivity extends BaseLinkActivity
         }
         mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByCategory(searchTerm, mSortMode));
         updateUiAfterAdapterChange();
-    }
-
-    private void showLinkCategory(final int position) {
-        Link link = mLinksAdapter.getLink(position);
-        if (link == null) {
-            showSnackError(getString(R.string.error_cannot_show_category), getRefreshSnackAction());
-            return;
-        }
-        String category = link.getCategory();
-        if (TextUtils.isEmpty(category)) {
-            showSnackError(getString(R.string.error_category_blank), false);
-            return;
-        }
-        mFilterMode = LinkStorage.FILTER_CATEGORY;
-        mCategory = category;
-        performUiUpdate();
     }
 
     private void showNavAccountMenu(final boolean show) {

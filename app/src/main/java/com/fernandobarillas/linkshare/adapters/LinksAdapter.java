@@ -88,6 +88,11 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
             this.holder = holder;
         }
 
+        public void onClickCategory(final View view) {
+            Log.v(LOG_TAG, "onClickCategory() called with: " + "view = [" + view + "]");
+            if (mActivity != null) mActivity.showLinkCategory(getPosition());
+        }
+
         public void onClickFavorite(final View view) {
             Log.v(LOG_TAG, "onClickFavorite() called with: " + "view = [" + view + "]");
             setFavorite(true);

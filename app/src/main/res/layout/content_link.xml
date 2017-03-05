@@ -89,6 +89,7 @@
                 android:layout_marginLeft="@dimen/link_information_margin"
                 android:layout_marginStart="@dimen/link_information_margin"
                 android:background="@drawable/link_category_bg"
+                android:onClick="@{handler::onClickCategory}"
                 android:text="@{link.category.toLowerCase()}"
                 app:layout_constraintLeft_toRightOf="@+id/link_domain"
                 app:layout_constraintTop_toBottomOf="@+id/link_title"
