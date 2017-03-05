@@ -223,6 +223,9 @@ public class LinksListActivity extends BaseLinkActivity
                 mDrawerUsername.setOnClickListener(navAccountShowListener());
             }
         }
+
+        // Show locally stored links right away, if available
+        adapterSetup();
     }
 
     @Override
