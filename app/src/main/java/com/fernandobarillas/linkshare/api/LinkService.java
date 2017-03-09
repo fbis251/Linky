@@ -28,13 +28,13 @@ public interface LinkService {
     Call<AddLinkResponse> addLink(@Body AddLinkRequest linkRequest);
 
     @PUT("links/{linkId}/archive")
-    Call<SuccessResponse> archiveLink(@Path("linkId") long linkId);
+    Call<Void> archiveLink(@Path("linkId") long linkId);
 
     @DELETE("links/{linkId}")
-    Call<SuccessResponse> deleteLink(@Path("linkId") long linkId);
+    Call<Void> deleteLink(@Path("linkId") long linkId);
 
     @PUT("links/{linkId}/favorite")
-    Call<SuccessResponse> favoriteLink(@Path("linkId") long linkId);
+    Call<Void> favoriteLink(@Path("linkId") long linkId);
 
     @GET("links")
     Call<List<Link>> getLinks();
@@ -43,10 +43,10 @@ public interface LinkService {
     Call<ResponseBody> login(@Body LoginRequest loginRequest);
 
     @DELETE("links/{linkId}/archive")
-    Call<SuccessResponse> unarchiveLink(@Path("linkId") long linkId);
+    Call<Void> unarchiveLink(@Path("linkId") long linkId);
 
     @DELETE("links/{linkId}/favorite")
-    Call<SuccessResponse> unfavoriteLink(@Path("linkId") long linkId);
+    Call<Void> unfavoriteLink(@Path("linkId") long linkId);
 
     @PUT("links/{linkId}")
     Call<AddLinkResponse> updateLink(@Path("linkId") long linkId, @Body AddLinkRequest linkRequest);
