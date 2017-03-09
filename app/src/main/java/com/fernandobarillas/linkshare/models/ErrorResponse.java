@@ -1,19 +1,22 @@
 package com.fernandobarillas.linkshare.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by fb on 6/29/16.
  */
 public class ErrorResponse {
-    private String statusMessage;
+    @SerializedName("errorMessage")
+    private String errorMessage;
 
     @Override
     public String toString() {
         return "ErrorResponse{" +
-                "statusMessage='" + statusMessage + '\'' +
+                "errorMessage='" + errorMessage + '\'' +
                 '}';
     }
 
-    public String getStatusMessage() {
-        return statusMessage;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }
