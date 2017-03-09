@@ -16,7 +16,7 @@ import com.fernandobarillas.linkshare.databinding.ActivityAddLinkBinding;
 import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.AddLinkResponse;
 import com.fernandobarillas.linkshare.models.Link;
-import com.fernandobarillas.linkshare.utils.ResponsePrinter;
+import com.fernandobarillas.linkshare.utils.ResponseUtils;
 import com.varunest.sparkbutton.SparkButton;
 
 import retrofit2.Call;
@@ -86,7 +86,7 @@ public class AddLinkActivity extends BaseLinkActivity {
         call.enqueue(new Callback<AddLinkResponse>() {
             @Override
             public void onResponse(Call<AddLinkResponse> call, Response<AddLinkResponse> response) {
-                Log.i(LOG_TAG, "onResponse: " + ResponsePrinter.httpCodeString(response));
+                Log.i(LOG_TAG, "onResponse: " + ResponseUtils.httpCodeString(response));
                 if (response.isSuccessful()) {
                     AddLinkResponse addLinkResponse = response.body();
                     if (addLinkResponse == null
