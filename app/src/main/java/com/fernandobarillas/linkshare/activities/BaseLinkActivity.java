@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.api.LinkService;
+import com.fernandobarillas.linkshare.api.LinksApi;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
@@ -57,11 +58,18 @@ public abstract class BaseLinkActivity extends BaseActivity {
             performLogout();
             return;
         }
-        try {
-            mLinkService = mLinksApp.getLinkService();
-        } catch (InvalidApiUrlException e) {
-            Log.e(LOG_TAG, "serviceSetup: Invalid API URL, launching login activity", e);
-            performLogout();
+        mLinkService = mLinksApp.getLinkService();
+        if (mLinkService == null) {
+            try {
+                LinksApi linksApi = new LinksApi(mPreferences.getApiUrl(),
+                        mPreferences.getUserId(),
+                        mPreferences.getAuthString());
+                mLinksApp.setLinkService(linksApi.getLinkService());
+                mLinkService = mLinksApp.getLinkService();
+            } catch (InvalidApiUrlException e) {
+                Log.e(LOG_TAG, "serviceSetup: Invalid API URL, launching login activity", e);
+                performLogout();
+            }
         }
     }
 }
