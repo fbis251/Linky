@@ -16,6 +16,7 @@
 
 package com.fernandobarillas.linkshare.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.util.Log;
@@ -25,9 +26,15 @@ import android.widget.ImageButton;
 
 import com.fernandobarillas.linkshare.R;
 
+import de.psdev.licensesdialog.LicenseResolver;
 import de.psdev.licensesdialog.LicensesDialog;
+import de.psdev.licensesdialog.licenses.ApacheSoftwareLicense20;
+import de.psdev.licensesdialog.licenses.License;
+import de.psdev.licensesdialog.model.Notice;
 
 public class AboutActivity extends BaseActivity {
+
+
     private final String LOG_TAG = getClass().getSimpleName();
 
     @Override
@@ -37,28 +44,16 @@ public class AboutActivity extends BaseActivity {
                 "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         setContentView(R.layout.activity_about);
 
-        Button licensesButton = (Button) findViewById(R.id.licenses_button);
-        if (licensesButton != null) {
-            licensesButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openLicensesDialog();
-                }
-            });
-        }
-
         ImageButton githubButton = (ImageButton) findViewById(R.id.github_button);
         ImageButton websiteButton = (ImageButton) findViewById(R.id.website_button);
         setButtonUrlListener(githubButton, R.string.author_github_url);
         setButtonUrlListener(websiteButton, R.string.author_website_url);
     }
 
-    private void openLicensesDialog() {
-        Log.v(LOG_TAG, "openLicensesDialog()");
-        new LicensesDialog.Builder(this).setNotices(R.raw.notices)
-                .setThemeResourceId(R.style.AppDialogTheme)
-                .build()
-                .showAppCompat();
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void setButtonUrlListener(final ImageButton button, @StringRes final int urlStringRes) {

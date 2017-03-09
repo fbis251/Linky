@@ -70,7 +70,6 @@
 
     <!-- About Activity -->
     <string name="about_text">Proudly made in the USA by</string>
-    <string name="view_licenses">View licenses</string>
     <string name="about_github_content_description">Open Github Profile</string>
     <string name="about_website_content_description">Open Author Website</string>
 

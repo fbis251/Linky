@@ -12,38 +12,29 @@
             android:id="@+id/about_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
             android:gravity="center_horizontal"
             android:text="@string/about_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/about_app_author"
+            app:layout_constraintHorizontal_bias="0.509"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1"/>
+            app:layout_constraintRight_toRightOf="parent"/>
 
     <TextView
             android:id="@+id/about_app_author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
             android:gravity="center_horizontal"
             android:text="@string/app_author"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintLeft_toLeftOf="@+id/about_text"
-            app:layout_constraintRight_toRightOf="@+id/about_text"
-            app:layout_constraintTop_toBottomOf="@+id/about_text"/>
-
-    <Button
-            android:id="@+id/licenses_button"
-            style="@style/AppButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/view_licenses"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/github_button"
+            app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
 
@@ -52,24 +43,31 @@
             style="@style/AppButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/about_github_content_description"
-            android:src="@drawable/ic_github_grey_600_24dp"
-            app:layout_constraintLeft_toLeftOf="@+id/about_text"
-            app:layout_constraintTop_toBottomOf="@+id/about_app_author"/>
+            android:src="@drawable/ic_github_white_600_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/website_button"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="144dp"/>
 
     <ImageButton
             android:id="@+id/website_button"
             style="@style/AppButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="0dp"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/about_website_content_description"
-            android:src="@drawable/ic_browser_grey_600_24dp"
+            android:src="@drawable/ic_browser_white_600_24dp"
             app:layout_constraintBottom_toBottomOf="@+id/github_button"
-            app:layout_constraintLeft_toRightOf="@+id/github_button"
-            app:layout_constraintRight_toRightOf="@+id/about_text"
-            app:layout_constraintTop_toTopOf="@+id/github_button"/>
-
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/github_button"
+            app:layout_constraintTop_toTopOf="@+id/github_button"
+            tools:layout_editor_absoluteX="192dp"/>
 </android.support.constraint.ConstraintLayout>
