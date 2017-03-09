@@ -18,7 +18,6 @@
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minWidth="500dp"
             tools:context=".activities.EditLinkActivity">
 
         <android.support.constraint.ConstraintLayout
