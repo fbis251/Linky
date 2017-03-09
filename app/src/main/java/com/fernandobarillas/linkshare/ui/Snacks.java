@@ -8,25 +8,21 @@ import android.view.View;
  * SnackBar wrapper/helper class
  */
 public class Snacks {
-    public static void showError(View view, String message) {
-        showSnackBar(view, message, true);
+    public static Snackbar showError(View view, String message, Action snackAction) {
+        return showSnackbar(view, message, snackAction != null, snackAction);
     }
 
-    public static void showError(View view, String message, Action snackAction) {
-        showSnackBar(view, message, true, snackAction);
+    public static Snackbar showMessage(View view, String message) {
+        return showSnackbar(view, message, false);
     }
 
-    public static void showMessage(View view, String message) {
-        showSnackBar(view, message, false);
+    public static Snackbar showSnackbar(View view, String message, boolean indefinite) {
+        return showSnackbar(view, message, false, null);
     }
 
-    public static void showSnackBar(View view, String message, boolean indefinite) {
-        showSnackBar(view, message, false, null);
-    }
-
-    public static void showSnackBar(View view, String message, boolean indefinite,
-            Action snackAction) {
-        if (view == null || message == null) return;
+    public static Snackbar showSnackbar(
+            View view, String message, boolean indefinite, Action snackAction) {
+        if (view == null || message == null) return null;
         int length = indefinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_LONG;
         Snackbar snackbar = Snackbar.make(view, message, length);
         if (snackAction != null) {
@@ -37,6 +33,7 @@ public class Snacks {
             }
         }
         snackbar.show();
+        return snackbar;
     }
 
     public static class Action {

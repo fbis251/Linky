@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,11 +34,11 @@ import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ShareHandler;
 
 public abstract class BaseActivity extends AppCompatActivity {
-
     protected final String LOG_TAG = getClass().getSimpleName();
 
     protected LinksApp       mLinksApp;
     protected AppPreferences mPreferences;
+    private   Snackbar       mSnackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    public void dismissSnackbar() {
+        Log.v(LOG_TAG, "dismissSnackbar()");
+        if (mSnackbar == null) return;
+        mSnackbar.dismiss();
+    }
+
     public void openUrlExternally(final String url) {
         Log.v(LOG_TAG, "openUrlExternally() called with: " + "url = [" + url + "]");
         if (url == null) return;
@@ -94,30 +101,28 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void showSnackError(final String message, final boolean showDismissAction) {
+        Snacks.Action dismissAction = null;
         if (showDismissAction) {
-            Snacks.Action dismissAction =
-                    new Snacks.Action(R.string.dismiss, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // Perform no action so the SnackBar gets dismissed on click
-                        }
-                    });
-            showSnackError(message, dismissAction);
-        } else {
-            showSnackError(message, null);
+            dismissAction = new Snacks.Action(R.string.dismiss, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Perform no action so the SnackBar gets dismissed on click
+                }
+            });
         }
+        showSnackError(message, dismissAction);
     }
 
-    public void showSnackError(final String message, final Snacks.Action action) {
+    public void showSnackError(final String message, final Snacks.Action snackAction) {
         View view = findViewById(android.R.id.content);
         if (view == null) return;
-        Snacks.showError(view, message, action);
+        mSnackbar = Snacks.showError(view, message, snackAction);
     }
 
     public void showSnackSuccess(final String message) {
         View view = findViewById(android.R.id.content);
         if (view == null) return;
-        Snacks.showMessage(view, message);
+        mSnackbar = Snacks.showMessage(view, message);
     }
 
     protected void launchLinksListActivity() {
@@ -137,12 +142,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void setToolbarTitle(String title, String subTitle) {
-        Log.v(LOG_TAG, "setToolbarTitle() called with: "
-                + "title = ["
-                + title
-                + "], subTitle = ["
-                + subTitle
-                + "]");
+        Log.v(LOG_TAG,
+                "setToolbarTitle() called with: "
+                        + "title = ["
+                        + title
+                        + "], subTitle = ["
+                        + subTitle
+                        + "]");
         ActionBar actionBar = getSupportActionBar();
         if (actionBar == null) return;
         actionBar.setTitle(title);
