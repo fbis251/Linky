@@ -2,10 +2,9 @@ package com.fernandobarillas.linkshare.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -23,12 +22,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fernandobarillas.linkshare.R;
-import com.fernandobarillas.linkshare.api.LinkService;
-import com.fernandobarillas.linkshare.api.ServiceGenerator;
+import com.fernandobarillas.linkshare.api.LinksApi;
+import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 import com.fernandobarillas.linkshare.models.ErrorResponse;
 import com.fernandobarillas.linkshare.models.LoginRequest;
 import com.fernandobarillas.linkshare.models.LoginResponse;
+import com.fernandobarillas.linkshare.utils.ResponseUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -92,8 +92,13 @@ public class LoginActivity extends BaseLinkActivity {
         InputFilter[] noSpacesInputFilter = new InputFilter[]{
                 new InputFilter() {
                     @Override
-                    public CharSequence filter(CharSequence charSequence, int i, int i1,
-                            Spanned spanned, int i2, int i3) {
+                    public CharSequence filter(
+                            CharSequence charSequence,
+                            int i,
+                            int i1,
+                            Spanned spanned,
+                            int i2,
+                            int i3) {
                         String input = charSequence.toString();
                         if (input.contains(" ")) {
                             // Delete all spaces
@@ -214,10 +219,9 @@ public class LoginActivity extends BaseLinkActivity {
         } else {
             try {
                 apiUrl = new URL(apiUrlString);
-            } catch (MalformedURLException ignored) {
-            }
-            if (apiUrl == null || !ServiceGenerator.isApiUrlValid(apiUrl)) {
-                Log.e(LOG_TAG, "attemptLogin: API URL was invalid, showing error in UI");
+                LinksApi.validateApiUrl(apiUrl);
+            } catch (MalformedURLException | InvalidApiUrlException e) {
+                Log.e(LOG_TAG, "attemptLogin: Invalid API URL: " + apiUrlString);
                 mServerAddressView.setError(getString(R.string.error_invalid_server_address));
                 focusView = mServerAddressView;
                 cancel = true;
@@ -232,6 +236,7 @@ public class LoginActivity extends BaseLinkActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+            dismissSnackbar();
             doLogin(apiUrl, username, password);
         }
     }
@@ -239,7 +244,7 @@ public class LoginActivity extends BaseLinkActivity {
     private void doLogin(final URL apiUrl, final String username, final String password) {
         LoginRequest loginRequest = new LoginRequest(username, password);
         try {
-            mLinkService = ServiceGenerator.createService(LinkService.class, apiUrl);
+            mLinkService = new LinksApi(apiUrl).getLinkService();
         } catch (InvalidApiUrlException e) {
             Log.e(LOG_TAG, "doLogin: ", e);
             showProgress(false);
@@ -257,36 +262,51 @@ public class LoginActivity extends BaseLinkActivity {
                 Log.v(LOG_TAG, "doLogin onResponse: Error body: " + response.errorBody());
                 Gson gson = new Gson();
                 try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        LoginResponse loginResponse =
-                                gson.fromJson(response.body().string(), LoginResponse.class);
-                        long userId = loginResponse.getUserId();
-                        String authString = loginResponse.getAuthString();
-                        if (!TextUtils.isEmpty(authString)
-                                && userId != LoginResponse.INVALID_USER_ID) {
-                            mPreferences.setApiUrl(apiUrl.toString());
-                            mPreferences.setUserId(userId);
-                            mPreferences.setAuthString(authString);
-                            mPreferences.setUsername(loginResponse.getUsername());
-                            Log.i(LOG_TAG, "doLogin Login completed, starting LinksListActivity");
-                            launchLinksListActivity();
-                            return;
+                    if (response.isSuccessful()) {
+                        // HTTP 200 response, response body might still be empty
+                        if (response.body() != null) {
+                            try {
+                                LoginResponse loginResponse =
+                                        gson.fromJson(response.body().string(),
+                                                LoginResponse.class);
+                                if (!handleLoginSuccess(apiUrl, loginResponse)) {
+                                    handleLoginError(true, null, null);
+                                }
+                            } catch (JsonSyntaxException e) {
+                                handleLoginError(false,
+                                        null,
+                                        getString(R.string.error_invalid_json));
+                            }
+                        } else {
+                            handleLoginError(false,
+                                    null,
+                                    getString(R.string.error_empty_server_response));
                         }
-                    } else if (response.errorBody() != null) {
-                        ErrorResponse errorResponse =
-                                gson.fromJson(response.errorBody().string(), ErrorResponse.class);
-                        if (errorResponse != null) {
-                            Log.w(LOG_TAG, "doLogin onResponse: API Response message: "
-                                    + errorResponse.getStatusMessage());
-                            handleLoginError(false, null, errorResponse.getStatusMessage());
+                    } else {
+                        String errorMessage = String.format(getString(R.string.error_http_format),
+                                response.code());
+                        if (response.errorBody() != null) {
+                            try {
+                                ErrorResponse errorResponse =
+                                        gson.fromJson(response.errorBody().string(),
+                                                ErrorResponse.class);
+                                if (errorResponse != null) {
+                                    Log.w(LOG_TAG,
+                                            "doLogin onResponse: API Response message: "
+                                                    + errorResponse.getErrorMessage());
+                                    errorMessage = errorResponse.getErrorMessage();
+                                }
+                            } catch (JsonSyntaxException ignored) {
+                            }
                         }
-                        return;
+                        handleLoginError(ResponseUtils.isAuthenticationError(response),
+                                null,
+                                errorMessage);
                     }
-                } catch (IOException | JsonSyntaxException e) {
+                } catch (IOException e) {
                     Log.e(LOG_TAG, "doLogin onResponse: ", e);
+                    handleLoginError(false, e, null);
                 }
-
-                handleLoginError(true, null, null);
             }
 
             @Override
@@ -298,98 +318,105 @@ public class LoginActivity extends BaseLinkActivity {
         });
     }
 
-    private void handleLoginError(boolean isUserOrPasswordError, @Nullable Throwable t,
+    private void handleLoginError(
+            boolean isUsernameOrPasswordError,
+            @Nullable Throwable t,
             @Nullable String errorMessage) {
-        Log.v(LOG_TAG, "handleLoginError() called with: "
-                + "t = ["
-                + t
-                + "], errorMessage = ["
-                + errorMessage
-                + "]");
-
+        Log.v(LOG_TAG,
+                "handleLoginError() called with: "
+                        + "isUsernameOrPasswordError = ["
+                        + isUsernameOrPasswordError
+                        + "], t = ["
+                        + t
+                        + "], errorMessage = ["
+                        + errorMessage
+                        + "]");
         showProgress(false);
         String uiMessage;
-        if (t instanceof UnknownHostException || t instanceof SSLPeerUnverifiedException) {
-            mServerAddressView.setError(t.getLocalizedMessage());
-            mServerAddressView.requestFocus();
-        }
-
-        if (isUserOrPasswordError) {
+        if (t != null) {
+            String message = t.getLocalizedMessage();
+            if (t instanceof UnknownHostException || t instanceof SSLPeerUnverifiedException) {
+                mServerAddressView.setError(message);
+                mServerAddressView.requestFocus();
+            } else {
+                showSnackError("Error: " + message, true);
+            }
+        } else if (isUsernameOrPasswordError) {
             uiMessage = errorMessage != null ? errorMessage
                     : getString(R.string.error_incorrect_username_or_password);
-            mUsernameView.setError(uiMessage);
             mPasswordView.setError(uiMessage);
-            mUsernameView.requestFocus();
+            mPasswordView.requestFocus();
         } else {
-            uiMessage = errorMessage != null ? errorMessage
-                    : getString(R.string.error_invalid_server_address);
-            if (t instanceof UnknownHostException || t instanceof SSLPeerUnverifiedException) {
-                if (t.getLocalizedMessage() != null) {
-                    uiMessage = t.getLocalizedMessage();
-                }
-            }
-            mServerAddressView.setError(uiMessage);
-            mServerAddressView.requestFocus();
+            uiMessage = errorMessage != null ? errorMessage : getString(R.string.error_unknown);
+            showSnackError(uiMessage, true);
         }
+    }
+
+    private boolean handleLoginSuccess(final URL apiUrl, final LoginResponse loginResponse) {
+        Log.v(LOG_TAG,
+                "handleLoginSuccess() called with: "
+                        + "apiUrl = ["
+                        + apiUrl
+                        + "], loginResponse = ["
+                        + loginResponse
+                        + "]");
+        long userId = loginResponse.getUserId();
+        String authString = loginResponse.getAuthString();
+        if (!TextUtils.isEmpty(authString) && userId != LoginResponse.INVALID_USER_ID) {
+            mPreferences.setApiUrl(apiUrl.toString());
+            mPreferences.setUserId(userId);
+            mPreferences.setAuthString(authString);
+            mPreferences.setUsername(loginResponse.getUsername());
+            Log.i(LOG_TAG, "doLogin Login completed, starting LinksListActivity");
+            launchLinksListActivity();
+            return true;
+        }
+        return false;
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() >= 4;
+        return password.length() >= AppPreferences.PASSWORD_MIN_LENGTH;
     }
 
     private boolean isUsernameValid(String username) {
-        return username.length() >= 3;
+        return username.length() >= AppPreferences.USERNAME_MIN_LENGTH;
     }
 
     /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
+     * Set up the {@link android.app.ActionBar}
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Show the Up button in the action bar.
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     /**
      * Shows the progress UI and hides the login form.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate()
-                    .setDuration(shortAnimTime)
-                    .alpha(show ? 0 : 1)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                        }
-                    });
+        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mLoginFormView.animate()
+                .setDuration(shortAnimTime)
+                .alpha(show ? 0 : 1)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    }
+                });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate()
-                    .setDuration(shortAnimTime)
-                    .alpha(show ? 1 : 0)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                        }
-                    });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate()
+                .setDuration(shortAnimTime)
+                .alpha(show ? 1 : 0)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                    }
+                });
     }
 }
 

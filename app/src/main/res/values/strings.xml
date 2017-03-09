@@ -60,6 +60,10 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="error_invalid_server_address">This server address is invalid</string>
+    <string name="error_empty_server_response">The server sent back an empty response, please contact the admin</string>
+    <string name="error_invalid_json">The server sent an invalid JSON response, please contact the admin</string>
+    <string name="error_unknown">An unknown error has occurred, please try again</string>
+    <string name="error_http_format">HTTP Error %1$d, please try again later</string>
     <string name="error_invalid_username">This username is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
