@@ -10,6 +10,9 @@ import java.net.URL;
  * Created by fb on 2/1/16.
  */
 public class AppPreferences {
+    public static final int USERNAME_MIN_LENGTH = 2;
+    public static final int PASSWORD_MIN_LENGTH = 8;
+
     private static final String KEY_API_URL               = "api_url";
     private static final String KEY_AUTH_STRING           = "auth_string";
     private static final String KEY_USERNAME              = "username";
