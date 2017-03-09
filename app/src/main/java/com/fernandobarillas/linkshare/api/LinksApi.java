@@ -24,32 +24,31 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by fb on 2/1/16.
+ * Created by fb on 3/5/17.
  */
-public class ServiceGenerator {
-    private static final String LOG_TAG = "ServiceGenerator";
 
-    public static <S> S createService(Class<S> serviceClass, final URL apiUrl)
-            throws InvalidApiUrlException {
-        if (!isApiUrlValid(apiUrl)) {
-            if (apiUrl != null) {
-                throw new InvalidApiUrlException("Invalid API URL " + apiUrl.toString());
-            } else {
-                throw new InvalidApiUrlException();
-            }
-        }
+public class LinksApi {
+    private static final String LOG_TAG = "LinksApi";
 
-        return createService(serviceClass, apiUrl, -1, null);
+    private LinkService mLinkService;
+
+    public LinksApi(final URL apiUrl) throws InvalidApiUrlException {
+        Log.v(LOG_TAG, "LinksApi() called with: " + "apiUrl = [" + apiUrl + "]");
+        validateApiUrl(apiUrl);
+        buildService(apiUrl, new OkHttpClient.Builder());
     }
 
-    public static <S> S createService(Class<S> serviceClass, final URL apiUrl, final long userId,
-            final String authToken) throws InvalidApiUrlException {
-        if (!isApiUrlValid(apiUrl)) {
-            throw new InvalidApiUrlException();
-        }
-
+    public LinksApi(final URL apiUrl, final long userId, final String authToken)
+            throws InvalidApiUrlException {
+        Log.v(LOG_TAG,
+                "LinksApi() called with: "
+                        + "apiUrl = ["
+                        + apiUrl
+                        + "], userId = ["
+                        + userId
+                        + "], authToken = [REDACTED]");
+        validateApiUrl(apiUrl);
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
         // Add the Basic Auth header to the request
         if (authToken != null) {
             httpClient.addInterceptor(new Interceptor() {
@@ -67,46 +66,53 @@ public class ServiceGenerator {
                 }
             });
         }
+        buildService(apiUrl, httpClient);
+    }
 
-        OkHttpClient client;
+    public static void validateApiUrl(final URL apiUrl) throws InvalidApiUrlException {
+        Log.v(LOG_TAG, "validateApiUrl() called with: " + "apiUrl = [" + apiUrl + "]");
+        if (apiUrl == null || TextUtils.isEmpty(apiUrl.toString())) {
+            throw new InvalidApiUrlException("Api URL cannot be blank");
+        }
+
+        String host = apiUrl.getHost();
+        if (TextUtils.isEmpty(host.trim())) {
+            throw new InvalidApiUrlException("Invalid API URL " + apiUrl.toString());
+        }
+    }
+
+    public LinkService getLinkService() {
+        return mLinkService;
+    }
+
+    private String getApiUrlString(URL apiUrl) {
+        Log.v(LOG_TAG, "getApiUrlString() called with: " + "apiUrl = [" + apiUrl + "]");
+        if (apiUrl == null) return null;
+        String result = apiUrl.toString() + LinkService.API_BASE_URL;
+        Log.v(LOG_TAG, "getApiUrlString: API result URL: " + result);
+        return result;
+    }
+
+    private void buildService(final URL apiUrl, OkHttpClient.Builder okHttpClientBuilder) {
         if (BuildConfig.DEBUG && BuildConfig.USE_HTTP_PROXY) {
             SocketAddress proxyAddress = new InetSocketAddress(BuildConfig.HTTP_PROXY_ADDRESS,
                     BuildConfig.HTTP_PROXY_PORT);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
-            httpClient = httpClient.proxy(proxy);
+            okHttpClientBuilder = okHttpClientBuilder.proxy(proxy);
         }
 
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            httpClient.addInterceptor(logging);
+            okHttpClientBuilder.addInterceptor(logging);
         }
 
-        client = httpClient.build();
+        OkHttpClient okHttpClient = okHttpClientBuilder.build();
         Gson gson = new GsonBuilder().serializeNulls().create();
         String baseUrl = getApiUrlString(apiUrl);
         Retrofit.Builder builder = new Retrofit.Builder().baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson));
-        Retrofit retrofit = builder.client(client).build();
-        return retrofit.create(serviceClass);
-    }
-
-    public static boolean isApiUrlValid(final URL apiUrl) {
-        Log.v(LOG_TAG, "isApiUrlValid() called with: " + "apiUrl = [" + apiUrl + "]");
-        if (apiUrl != null && !TextUtils.isEmpty(apiUrl.toString())) {
-            String host = apiUrl.getHost();
-            if (!TextUtils.isEmpty(host.trim())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static String getApiUrlString(URL apiUrl) {
-        Log.v(LOG_TAG, "getApiUrlString() called with: " + "apiUrl = [" + apiUrl + "]");
-        String result = apiUrl.toString() + LinkService.API_BASE_URL;
-        Log.v(LOG_TAG, "getApiUrlString: API result URL: " + result);
-        return result;
+        Retrofit retrofit = builder.client(okHttpClient).build();
+        mLinkService = retrofit.create(LinkService.class);
     }
 }

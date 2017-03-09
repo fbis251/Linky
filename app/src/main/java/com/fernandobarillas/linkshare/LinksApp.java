@@ -5,9 +5,7 @@ import android.content.res.Configuration;
 import android.util.Log;
 
 import com.fernandobarillas.linkshare.api.LinkService;
-import com.fernandobarillas.linkshare.api.ServiceGenerator;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
-import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -41,15 +39,14 @@ public class LinksApp extends Application {
         super.onLowMemory();
     }
 
-    public LinkService getLinkService() throws InvalidApiUrlException {
-        if (mLinkService == null) {
-            getPreferences();
-            mLinkService = ServiceGenerator.createService(LinkService.class,
-                    mPreferences.getApiUrl(),
-                    mPreferences.getUserId(),
-                    mPreferences.getAuthString());
-        }
+    public LinkService getLinkService() {
+        Log.v(LOG_TAG, "getLinkService() called");
         return mLinkService;
+    }
+
+    public void setLinkService(LinkService linkService) {
+        Log.d(LOG_TAG, "setLinkService() called with: linkService = [" + linkService + "]");
+        mLinkService = linkService;
     }
 
     public AppPreferences getPreferences() {
