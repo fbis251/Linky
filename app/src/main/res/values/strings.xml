@@ -9,6 +9,7 @@
     <string name="title_about">About Linky</string>
     <string name="title_add_link">Save to Linky</string>
     <string name="title_edit_link">Edit Link</string>
+    <string name="title_settings">Settings</string>
 
     <!-- Common Strings -->
     <string name="address">Address</string>
@@ -83,6 +84,14 @@
     <string name="category_add_new">Add new category…</string>
     <string name="add_new_category_title">New Category</string>
     <string name="add_new_category_empty_error">Category cannot be empty</string>
+
+    <!-- Settings Activity -->
+    <string name="preference_category_information">Information</string>
+    <string name="preference_about_activity_title">@string/title_about</string>
+    <string name="preference_about_activity_summary">View application information</string>
+    <string name="preference_licenses_key">pref_licenses</string>
+    <string name="preference_licenses_title">Licenses</string>
+    <string name="preference_licenses_summary">View software licenses</string>
 
     <!-- Errors and messages -->
     <string name="share_intent_error">No apps can handle that link</string>

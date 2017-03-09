@@ -52,10 +52,20 @@
                     android:value=".activities.LinksListActivity"/>
         </activity>
         <activity
+                android:name=".activities.SettingsActivity"
+                android:label="@string/title_settings"
+                android:parentActivityName=".activities.LinksListActivity"
+                android:theme="@style/SettingsTheme">
+        </activity>
+        <activity
                 android:name=".activities.AboutActivity"
                 android:label="@string/title_about"
-                android:parentActivityName=".activities.LinksListActivity"
+                android:parentActivityName=".activities.SettingsActivity"
                 android:theme="@style/AboutTheme">
+            <intent-filter>
+                <action android:name="AboutActivity"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
     </application>
 

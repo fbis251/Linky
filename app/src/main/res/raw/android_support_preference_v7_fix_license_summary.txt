@@ -1,0 +1,8 @@
+IMPORTANT NOTE!
+Some files are released under the Apache License 2.0, see README.md for details!
+
+This is free and unencumbered software released into the public domain.
+
+For more information, please refer to
+
+https://github.com/Gericop/Android-Support-Preference-V7-Fix/blob/master/LICENSE

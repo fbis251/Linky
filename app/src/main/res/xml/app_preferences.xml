@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.preference.PreferenceCategory
+            android:title="@string/preference_category_information">
+        <PreferenceScreen
+                android:summary="@string/preference_about_activity_summary"
+                android:title="@string/preference_about_activity_title">
+            <intent android:action="AboutActivity"/>
+        </PreferenceScreen>
+        <Preference
+                android:key="@string/preference_licenses_key"
+                android:summary="@string/preference_licenses_summary"
+                android:title="@string/preference_licenses_title">
+        </Preference>
+    </android.support.v7.preference.PreferenceCategory>
+
+</android.support.v7.preference.PreferenceScreen>

@@ -67,6 +67,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
+    compile 'com.takisoft.fix:preference-v7:25.2.0.0'
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.1'
     testCompile 'junit:junit:4.12'
 }
