@@ -30,18 +30,19 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
+import com.fernandobarillas.linkshare.models.ErrorResponse;
 import com.fernandobarillas.linkshare.models.Link;
-import com.fernandobarillas.linkshare.models.SuccessResponse;
 import com.fernandobarillas.linkshare.models.UserInfoResponse;
 import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
 import com.fernandobarillas.linkshare.ui.Snacks;
-import com.fernandobarillas.linkshare.utils.ResponsePrinter;
+import com.fernandobarillas.linkshare.utils.ResponseUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.kennyc.bottomsheet.BottomSheet;
 import com.kennyc.bottomsheet.BottomSheetListener;
 
@@ -50,6 +51,7 @@ import java.util.Set;
 
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -414,10 +416,10 @@ public class LinksListActivity extends BaseLinkActivity
         final String errorMessage = "Error deleting " + title;
 
         Log.i(LOG_TAG, "deleteLink: Trying to remove link: " + link);
-        Call<SuccessResponse> deleteCall = mLinkService.deleteLink(link.getLinkId());
-        deleteCall.enqueue(new Callback<SuccessResponse>() {
+        Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
+        deleteCall.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 Log.v(LOG_TAG,
                         "deleteLink: onResponse() called with: " + "response = [" + response + "]");
                 if (response.isSuccessful()) {
@@ -435,11 +437,13 @@ public class LinksListActivity extends BaseLinkActivity
                         String.format("deleteLink: onResponse: %d %s",
                                 response.code(),
                                 response.message()));
-                showSnackError(errorMessage, false);
+                if (!handleHttpResponseError(response)) {
+                    showSnackError(errorMessage, false);
+                }
             }
 
             @Override
-            public void onFailure(Call<SuccessResponse> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 Log.e(LOG_TAG, "deleteLink: onFailure: " + errorMessage, t);
                 showSnackError(errorMessage, false);
             }
@@ -520,14 +524,14 @@ public class LinksListActivity extends BaseLinkActivity
                     }
                 });
 
-        Call<SuccessResponse> call = mLinkService.favoriteLink(link.getLinkId());
+        Call<Void> call = mLinkService.favoriteLink(link.getLinkId());
         if (!isFavorite) {
             call = mLinkService.unfavoriteLink(link.getLinkId());
         }
 
-        call.enqueue(new Callback<SuccessResponse>() {
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 Log.v(LOG_TAG,
                         "setFavorite onResponse() called with: "
                                 + "call = ["
@@ -546,13 +550,15 @@ public class LinksListActivity extends BaseLinkActivity
                         }
                     }
                 } else {
-                    showSnackError(errorMessage, retryAction);
+                    if (!handleHttpResponseError(response)) {
+                        showSnackError(errorMessage, retryAction);
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<SuccessResponse> call, Throwable t) {
-                Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(LOG_TAG, "setFavorite: onFailure: " + errorMessage, t);
                 showSnackError(errorMessage, retryAction);
             }
         });
@@ -625,10 +631,10 @@ public class LinksListActivity extends BaseLinkActivity
         final String errorMessage = "Error archiving " + title;
 
         Log.i(LOG_TAG, "archiveLink: Trying to remove link: " + link);
-        Call<SuccessResponse> archiveCall = mLinkService.archiveLink(link.getLinkId());
-        archiveCall.enqueue(new Callback<SuccessResponse>() {
+        Call<Void> archiveCall = mLinkService.archiveLink(link.getLinkId());
+        archiveCall.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<SuccessResponse> call, Response<SuccessResponse> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 Log.v(LOG_TAG,
                         "archiveLink: onResponse() called with: "
                                 + "response = ["
@@ -653,11 +659,13 @@ public class LinksListActivity extends BaseLinkActivity
                         String.format("archiveLink: onResponse: %d %s",
                                 response.code(),
                                 response.message()));
-                showSnackError(errorMessage, false);
+                if (!handleHttpResponseError(response)) {
+                    showSnackError(errorMessage, false);
+                }
             }
 
             @Override
-            public void onFailure(Call<SuccessResponse> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
                 showSnackError(errorMessage, false);
             }
@@ -677,13 +685,17 @@ public class LinksListActivity extends BaseLinkActivity
         call.enqueue(new Callback<List<Link>>() {
             @Override
             public void onResponse(Call<List<Link>> call, Response<List<Link>> response) {
-                Log.v(LOG_TAG, "getLinks: onResponse: " + ResponsePrinter.httpCodeString(response));
+                Log.v(LOG_TAG, "getLinks: onResponse: " + ResponseUtils.httpCodeString(response));
+                mSwipeRefreshLayout.setRefreshing(false);
                 if (!response.isSuccessful()) {
-                    String message = "Invalid response returned by server: "
-                            + ResponsePrinter.httpCodeString(response);
+                    String message =
+                            "Invalid response returned by server: " + ResponseUtils.httpCodeString(
+                                    response);
                     Log.e(LOG_TAG, "getLinks: onResponse: " + message);
-                    showSnackError(message, retryGetLinksAction());
-                    mSwipeRefreshLayout.setRefreshing(false);
+                    if (!handleHttpResponseError(response)) {
+                        showSnackError(message, retryGetLinksAction());
+                    }
+                    adapterSetup();
                     return;
                 }
 
@@ -742,12 +754,16 @@ public class LinksListActivity extends BaseLinkActivity
             public void onResponse(
                     Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
                 Log.v(LOG_TAG,
-                        "getUserInfo: onResponse: " + ResponsePrinter.httpCodeString(response));
+                        "getUserInfo: onResponse: " + ResponseUtils.httpCodeString(response));
                 mSwipeRefreshLayout.setRefreshing(false);
                 UserInfoResponse userInfoResponse = response.body();
-                if (userInfoResponse == null) {
-                    Log.e(LOG_TAG, "getUserInfo: onResponse: UserInfoResponse was null");
-                    showSnackError(errorMessage, false);
+                if (!response.isSuccessful() || userInfoResponse == null) {
+                    Log.e(LOG_TAG, "getUserInfo: onResponse: Non-successful response from server");
+
+                    if (!handleHttpResponseError(response)) {
+                        showSnackError(errorMessage, false);
+                    }
+                    adapterSetup();
                     return;
                 }
                 Log.d(LOG_TAG, "getUserInfo: onResponse: " + userInfoResponse);
@@ -767,12 +783,36 @@ public class LinksListActivity extends BaseLinkActivity
 
             @Override
             public void onFailure(Call<UserInfoResponse> call, Throwable t) {
-                Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
+                Log.e(LOG_TAG, "getUserInfo: onFailure: " + errorMessage, t);
                 String errorMessage =
-                        "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
-                showSnackError(errorMessage, false);
+                        "getUserInfo: onFailure: Error during call: " + t.getLocalizedMessage();
+                mSwipeRefreshLayout.setRefreshing(false);
+                adapterSetup();
+                showSnackError(errorMessage, true);
             }
         });
+    }
+
+    private boolean handleHttpResponseError(Response response) {
+        if (response == null) return false;
+        ResponseBody errorBody = response.errorBody();
+        if (errorBody == null) return false;
+
+        String format = "Error %d%s";
+        String errorMessage = "";
+        try {
+            ErrorResponse errorResponse =
+                    new Gson().fromJson(errorBody.charStream(), ErrorResponse.class);
+            if (errorResponse != null) {
+                errorMessage = errorResponse.getErrorMessage();
+                format = "Error %d: %s";
+            }
+        } catch (JsonParseException ignored) {
+            return false;
+        }
+        if (TextUtils.isEmpty(errorMessage)) format = "Error %d%s";
+        showSnackError(String.format(format, response.code(), errorMessage), true);
+        return true;
     }
 
     private void handleSearch(String query) {
