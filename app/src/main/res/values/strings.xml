@@ -91,6 +91,12 @@
     <string name="add_new_category_empty_error">Category cannot be empty</string>
 
     <!-- Settings Activity -->
+    <string name="preference_category_behavior">Behavior</string>
+    <string name="preference_tap_category_key">pref_tap_category</string>
+    <string name="preference_tap_category_title">Tap Category Name to Browse</string>
+    <string name="preference_tap_category_summary_on">Tapping a category will browse links for that category</string>
+    <string name="preference_tap_category_summary_off">Tapping a category does nothing</string>
+
     <string name="preference_category_information">Information</string>
     <string name="preference_about_activity_title">@string/title_about</string>
     <string name="preference_about_activity_summary">View application information</string>

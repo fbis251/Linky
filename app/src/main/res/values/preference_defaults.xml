@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Behavior -->
+    <bool name="preference_tap_category_default">false</bool>
+
+</resources>

@@ -568,7 +568,18 @@ public class LinksListActivity extends BaseLinkActivity
         shareUrl(link.getTitle(), link.getUrl());
     }
 
-    public void showLinkCategory(final int position) {
+    public void showLinkCategory(final int position, final boolean isTapAction) {
+        Log.v(LOG_TAG,
+                "showLinkCategory() called with: "
+                        + "position = ["
+                        + position
+                        + "], isTapAction = ["
+                        + isTapAction
+                        + "]");
+        if (isTapAction && !mPreferences.isTapCategoryToBrowse()) {
+            // User has tap category to browse disabled, this is a tap so do nothing
+            return;
+        }
         Link link = mLinksAdapter.getLink(position);
         if (link == null) {
             showSnackError(getString(R.string.error_cannot_show_category), getRefreshSnackAction());
@@ -845,6 +856,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     private void populateDrawerCategories() {
         Log.v(LOG_TAG, "populateDrawerCategories()");
+        if (mLinkStorage == null) return;
         Set<String> categories = mLinkStorage.getCategories();
         if (categories.size() > 0) {
             Menu navMenu = mNavigationView.getMenu();
@@ -1011,8 +1023,8 @@ public class LinksListActivity extends BaseLinkActivity
                     editLink(mLinkPosition);
                     break;
                 case (R.id.link_category):
-                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Edit");
-                    showLinkCategory(mLinkPosition);
+                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Category");
+                    showLinkCategory(mLinkPosition, false);
                     break;
                 case (R.id.link_share):
                     Log.d(LOG_TAG, "onOptionsItemSelected: Link Share");

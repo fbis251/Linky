@@ -90,7 +90,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
         public void onClickCategory(final View view) {
             Log.v(LOG_TAG, "onClickCategory() called with: " + "view = [" + view + "]");
-            if (mActivity != null) mActivity.showLinkCategory(getPosition());
+            if (mActivity != null) mActivity.showLinkCategory(getPosition(), true);
         }
 
         public void onClickFavorite(final View view) {
