@@ -4,5 +4,6 @@
     <!-- Behavior -->
     <bool name="preference_tap_category_default">false</bool>
     <bool name="preference_hide_toolbar_on_scroll_default">false</bool>
+    <bool name="preference_confirm_exit_on_back_press_default">true</bool>
 
 </resources>

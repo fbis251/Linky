@@ -19,6 +19,13 @@
                 android:summaryOn="@string/preference_hide_toolbar_on_scroll_summary_on"
                 android:title="@string/preference_hide_toolbar_on_scroll_title"/>
 
+        <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="@bool/preference_confirm_exit_on_back_press_default"
+                android:key="@string/preference_confirm_exit_on_back_press_key"
+                android:summaryOff="@string/preference_confirm_exit_on_back_press_summary_off"
+                android:summaryOn="@string/preference_confirm_exit_on_back_press_summary_on"
+                android:title="@string/preference_confirm_exit_on_back_press_title"/>
+
     </android.support.v7.preference.PreferenceCategory>
 
     <android.support.v7.preference.PreferenceCategory

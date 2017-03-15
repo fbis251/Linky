@@ -3,6 +3,7 @@ package com.fernandobarillas.linkshare.activities;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -17,6 +18,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -125,6 +127,8 @@ public class LinksListActivity extends BaseLinkActivity
         if (mDrawerLayout == null) super.onBackPressed();
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             closeDrawer();
+        } else if (mPreferences.isConfirmExitOnBackPress()) {
+            confirmExit();
         } else {
             super.onBackPressed();
         }
@@ -673,6 +677,25 @@ public class LinksListActivity extends BaseLinkActivity
         Log.v(LOG_TAG, "closeDrawer()");
         if (mDrawerLayout == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
+    }
+
+    private void confirmExit() {
+        Log.v(LOG_TAG, "confirmExit()");
+        DialogInterface.OnClickListener positiveClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i(LOG_TAG,
+                                "confirmExit onClick: User requested exit, finishing Activity");
+                        finish();
+                    }
+                };
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.confirm_exit_title)
+                .setMessage(R.string.confirm_exit_message)
+                .setPositiveButton(R.string.confirm_exit_button_positive, positiveClickListener)
+                .setNegativeButton(R.string.confirm_exit_button_negative, null)
+                .show();
     }
 
     private void getList() {

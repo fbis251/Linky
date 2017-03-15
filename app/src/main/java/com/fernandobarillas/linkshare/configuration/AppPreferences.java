@@ -23,9 +23,11 @@ public class AppPreferences {
     private static final String KEY_USER_ID               = "user_id";
     private static final String KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp";
 
+    private static String sKeyConfirmExitOnBackPress;
     private static String sKeyHideToolbarOnScroll;
     private static String sKeyTapCategoryToBrowse;
 
+    private static boolean sDefaultConfirmExitOnBackPress;
     private static boolean sDefaultHideToolbarOnScroll;
     private static boolean sDefaultTapCategoryToBrowse;
 
@@ -37,11 +39,15 @@ public class AppPreferences {
         Resources resources = context.getResources();
 
         // Get preference key strings
+        sKeyConfirmExitOnBackPress =
+                context.getString(R.string.preference_confirm_exit_on_back_press_key);
         sKeyHideToolbarOnScroll = context.getString(R.string.preference_hide_toolbar_on_scroll_key);
         sKeyTapCategoryToBrowse = context.getString(R.string.preference_tap_category_key);
 
         // Get default preference values
         if (resources != null) {
+            sDefaultConfirmExitOnBackPress =
+                    resources.getBoolean(R.bool.preference_confirm_exit_on_back_press_default);
             sDefaultHideToolbarOnScroll =
                     resources.getBoolean(R.bool.preference_hide_toolbar_on_scroll_default);
             sDefaultTapCategoryToBrowse =
@@ -95,6 +101,10 @@ public class AppPreferences {
 
     public void setUsername(String username) {
         mPreferences.edit().putString(KEY_USERNAME, username).apply();
+    }
+
+    public boolean isConfirmExitOnBackPress() {
+        return mPreferences.getBoolean(sKeyConfirmExitOnBackPress, sDefaultConfirmExitOnBackPress);
     }
 
     public boolean isHideToolbarOnScroll() {

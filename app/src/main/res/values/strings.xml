@@ -52,6 +52,10 @@
     <string name="sort_title_descending">Title Z → A</string>
     <string name="sort_timestamp_ascending">Oldest → Newest</string>
     <string name="sort_timestamp_descending">Newest → Oldest</string>
+    <string name="confirm_exit_title">Exit Confirmation</string>
+    <string name="confirm_exit_message">Are you sure you want to exit?</string>
+    <string name="confirm_exit_button_positive">Yes</string>
+    <string name="confirm_exit_button_negative">No</string>
 
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>
@@ -102,6 +106,11 @@
     <string name="preference_hide_toolbar_on_scroll_title">Hide Toolbar on Scroll</string>
     <string name="preference_hide_toolbar_on_scroll_summary_on">Toolbar will hide when the list is scrolled</string>
     <string name="preference_hide_toolbar_on_scroll_summary_off">Toolbar will never hide</string>
+
+    <string name="preference_confirm_exit_on_back_press_key">pref_confirm_exit_on_back_press</string>
+    <string name="preference_confirm_exit_on_back_press_title">Confirm Exit on Back Press</string>
+    <string name="preference_confirm_exit_on_back_press_summary_on">App will ask you to confirm exiting when you press the back key</string>
+    <string name="preference_confirm_exit_on_back_press_summary_off">App will exit when you press the back key</string>
 
     <!-- Information -->
     <string name="preference_category_information">Information</string>
