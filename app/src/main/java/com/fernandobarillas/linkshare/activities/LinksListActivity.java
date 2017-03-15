@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -75,6 +76,10 @@ public class LinksListActivity extends BaseLinkActivity
     private static final String STATE_PREVIOUS_FILTER_MODE = "previousFilterMode";
     private static final String STATE_SORT_MODE            = "sortMode";
 
+    // Toolbar behavior
+    private static final int TOOLBAR_SCROLL_FLAG_RESET = 0;
+    private boolean mHideToolbarOnScroll;
+
     private DrawerLayout       mDrawerLayout;
     private TextView           mDrawerUsername;
     private NavigationView     mNavigationView;
@@ -82,6 +87,7 @@ public class LinksListActivity extends BaseLinkActivity
     private RecyclerView       mRecyclerView;
     private LinksAdapter       mLinksAdapter;
     private SearchView         mSearchView;
+    private Toolbar            mToolbar;
 
     // Sorting and filtering for results
     private String mCategory;
@@ -128,6 +134,7 @@ public class LinksListActivity extends BaseLinkActivity
     protected void onResume() {
         Log.v(LOG_TAG, "onResume()");
         super.onResume();
+        updateToolbarScrollBehavior();
         if (mLinkStorage.getLinksCount() == 0) {
             getList();
         } else {
@@ -172,12 +179,13 @@ public class LinksListActivity extends BaseLinkActivity
         Drawable dividerDrawable = ContextCompat.getDrawable(this, R.drawable.link_divider);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(dividerDrawable));
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mHideToolbarOnScroll = mPreferences.isHideToolbarOnScroll();
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
                 mDrawerLayout,
-                toolbar,
+                mToolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
@@ -958,6 +966,36 @@ public class LinksListActivity extends BaseLinkActivity
                 });
         ItemTouchHelper simpleItemTouchHelper = new ItemTouchHelper(callback);
         simpleItemTouchHelper.attachToRecyclerView(mRecyclerView);
+    }
+
+    private void updateToolbarScrollBehavior() {
+        Log.v(LOG_TAG, "updateToolbarScrollBehavior()");
+        if (mToolbar == null) return;
+        AppBarLayout.LayoutParams toolbarParams =
+                (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        if (toolbarParams == null) return;
+
+        // Store the current toolbar hide value since the user may have changed it since creation
+        boolean oldHideToolbarOnScroll = mHideToolbarOnScroll;
+        mHideToolbarOnScroll = mPreferences.isHideToolbarOnScroll();
+
+        toolbarParams.setScrollFlags(TOOLBAR_SCROLL_FLAG_RESET);
+        if (mHideToolbarOnScroll) {
+            toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+                    | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+        }
+
+        Log.v(LOG_TAG,
+                "updateToolbarScrollBehavior: toolbar scroll flags = ["
+                        + toolbarParams.getScrollFlags()
+                        + "]");
+
+        if (oldHideToolbarOnScroll != mHideToolbarOnScroll) {
+            // The user changed the hide preference, recreate the activity to make the new scroll
+            // behavior apply
+            Log.d(LOG_TAG, "updateToolbarScrollBehavior: Hide preference changed, recreating");
+            recreate();
+        }
     }
 
     private void updateToolbarTitle() {

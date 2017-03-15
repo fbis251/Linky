@@ -12,6 +12,13 @@
                 android:summaryOn="@string/preference_tap_category_summary_on"
                 android:title="@string/preference_tap_category_title"/>
 
+        <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="@bool/preference_hide_toolbar_on_scroll_default"
+                android:key="@string/preference_hide_toolbar_on_scroll_key"
+                android:summaryOff="@string/preference_hide_toolbar_on_scroll_summary_off"
+                android:summaryOn="@string/preference_hide_toolbar_on_scroll_summary_on"
+                android:title="@string/preference_hide_toolbar_on_scroll_title"/>
+
     </android.support.v7.preference.PreferenceCategory>
 
     <android.support.v7.preference.PreferenceCategory

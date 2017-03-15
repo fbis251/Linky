@@ -23,7 +23,10 @@ public class AppPreferences {
     private static final String KEY_USER_ID               = "user_id";
     private static final String KEY_LAST_UPDATE_TIMESTAMP = "last_update_timestamp";
 
-    private static String  sKeyTapCategoryToBrowse;
+    private static String sKeyHideToolbarOnScroll;
+    private static String sKeyTapCategoryToBrowse;
+
+    private static boolean sDefaultHideToolbarOnScroll;
     private static boolean sDefaultTapCategoryToBrowse;
 
     private SharedPreferences mPreferences;
@@ -34,10 +37,13 @@ public class AppPreferences {
         Resources resources = context.getResources();
 
         // Get preference key strings
+        sKeyHideToolbarOnScroll = context.getString(R.string.preference_hide_toolbar_on_scroll_key);
         sKeyTapCategoryToBrowse = context.getString(R.string.preference_tap_category_key);
 
         // Get default preference values
         if (resources != null) {
+            sDefaultHideToolbarOnScroll =
+                    resources.getBoolean(R.bool.preference_hide_toolbar_on_scroll_default);
             sDefaultTapCategoryToBrowse =
                     resources.getBoolean(R.bool.preference_tap_category_default);
         }
@@ -89,6 +95,10 @@ public class AppPreferences {
 
     public void setUsername(String username) {
         mPreferences.edit().putString(KEY_USERNAME, username).apply();
+    }
+
+    public boolean isHideToolbarOnScroll() {
+        return mPreferences.getBoolean(sKeyHideToolbarOnScroll, sDefaultHideToolbarOnScroll);
     }
 
     public boolean isTapCategoryToBrowse() {
