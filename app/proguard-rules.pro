@@ -19,6 +19,9 @@
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
 
+# SearchView used in LinksListActivity
+-keep class android.support.v7.widget.SearchView { *; }
+
 -keep class java.nio.file.** { *; }
 -dontwarn java.nio.file.**
 -keep class java.lang.invoke.** { *; }
