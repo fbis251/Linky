@@ -1,7 +1,7 @@
 package com.fernandobarillas.linkshare.adapters;
 
 import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,19 +15,20 @@ import com.fernandobarillas.linkshare.activities.LinksListActivity;
 import com.fernandobarillas.linkshare.databinding.ContentLinkBinding;
 import com.fernandobarillas.linkshare.models.Link;
 
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 
 /**
  * Created by fb on 1/29/16.
  */
-
-public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHolder> {
+public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.LinkViewHolder> {
     private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
 
-    private LinksListActivity  mActivity;
-    private RealmResults<Link> mLinks;
+    private LinksListActivity mActivity;
 
-    public LinksAdapter(LinksListActivity activity, @NonNull RealmResults<Link> links) {
+    public LinksAdapter(LinksListActivity activity, @Nullable RealmResults<Link> links) {
+        super(links, true);
         Log.v(LOG_TAG,
                 "LinksAdapter() called with: "
                         + "activity = ["
@@ -35,8 +36,17 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
                         + "], links = ["
                         + links
                         + "]");
+        // Link objects have a unique long type ID
+        setHasStableIds(true);
         mActivity = activity;
-        mLinks = links;
+    }
+
+    @Override
+    public long getItemId(int index) {
+        long result = RecyclerView.NO_ID;
+        Link link = getLink(index);
+        if (link != null) result = link.getLinkId();
+        return result;
     }
 
     @Override
@@ -48,7 +58,8 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
 
     @Override
     public void onBindViewHolder(final LinkViewHolder holder, final int position) {
-        final Link link = mLinks.get(position);
+        final Link link = getItem(position);
+        if (link == null) return;
         ContentLinkBinding binding = holder.getBinding();
         if (binding != null) {
             binding.setVariable(BR.link, link);
@@ -60,31 +71,23 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return mLinks.size();
-    }
-
     public Link getLink(int position) {
-        if (!isPositionValid(position)) {
-            return null;
-        }
-
-        return mLinks.get(position);
+        return super.getItem(position);
     }
 
     public RealmResults<Link> getLinks() {
-        return mLinks;
-    }
-
-    private boolean isPositionValid(int position) {
-        return (!mLinks.isEmpty() && position >= 0 && position < mLinks.size());
+        OrderedRealmCollection<Link> data = getData();
+        if (data instanceof RealmResults) {
+            // This class should only be instantiated with a RealmResults<Link>, check constructor
+            return (RealmResults<Link>) data;
+        }
+        return null;
     }
 
     public class LinkHandler {
         private LinkViewHolder holder;
 
-        public LinkHandler(LinkViewHolder holder) {
+        private LinkHandler(LinkViewHolder holder) {
             this.holder = holder;
         }
 
@@ -128,7 +131,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.LinkViewHold
     /**
      * ViewHolder that displays individual reddit Links. It uses a CardView in the UI.
      */
-    class LinkViewHolder extends RecyclerView.ViewHolder {
+    public class LinkViewHolder extends RecyclerView.ViewHolder {
 
         ContentLinkBinding mBinding;
 

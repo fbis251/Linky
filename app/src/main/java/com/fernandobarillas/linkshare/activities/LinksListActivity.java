@@ -201,8 +201,7 @@ public class LinksListActivity extends BaseLinkActivity
             showNavAccountMenu(false);
         }
 
-        LinearLayoutManager layoutManager =
-                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
 
@@ -234,9 +233,8 @@ public class LinksListActivity extends BaseLinkActivity
     @Override
     protected void onDestroy() {
         Log.v(LOG_TAG, "onDestroy()");
-
         if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
-            mLinksAdapter.getLinks().removeChangeListeners();
+            mLinksAdapter.getLinks().removeChangeListener(this);
         }
         super.onDestroy();
     }
@@ -613,8 +611,9 @@ public class LinksListActivity extends BaseLinkActivity
 
     private void addLinksChangeListener() {
         if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
-            mLinksAdapter.getLinks().removeChangeListeners();
-            mLinksAdapter.getLinks().addChangeListener(this);
+            RealmResults<Link> links = mLinksAdapter.getLinks();
+            links.removeChangeListener(this);
+            links.addChangeListener(this);
         }
     }
 
@@ -645,13 +644,6 @@ public class LinksListActivity extends BaseLinkActivity
                     if (mRecyclerView == null) return;
                     showSnackSuccess(successMessage);
                     if (mLinkStorage != null) mLinkStorage.setArchived(link, true);
-                    if (mLinksAdapter != null) {
-                        if (mFilterMode == LinkStorage.FILTER_FRESH) {
-                            mLinksAdapter.notifyItemRemoved(position);
-                        } else {
-                            mLinksAdapter.notifyItemChanged(position);
-                        }
-                    }
                     return;
                 }
 
@@ -983,8 +975,12 @@ public class LinksListActivity extends BaseLinkActivity
                 new ItemTouchHelperCallback(new ItemSwipedRightCallback() {
                     @Override
                     public void swipeCallback(RecyclerView.ViewHolder viewHolder) {
-                        int position = viewHolder.getLayoutPosition();
-                        archiveLink(position);
+                        Log.v(LOG_TAG,
+                                "swipeCallback() called with: "
+                                        + "viewHolder = ["
+                                        + viewHolder
+                                        + "]");
+                        archiveLink(viewHolder.getAdapterPosition());
                     }
                 });
         ItemTouchHelper simpleItemTouchHelper = new ItemTouchHelper(callback);
