@@ -1,16 +1,12 @@
 package com.fernandobarillas.linkshare.adapters;
 
-import android.databinding.DataBindingUtil;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.databinding.library.baseAdapters.BR;
-import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.activities.LinksListActivity;
 import com.fernandobarillas.linkshare.databinding.ContentLinkBinding;
 import com.fernandobarillas.linkshare.models.Link;
@@ -50,25 +46,20 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
     }
 
     @Override
-    public LinkViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.content_link, viewGroup, false);
-        return new LinkViewHolder(itemView);
+    public LinkViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        ContentLinkBinding binding = ContentLinkBinding.inflate(layoutInflater, parent, false);
+        return new LinkViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(final LinkViewHolder holder, final int position) {
         final Link link = getItem(position);
         if (link == null) return;
-        ContentLinkBinding binding = holder.getBinding();
-        if (binding != null) {
-            binding.setVariable(BR.link, link);
-            binding.executePendingBindings();
-
-            // Hide category background drawable if link has no category
-            int visibility = TextUtils.isEmpty(link.getCategory()) ? View.GONE : View.VISIBLE;
-            binding.linkCategory.setVisibility(visibility);
-        }
+        holder.bind(link);
+        // Hide category view (and background drawable) if link has no category set
+        boolean isVisible = link.getCategory() != null;
+        holder.showCategory(isVisible);
     }
 
     public Link getLink(int position) {
@@ -131,18 +122,23 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
     /**
      * ViewHolder that displays individual reddit Links. It uses a CardView in the UI.
      */
-    public class LinkViewHolder extends RecyclerView.ViewHolder {
+    class LinkViewHolder extends RecyclerView.ViewHolder {
 
-        ContentLinkBinding mBinding;
+        private final ContentLinkBinding mBinding;
 
-        ContentLinkBinding getBinding() {
-            return mBinding;
+        private LinkViewHolder(ContentLinkBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+            mBinding.setHandler(new LinkHandler(this));
         }
 
-        LinkViewHolder(View view) {
-            super(view);
-            mBinding = DataBindingUtil.bind(view);
-            mBinding.setHandler(new LinkHandler(this));
+        private void bind(Link link) {
+            mBinding.setLink(link);
+            mBinding.executePendingBindings();
+        }
+
+        private void showCategory(boolean isVisible) {
+            mBinding.linkCategory.setVisibility(isVisible ? View.VISIBLE : View.GONE);
         }
     }
 }
