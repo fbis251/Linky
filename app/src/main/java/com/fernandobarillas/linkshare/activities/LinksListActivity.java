@@ -436,15 +436,13 @@ public class LinksListActivity extends BaseLinkActivity
                         String.format("deleteLink: onResponse: %d %s",
                                 response.code(),
                                 response.message()));
-                if (!handleHttpResponseError(response)) {
-                    showSnackError(errorMessage, false);
-                }
+                errorResponseHandler(response, errorMessage, position);
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 Log.e(LOG_TAG, "deleteLink: onFailure: " + errorMessage, t);
-                showSnackError(errorMessage, false);
+                errorResponseHandler(null, errorMessage, position);
             }
         });
     }
@@ -630,7 +628,7 @@ public class LinksListActivity extends BaseLinkActivity
         final String successMessage = "Archived " + title;
         final String errorMessage = "Error archiving " + title;
 
-        Log.i(LOG_TAG, "archiveLink: Trying to remove link: " + link);
+        Log.i(LOG_TAG, "archiveLink: Trying to archive link: " + link);
         Call<Void> archiveCall = mLinkService.archiveLink(link.getLinkId());
         archiveCall.enqueue(new Callback<Void>() {
             @Override
@@ -647,20 +645,13 @@ public class LinksListActivity extends BaseLinkActivity
                     return;
                 }
 
-                Log.e(LOG_TAG, "archiveLink: onResponse: " + errorMessage);
-                Log.e(LOG_TAG,
-                        String.format("archiveLink: onResponse: %d %s",
-                                response.code(),
-                                response.message()));
-                if (!handleHttpResponseError(response)) {
-                    showSnackError(errorMessage, false);
-                }
+                errorResponseHandler(response, errorMessage, position);
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
-                showSnackError(errorMessage, false);
+                errorResponseHandler(null, errorMessage, position);
             }
         });
     }
@@ -688,6 +679,21 @@ public class LinksListActivity extends BaseLinkActivity
                 .setPositiveButton(R.string.confirm_exit_button_positive, positiveClickListener)
                 .setNegativeButton(R.string.confirm_exit_button_negative, null)
                 .show();
+    }
+
+    private void errorResponseHandler(Response<Void> response, String errorMessage, int position) {
+        Log.v(LOG_TAG,
+                "errorResponseHandler() called with: "
+                        + "response = ["
+                        + response
+                        + "], errorMessage = ["
+                        + errorMessage
+                        + "]");
+        // Restore the item in the UI
+        mLinksAdapter.notifyItemChanged(position);
+        if (!handleHttpResponseError(response)) {
+            showSnackError(errorMessage, false);
+        }
     }
 
     private void getList() {
@@ -806,6 +812,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private boolean handleHttpResponseError(Response response) {
+        Log.v(LOG_TAG, "handleHttpResponseError() called with: " + "response = [" + response + "]");
         if (response == null) return false;
         ResponseBody errorBody = response.errorBody();
         if (errorBody == null) return false;
