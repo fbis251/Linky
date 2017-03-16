@@ -1,5 +1,6 @@
 package com.fernandobarillas.linkshare.models;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -87,17 +88,17 @@ public class Link implements RealmModel {
                 + '}';
     }
 
+    @Nullable
     public String getCategory() {
         return TextUtils.isEmpty(category) ? null : category;
     }
 
     public void setCategory(String category) {
+        this.category = category;
+        if (this.category == null) return;
         // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
-        if (category == null) {
-            this.category = null;
-            return;
-        }
-        this.category = category.substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
+        this.category =
+                category.trim().substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
     }
 
     public String getDomain() {
@@ -138,12 +139,10 @@ public class Link implements RealmModel {
     }
 
     public void setTitle(String title) {
+        this.title = title;
+        if (this.title == null) return;
         // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
-        if (title == null) {
-            this.title = null;
-            return;
-        }
-        this.title = title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH));
+        this.title = title.trim().substring(0, Math.min(title.length(), TITLE_MAX_LENGTH));
     }
 
     public String getUrl() {
