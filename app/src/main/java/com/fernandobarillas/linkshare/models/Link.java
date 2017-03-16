@@ -35,21 +35,27 @@ public class Link implements RealmModel {
     public Link() {
     }
 
-    public Link(long linkId, String category, boolean isArchived, boolean isFavorite,
-            long timestamp, String title, String url) {
-        setLinkId(linkId);
+    public Link(
+            long linkId,
+            String category,
+            boolean isArchived,
+            boolean isFavorite,
+            long timestamp,
+            String title,
+            String url) {
+        this.linkId = linkId;
+        this.timestamp = timestamp;
         setCategory(category);
         setArchived(isArchived);
         setFavorite(isFavorite);
-        setTimestamp(timestamp);
         setTitle(title);
         setUrl(url);
     }
 
     public Link(int linkId, String category, int timestamp, String title, String url) {
-        setLinkId(linkId);
+        this.linkId = linkId;
+        this.timestamp = timestamp;
         setCategory(category);
-        setTimestamp(timestamp);
         setTitle(title);
         setUrl(url);
     }
@@ -60,15 +66,25 @@ public class Link implements RealmModel {
 
     @Override
     public String toString() {
-        return "Link{" +
-                "linkId=" + linkId +
-                ", category='" + category + '\'' +
-                ", isArchived=" + isArchived +
-                ", isFavorite=" + isFavorite +
-                ", timestamp=" + timestamp +
-                ", title='" + title + '\'' +
-                ", url='" + url + '\'' +
-                '}';
+        return "Link{"
+                + "linkId="
+                + linkId
+                + ", category='"
+                + category
+                + '\''
+                + ", isArchived="
+                + isArchived
+                + ", isFavorite="
+                + isFavorite
+                + ", timestamp="
+                + timestamp
+                + ", title='"
+                + title
+                + '\''
+                + ", url='"
+                + url
+                + '\''
+                + '}';
     }
 
     public String getCategory() {
@@ -99,16 +115,14 @@ public class Link implements RealmModel {
         return linkId;
     }
 
-    public void setLinkId(long linkId) {
-        this.linkId = linkId;
-    }
-
     public String getTimeString() {
         if (timestamp < 1) return null;
         long milliseconds = timestamp * 1000;
 
-        return DateUtils.getRelativeTimeSpanString(milliseconds, new Date().getTime(),
-                DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL).toString();
+        return DateUtils.getRelativeTimeSpanString(milliseconds,
+                new Date().getTime(),
+                DateUtils.MINUTE_IN_MILLIS,
+                DateUtils.FORMAT_ABBREV_ALL).toString();
     }
 
     public long getTimestamp() {
@@ -154,9 +168,5 @@ public class Link implements RealmModel {
 
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
     }
 }

@@ -193,7 +193,7 @@ public class LinkStorage {
                         + "], isArchived = ["
                         + isArchived
                         + "]");
-        if (link == null) return; // TODO: Show UI error
+        if (link == null) return;
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -227,7 +227,7 @@ public class LinkStorage {
                         + "], isFavorite = ["
                         + isFavorite
                         + "]");
-        if (link == null) return; // TODO: Show UI error
+        if (link == null) return;
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
