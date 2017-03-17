@@ -97,8 +97,9 @@ public class Link implements RealmModel {
         this.category = category;
         if (this.category == null) return;
         // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
-        this.category =
-                category.trim().substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
+        this.category = category.trim()
+                .toLowerCase()
+                .substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
     }
 
     public String getDomain() {
