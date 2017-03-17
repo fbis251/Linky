@@ -244,7 +244,7 @@ public class LoginActivity extends BaseLinkActivity {
     private void doLogin(final URL apiUrl, final String username, final String password) {
         LoginRequest loginRequest = new LoginRequest(username, password);
         try {
-            mLinkService = new LinksApi(apiUrl).getLinkService();
+            mLinkService = new LinksApi(apiUrl).getLinkService(mPreferences);
         } catch (InvalidApiUrlException e) {
             Timber.e("doLogin: ", e);
             showProgress(false);

@@ -118,6 +118,12 @@
     <string name="preference_confirm_exit_on_back_press_summary_on">App will ask you to confirm exiting when you press the back key</string>
     <string name="preference_confirm_exit_on_back_press_summary_off">App will exit when you press the back key</string>
 
+    <!-- Debug -->
+    <string name="preference_use_http_proxy_key">pref_use_http_proxy</string>
+    <string name="preference_http_proxy_address_key">pref_http_proxy_address</string>
+    <string name="preference_http_proxy_port_key">pref_http_proxy_port</string>
+    <string name="preference_log_http_calls_key">pref_log_http_calls</string>
+
     <!-- Information -->
     <string name="preference_category_information">Information</string>
     <string name="preference_about_activity_title">@string/title_about</string>

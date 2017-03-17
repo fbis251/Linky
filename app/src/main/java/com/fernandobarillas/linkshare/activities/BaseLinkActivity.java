@@ -61,7 +61,7 @@ public abstract class BaseLinkActivity extends BaseActivity {
                 LinksApi linksApi = new LinksApi(mPreferences.getApiUrl(),
                         mPreferences.getUserId(),
                         mPreferences.getAuthString());
-                mLinksApp.setLinkService(linksApi.getLinkService());
+                mLinksApp.setLinkService(linksApi.getLinkService(mPreferences));
                 mLinkService = mLinksApp.getLinkService();
             } catch (InvalidApiUrlException e) {
                 Timber.e("serviceSetup: Invalid API URL, launching login activity", e);

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.preference.PreferenceCategory
+            android:title="preference">
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="@bool/preference_use_http_proxy_default"
+                android:key="@string/preference_use_http_proxy_key"
+                android:title="Use HTTP Proxy"/>
+
+        <EditTextPreferenceFix
+                android:defaultValue="@string/preference_http_proxy_address_default"
+                android:dependency="@string/preference_use_http_proxy_key"
+                android:inputType="textUri"
+                android:key="@string/preference_http_proxy_address_key"
+                android:selectAllOnFocus="true"
+                android:title="HTTP Proxy Address"/>
+
+        <EditTextPreferenceFix
+                android:defaultValue="@string/preference_http_proxy_port_default"
+                android:dependency="@string/preference_use_http_proxy_key"
+                android:inputType="number"
+                android:key="@string/preference_http_proxy_port_key"
+                android:selectAllOnFocus="true"
+                android:title="HTTP Proxy Port"/>
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="@bool/preference_log_http_calls_default"
+                android:key="@string/preference_log_http_calls_key"
+                android:title="Log HTTP Calls"/>
+
+    </android.support.v7.preference.PreferenceCategory>
+
+</android.support.v7.preference.PreferenceScreen>

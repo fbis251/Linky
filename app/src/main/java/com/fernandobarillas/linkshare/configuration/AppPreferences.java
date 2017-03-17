@@ -26,10 +26,18 @@ public class AppPreferences {
     private static String sKeyConfirmExitOnBackPress;
     private static String sKeyHideToolbarOnScroll;
     private static String sKeyTapCategoryToBrowse;
+    private static String sKeyUseHttpProxy;
+    private static String sKeyHttpProxyAddress;
+    private static String sKeyHttpProxyPort;
+    private static String sKeyLogHttpCalls;
 
     private static boolean sDefaultConfirmExitOnBackPress;
     private static boolean sDefaultHideToolbarOnScroll;
     private static boolean sDefaultTapCategoryToBrowse;
+    private static boolean sDefaultUseHttpProxy;
+    private static String  sDefaultHttpProxyAddress;
+    private static String  sDefaultHttpProxyPort;
+    private static boolean sDefaultLogHttpCalls;
 
     private SharedPreferences mPreferences;
 
@@ -43,6 +51,10 @@ public class AppPreferences {
                 context.getString(R.string.preference_confirm_exit_on_back_press_key);
         sKeyHideToolbarOnScroll = context.getString(R.string.preference_hide_toolbar_on_scroll_key);
         sKeyTapCategoryToBrowse = context.getString(R.string.preference_tap_category_key);
+        sKeyUseHttpProxy = context.getString(R.string.preference_use_http_proxy_key);
+        sKeyHttpProxyAddress = context.getString(R.string.preference_http_proxy_address_key);
+        sKeyHttpProxyPort = context.getString(R.string.preference_http_proxy_port_key);
+        sKeyLogHttpCalls = context.getString(R.string.preference_log_http_calls_key);
 
         // Get default preference values
         if (resources != null) {
@@ -52,6 +64,12 @@ public class AppPreferences {
                     resources.getBoolean(R.bool.preference_hide_toolbar_on_scroll_default);
             sDefaultTapCategoryToBrowse =
                     resources.getBoolean(R.bool.preference_tap_category_default);
+            sDefaultUseHttpProxy = resources.getBoolean(R.bool.preference_use_http_proxy_default);
+            sDefaultHttpProxyAddress =
+                    resources.getString(R.string.preference_http_proxy_address_default);
+            sDefaultHttpProxyPort =
+                    resources.getString(R.string.preference_http_proxy_port_default);
+            sDefaultLogHttpCalls = resources.getBoolean(R.bool.preference_log_http_calls_default);
         }
     }
 
@@ -77,6 +95,15 @@ public class AppPreferences {
 
     public void setAuthString(String authString) {
         mPreferences.edit().putString(KEY_AUTH_STRING, authString).apply();
+    }
+
+    public String getHttpProxyAddress() {
+        return mPreferences.getString(sKeyHttpProxyAddress, sDefaultHttpProxyAddress);
+    }
+
+    public int getHttpProxyPort() throws NumberFormatException {
+        String portString = mPreferences.getString(sKeyHttpProxyPort, sDefaultHttpProxyPort);
+        return Integer.parseInt(portString);
     }
 
     public long getLastUpdateTimestamp() {
@@ -111,7 +138,15 @@ public class AppPreferences {
         return mPreferences.getBoolean(sKeyHideToolbarOnScroll, sDefaultHideToolbarOnScroll);
     }
 
+    public boolean isLogHttpCalls() {
+        return mPreferences.getBoolean(sKeyLogHttpCalls, sDefaultLogHttpCalls);
+    }
+
     public boolean isTapCategoryToBrowse() {
         return mPreferences.getBoolean(sKeyTapCategoryToBrowse, sDefaultTapCategoryToBrowse);
+    }
+
+    public boolean isUseHttpProxy() {
+        return mPreferences.getBoolean(sKeyUseHttpProxy, sDefaultUseHttpProxy);
     }
 }

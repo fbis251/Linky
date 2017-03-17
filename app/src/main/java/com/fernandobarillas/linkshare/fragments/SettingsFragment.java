@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 
+import com.fernandobarillas.linkshare.BuildConfig;
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.activities.SettingsActivity;
 
@@ -17,6 +18,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.app_preferences);
+        if(BuildConfig.DEBUG) {
+            addPreferencesFromResource(R.xml.debug_preferences);
+        }
         mActivity = (SettingsActivity) getActivity();
         Preference licensesPreferences =
                 findPreference(getString(R.string.preference_licenses_key));
