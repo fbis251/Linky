@@ -29,6 +29,13 @@ public class EditLinkActivity extends BaseLinkActivity {
 
     public static final String EXTRA_LINK_ID = "link_id";
 
+    // Restore/Save instance state keys
+    private static final String STATE_TITLE       = "title";
+    private static final String STATE_URL         = "url";
+    private static final String STATE_CATEGORY    = "category";
+    private static final String STATE_IS_ARCHIVED = "is_archived";
+    private static final String STATE_IS_FAVORITE = "is_favorite";
+
     private EditText             mTitleEditText;
     private EditText             mUrlEditText;
     private AutoCompleteTextView mCategoryEditText;
@@ -43,10 +50,6 @@ public class EditLinkActivity extends BaseLinkActivity {
         serviceSetup();
 
         mIntentLink = null;
-        if (savedInstanceState != null) {
-            mIntentLink = mLinkStorage.findByLinkId(savedInstanceState.getLong(EXTRA_LINK_ID));
-        }
-
         Intent intent = getIntent();
         if (intent != null) {
             Log.i(LOG_TAG, "onCreate: Intent: " + intent);
@@ -109,12 +112,82 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(LOG_TAG,
+                "onRestoreInstanceState() called with: "
+                        + "savedInstanceState = ["
+                        + savedInstanceState
+                        + "]");
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (mTitleEditText != null) {
+            String savedTitle = savedInstanceState.getString(STATE_TITLE);
+            Log.v(LOG_TAG, "onRestoreInstanceState: savedTitle = [" + savedTitle + "]");
+            mTitleEditText.addOnAttachStateChangeListener(new RestoreTextOnAttachListener(
+                    mTitleEditText,
+                    savedTitle));
+        }
+
+        if (mUrlEditText != null) {
+            String savedUrl = savedInstanceState.getString(STATE_URL);
+            Log.v(LOG_TAG, "onRestoreInstanceState: savedUrl = [" + savedUrl + "]");
+            mUrlEditText.addOnAttachStateChangeListener(new RestoreTextOnAttachListener(mUrlEditText,
+                    savedUrl));
+        }
+
+        if (mCategoryEditText != null) {
+            String savedCategory = savedInstanceState.getString(STATE_CATEGORY);
+            Log.v(LOG_TAG, "onRestoreInstanceState: savedCategory = [" + savedCategory + "]");
+            mCategoryEditText.addOnAttachStateChangeListener(new RestoreTextOnAttachListener(
+                    mCategoryEditText,
+                    savedCategory));
+        }
+
+        if (mArchivedSwitch != null) {
+            boolean savedIsArchived = savedInstanceState.getBoolean(STATE_IS_ARCHIVED);
+            Log.v(LOG_TAG, "onRestoreInstanceState: savedIsArchived = [" + savedIsArchived + "]");
+            mArchivedSwitch.addOnAttachStateChangeListener(new RestoreSwitchOnAttachListener(
+                    mArchivedSwitch,
+                    savedIsArchived));
+        }
+
+        if (mFavoriteSwitch != null) {
+            boolean savedIsFavorite = savedInstanceState.getBoolean(STATE_IS_FAVORITE);
+            Log.v(LOG_TAG, "onRestoreInstanceState: savedIsFavorite = [" + savedIsFavorite + "]");
+            mFavoriteSwitch.addOnAttachStateChangeListener(new RestoreSwitchOnAttachListener(
+                    mFavoriteSwitch,
+                    savedIsFavorite));
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.v(LOG_TAG, "onSaveInstanceState() called with: " + "outState = [" + outState + "]");
         // TODO: Save the state of all the form inputs
         if (mIntentLink != null) {
             outState.putLong(EXTRA_LINK_ID, mIntentLink.getLinkId());
         }
+
+        if (mTitleEditText != null) {
+            outState.putString(STATE_TITLE, mTitleEditText.getText().toString());
+        }
+
+        if (mCategoryEditText != null) {
+            outState.putString(STATE_CATEGORY, mCategoryEditText.getText().toString());
+        }
+
+        if (mUrlEditText != null) {
+            outState.putString(STATE_URL, mUrlEditText.getText().toString());
+        }
+
+        if (mArchivedSwitch != null) {
+            outState.putBoolean(STATE_IS_ARCHIVED, mArchivedSwitch.isChecked());
+        }
+
+        if (mFavoriteSwitch != null) {
+            outState.putBoolean(STATE_IS_FAVORITE, mFavoriteSwitch.isChecked());
+        }
+
         super.onSaveInstanceState(outState);
     }
 
@@ -201,6 +274,66 @@ public class EditLinkActivity extends BaseLinkActivity {
                     mUrlEditText.getText().toString());
 
             updateLink(editedLink);
+        }
+    }
+
+    private class RestoreSwitchOnAttachListener implements View.OnAttachStateChangeListener {
+        private static final String LOG_TAG = "RestoreSwitchOnAttach";
+
+        private SwitchCompat mSwitchCompat;
+        private boolean      mIsChecked;
+
+        public RestoreSwitchOnAttachListener(SwitchCompat switchCompat, boolean isChecked) {
+            mSwitchCompat = switchCompat;
+            mIsChecked = isChecked;
+        }
+
+        @Override
+        public void onViewAttachedToWindow(View v) {
+            Log.v(LOG_TAG,
+                    "onViewAttachedToWindow() called with: "
+                            + "switchCompat = ["
+                            + mSwitchCompat
+                            + "], isChecked = ["
+                            + mIsChecked
+                            + "]");
+            if (mSwitchCompat == null) return;
+            mSwitchCompat.setChecked(mIsChecked);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {
+
+        }
+    }
+
+    private class RestoreTextOnAttachListener implements View.OnAttachStateChangeListener {
+        private static final String LOG_TAG = "RestoreTextOnAttach";
+
+        private EditText mEditText;
+        private String   mSavedString;
+
+        private RestoreTextOnAttachListener(EditText editText, String savedString) {
+            mEditText = editText;
+            mSavedString = savedString;
+        }
+
+        @Override
+        public void onViewAttachedToWindow(View v) {
+            Log.v(LOG_TAG,
+                    "RestoreTextOnAttachListener() called with: "
+                            + "editText = ["
+                            + mEditText
+                            + "], savedString = ["
+                            + mSavedString
+                            + "]");
+            if (mEditText == null) return;
+            mEditText.setText(mSavedString);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {
+
         }
     }
 }
