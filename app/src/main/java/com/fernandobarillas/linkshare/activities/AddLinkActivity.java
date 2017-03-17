@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -22,12 +21,12 @@ import com.varunest.sparkbutton.SparkButton;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 /**
  * Created by fb on 1/29/16.
  */
 public class AddLinkActivity extends BaseLinkActivity {
-    private static final String LOG_TAG = "AddLinkActivity";
 
     private static final int SPARK_ANIMATION_DELAY = 200; // ms before spark animation plays
 
@@ -40,8 +39,7 @@ public class AddLinkActivity extends BaseLinkActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG,
-                "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
+        Timber.v("onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
         serviceSetup();
 
@@ -73,7 +71,7 @@ public class AddLinkActivity extends BaseLinkActivity {
     }
 
     public void addLink(final Link newLink) {
-        Log.v(LOG_TAG, "addLink() called with: " + "newLink = [" + newLink + "]");
+        Timber.v("addLink() called with: " + "newLink = [" + newLink + "]");
         if (newLink == null) {
             // TODO: Show error
             return;
@@ -82,29 +80,28 @@ public class AddLinkActivity extends BaseLinkActivity {
         showProgress(true);
         AddLinkRequest linkRequest = new AddLinkRequest(newLink);
         Call<AddLinkResponse> call = mLinkService.addLink(linkRequest);
-        Log.i(LOG_TAG, "addLink: Calling URL: " + call.toString());
+        Timber.i("addLink: Calling URL: " + call.toString());
         call.enqueue(new Callback<AddLinkResponse>() {
             @Override
             public void onResponse(Call<AddLinkResponse> call, Response<AddLinkResponse> response) {
-                Log.i(LOG_TAG, "onResponse: " + ResponseUtils.httpCodeString(response));
+                Timber.i("onResponse: " + ResponseUtils.httpCodeString(response));
                 if (response.isSuccessful()) {
                     AddLinkResponse addLinkResponse = response.body();
                     if (addLinkResponse == null
                             || !addLinkResponse.isSuccessful()
                             || addLinkResponse.getLink() == null) {
-                        Log.e(LOG_TAG,
-                                "onResponse: API returned error when adding Link: " + newLink);
+                        Timber.e("onResponse: API returned error when adding Link: " + newLink);
                         showResultLayout(false);
                         return;
                     }
                     Link responseLink = addLinkResponse.getLink();
-                    Log.i(LOG_TAG, "onResponse: Response link: " + responseLink);
+                    Timber.i("onResponse: Response link: " + responseLink);
                     mLinkStorage.add(responseLink);
-                    Log.i(LOG_TAG, "onResponse: Added Link: " + responseLink);
+                    Timber.i("onResponse: Added Link: " + responseLink);
                     mBinding.setAddHandler(new AddLinkHandler(responseLink));
                     showResultLayout(true);
                 } else {
-                    Log.e(LOG_TAG, "onResponse: " + response.body());
+                    Timber.e("onResponse: " + response.body());
                     showResultLayout(false);
                 }
             }
@@ -112,7 +109,7 @@ public class AddLinkActivity extends BaseLinkActivity {
             @Override
             public void onFailure(Call<AddLinkResponse> call, Throwable t) {
                 String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
-                Log.e(LOG_TAG, errorMessage);
+                Timber.e(errorMessage);
                 showResultLayout(false);
                 finish();
             }
@@ -129,9 +126,9 @@ public class AddLinkActivity extends BaseLinkActivity {
     }
 
     private void editLink(final Link link) {
-        Log.v(LOG_TAG, "editLink() called with: " + "link = [" + link + "]");
+        Timber.v("editLink() called with: " + "link = [" + link + "]");
         if (link == null) {
-            Log.e(LOG_TAG, "editLink: Link was null, cannot edit");
+            Timber.e("editLink: Link was null, cannot edit");
             return;
         }
         Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
@@ -154,8 +151,7 @@ public class AddLinkActivity extends BaseLinkActivity {
     }
 
     private void showResultLayout(boolean isSuccessful) {
-        Log.v(LOG_TAG,
-                "showResultLayout() called with: " + "isSuccessful = [" + isSuccessful + "]");
+        Timber.v("showResultLayout() called with: " + "isSuccessful = [" + isSuccessful + "]");
         showProgress(false);
         showSuccessLayout(isSuccessful);
         showErrorLayout(!isSuccessful);
@@ -176,12 +172,12 @@ public class AddLinkActivity extends BaseLinkActivity {
         }
 
         public void onClickEdit(View view) {
-            Log.v(LOG_TAG, "onClickEdit() called with: " + "view = [" + view + "]");
+            Timber.v("onClickEdit() called with: " + "view = [" + view + "]");
             editLink(mLink);
         }
 
         public void onClickRetry(View view) {
-            Log.v(LOG_TAG, "onClickRetry() called with: " + "view = [" + view + "]");
+            Timber.v("onClickRetry() called with: " + "view = [" + view + "]");
             addLink(mLink);
         }
     }

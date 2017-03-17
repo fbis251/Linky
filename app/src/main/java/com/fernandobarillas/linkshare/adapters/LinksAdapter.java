@@ -2,7 +2,6 @@ package com.fernandobarillas.linkshare.adapters;
 
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,24 +13,22 @@ import com.fernandobarillas.linkshare.models.Link;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
+import timber.log.Timber;
 
 /**
  * Created by fb on 1/29/16.
  */
 public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.LinkViewHolder> {
-    private static final String LOG_TAG = LinksAdapter.class.getSimpleName();
-
     private LinksListActivity mActivity;
 
     public LinksAdapter(LinksListActivity activity, @Nullable RealmResults<Link> links) {
         super(links, true);
-        Log.v(LOG_TAG,
-                "LinksAdapter() called with: "
-                        + "activity = ["
-                        + activity
-                        + "], links = ["
-                        + links
-                        + "]");
+        Timber.v("LinksAdapter() called with: "
+                + "activity = ["
+                + activity
+                + "], links = ["
+                + links
+                + "]");
         // Link objects have a unique long type ID
         setHasStableIds(true);
         mActivity = activity;
@@ -83,28 +80,27 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
         }
 
         public void onClickCategory(final View view) {
-            Log.v(LOG_TAG, "onClickCategory() called with: " + "view = [" + view + "]");
+            Timber.v("onClickCategory() called with: " + "view = [" + view + "]");
             if (mActivity != null) mActivity.showLinkCategory(getPosition(), true);
         }
 
         public void onClickFavorite(final View view) {
-            Log.v(LOG_TAG, "onClickFavorite() called with: " + "view = [" + view + "]");
+            Timber.v("onClickFavorite() called with: " + "view = [" + view + "]");
             setFavorite(true);
         }
 
         public void onClickLayout(View view) {
-            Log.v(LOG_TAG, "onClickLayout() called with: " + "view = [" + view + "]");
+            Timber.v("onClickLayout() called with: " + "view = [" + view + "]");
             if (mActivity != null) mActivity.openLink(getPosition());
         }
 
         public void onClickRemoveFavorite(final View view) {
-            Log.v(LOG_TAG, "onClickRemoveFavorite() called with: " + "view = [" + view + "]");
+            Timber.v("onClickRemoveFavorite() called with: " + "view = [" + view + "]");
             setFavorite(false);
         }
 
         public boolean onLongClick(View view) {
-            Log.v(LOG_TAG, "onLongClick() called with: " + "view = [" + view + "]");
-            // TODO: Show link BottomSheet for sharing, edit, delete, copy text etc
+            Timber.v("onLongClick() called with: " + "view = [" + view + "]");
             mActivity.displayBottomSheet(getPosition());
             return true;
         }
@@ -114,7 +110,7 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
         }
 
         private void setFavorite(final boolean isFavorite) {
-            Log.v(LOG_TAG, "setFavorite() called with: " + "isFavorite = [" + isFavorite + "]");
+            Timber.v("setFavorite() called with: " + "isFavorite = [" + isFavorite + "]");
             if (mActivity != null) mActivity.setFavorite(getPosition(), isFavorite);
         }
     }

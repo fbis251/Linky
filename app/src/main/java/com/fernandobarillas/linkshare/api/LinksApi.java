@@ -1,7 +1,6 @@
 package com.fernandobarillas.linkshare.api;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fernandobarillas.linkshare.BuildConfig;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
@@ -22,31 +21,29 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 /**
  * Created by fb on 3/5/17.
  */
 
 public class LinksApi {
-    private static final String LOG_TAG = "LinksApi";
-
     private LinkService mLinkService;
 
     public LinksApi(final URL apiUrl) throws InvalidApiUrlException {
-        Log.v(LOG_TAG, "LinksApi() called with: " + "apiUrl = [" + apiUrl + "]");
+        Timber.v("LinksApi() called with: " + "apiUrl = [" + apiUrl + "]");
         validateApiUrl(apiUrl);
         buildService(apiUrl, new OkHttpClient.Builder());
     }
 
     public LinksApi(final URL apiUrl, final long userId, final String authToken)
             throws InvalidApiUrlException {
-        Log.v(LOG_TAG,
-                "LinksApi() called with: "
-                        + "apiUrl = ["
-                        + apiUrl
-                        + "], userId = ["
-                        + userId
-                        + "], authToken = [REDACTED]");
+        Timber.v("LinksApi() called with: "
+                + "apiUrl = ["
+                + apiUrl
+                + "], userId = ["
+                + userId
+                + "], authToken = [REDACTED]");
         validateApiUrl(apiUrl);
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         // Add the Basic Auth header to the request
@@ -70,7 +67,7 @@ public class LinksApi {
     }
 
     public static void validateApiUrl(final URL apiUrl) throws InvalidApiUrlException {
-        Log.v(LOG_TAG, "validateApiUrl() called with: " + "apiUrl = [" + apiUrl + "]");
+        Timber.v("validateApiUrl() called with: " + "apiUrl = [" + apiUrl + "]");
         if (apiUrl == null || TextUtils.isEmpty(apiUrl.toString())) {
             throw new InvalidApiUrlException("Api URL cannot be blank");
         }
@@ -83,14 +80,6 @@ public class LinksApi {
 
     public LinkService getLinkService() {
         return mLinkService;
-    }
-
-    private String getApiUrlString(URL apiUrl) {
-        Log.v(LOG_TAG, "getApiUrlString() called with: " + "apiUrl = [" + apiUrl + "]");
-        if (apiUrl == null) return null;
-        String result = apiUrl.toString() + LinkService.API_BASE_URL;
-        Log.v(LOG_TAG, "getApiUrlString: API result URL: " + result);
-        return result;
     }
 
     private void buildService(final URL apiUrl, OkHttpClient.Builder okHttpClientBuilder) {
@@ -114,5 +103,13 @@ public class LinksApi {
                 .addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = builder.client(okHttpClient).build();
         mLinkService = retrofit.create(LinkService.class);
+    }
+
+    private String getApiUrlString(URL apiUrl) {
+        Timber.v("getApiUrlString() called with: " + "apiUrl = [" + apiUrl + "]");
+        if (apiUrl == null) return null;
+        String result = apiUrl.toString() + LinkService.API_BASE_URL;
+        Timber.v("getApiUrlString: API result URL: " + result);
+        return result;
     }
 }

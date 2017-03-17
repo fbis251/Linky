@@ -4,7 +4,6 @@ import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.AddLinkResponse;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.models.LoginRequest;
-import com.fernandobarillas.linkshare.models.SuccessResponse;
 import com.fernandobarillas.linkshare.models.UserInfoResponse;
 
 import java.util.List;
@@ -39,6 +38,9 @@ public interface LinkService {
     @GET("links")
     Call<List<Link>> getLinks();
 
+    @GET("user_info")
+    Call<UserInfoResponse> getUserInfo();
+
     @POST("login")
     Call<ResponseBody> login(@Body LoginRequest loginRequest);
 
@@ -50,7 +52,4 @@ public interface LinkService {
 
     @PUT("links/{linkId}")
     Call<AddLinkResponse> updateLink(@Path("linkId") long linkId, @Body AddLinkRequest linkRequest);
-
-    @GET("user_info")
-    Call<UserInfoResponse> getUserInfo();
 }

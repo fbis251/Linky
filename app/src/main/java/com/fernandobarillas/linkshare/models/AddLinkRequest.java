@@ -12,9 +12,7 @@ public class AddLinkRequest {
 
     @Override
     public String toString() {
-        return "AddLinkRequest{" +
-                "link=" + link +
-                '}';
+        return "AddLinkRequest{" + "link=" + link + '}';
     }
 
     public Link getLink() {

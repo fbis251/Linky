@@ -2,7 +2,6 @@ package com.fernandobarillas.linkshare.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
@@ -16,6 +15,7 @@ import java.util.Set;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import timber.log.Timber;
 
 /**
  * An ArrayAdapter that provides search results from Link categories
@@ -39,14 +39,11 @@ public class CategoriesArrayAdapter extends ArrayAdapter<String> {
     }
 
     private class CategoriesFilter extends Filter {
-        private static final String LOG_TAG = "CategoriesFilter";
-
         private final FilterResults results = new FilterResults();
 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
-            Log.v(LOG_TAG,
-                    "performFiltering() called with: " + "charSequence = [" + charSequence + "]");
+            Timber.v("performFiltering() called with: " + "charSequence = [" + charSequence + "]");
             if (charSequence == null) return results;
             String searchString = charSequence.toString();
 
@@ -60,31 +57,29 @@ public class CategoriesArrayAdapter extends ArrayAdapter<String> {
             results.count = categoriesResults.size();
             if (BuildConfig.DEBUG) {
                 for (String result : categoriesResults) {
-                    Log.v(LOG_TAG, "performFiltering: result = [" + result + "]");
+                    Timber.v("performFiltering: result = [" + result + "]");
                 }
             }
             mRealm.close();
-            Log.d(LOG_TAG, "performFiltering() returned: " + results);
+            Timber.d("performFiltering() returned: " + results);
             return results;
         }
 
         @Override
         protected void publishResults(
                 CharSequence charSequence, FilterResults filterResults) {
-            Log.v(LOG_TAG,
-                    "publishResults() called with: "
-                            + "charSequence = ["
-                            + charSequence
-                            + "], filterResults = ["
-                            + filterResults
-                            + "]");
+            Timber.v("publishResults() called with: "
+                    + "charSequence = ["
+                    + charSequence
+                    + "], filterResults = ["
+                    + filterResults
+                    + "]");
 
-            Log.v(LOG_TAG,
-                    "publishResults: results.count = ["
-                            + results.count
-                            + "], results.values = ["
-                            + results.values
-                            + "]");
+            Timber.v("publishResults: results.count = ["
+                    + results.count
+                    + "], results.values = ["
+                    + results.values
+                    + "]");
 
             if (results.count > 0) {
                 clear();

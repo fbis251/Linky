@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -33,8 +32,9 @@ import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ShareHandler;
 
+import timber.log.Timber;
+
 public abstract class BaseActivity extends AppCompatActivity {
-    protected final String LOG_TAG = getClass().getSimpleName();
 
     protected LinksApp       mLinksApp;
     protected AppPreferences mPreferences;
@@ -42,8 +42,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG,
-                "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
+        Timber.v("onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
 
         // Initialize the database
@@ -53,35 +52,35 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        Log.v(LOG_TAG, "onStop()");
+        Timber.v("onStop()");
         super.onStop();
     }
 
     public void closeSoftKeyboard() {
-        Log.v(LOG_TAG, "closeSoftKeyboard()");
+        Timber.v("closeSoftKeyboard()");
         closeSoftKeyboard(getCurrentFocus());
     }
 
     public void closeSoftKeyboard(final View view) {
-        Log.v(LOG_TAG, "closeSoftKeyboard() called with: " + "view = [" + view + "]");
+        Timber.v("closeSoftKeyboard() called with: " + "view = [" + view + "]");
         if (view == null) {
-            Log.d(LOG_TAG, "closeSoftKeyboard: View was null, not closing keyboard");
+            Timber.d("closeSoftKeyboard: View was null, not closing keyboard");
             return;
         }
-        Log.d(LOG_TAG, "closeSoftKeyboard: Closing soft keyboard");
+        Timber.d("closeSoftKeyboard: Closing soft keyboard");
         InputMethodManager imm =
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public void dismissSnackbar() {
-        Log.v(LOG_TAG, "dismissSnackbar()");
+        Timber.v("dismissSnackbar()");
         if (mSnackbar == null) return;
         mSnackbar.dismiss();
     }
 
     public void openUrlExternally(final String url) {
-        Log.v(LOG_TAG, "openUrlExternally() called with: " + "url = [" + url + "]");
+        Timber.v("openUrlExternally() called with: " + "url = [" + url + "]");
         if (url == null) return;
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -94,7 +93,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void shareUrl(final String title, final String url) {
-        Log.v(LOG_TAG, "shareUrl() called with: " + "title = [" + title + "], url = [" + url + "]");
+        Timber.v("shareUrl() called with: " + "title = [" + title + "], url = [" + url + "]");
         if (url == null || !ShareHandler.share(title, url, this)) {
             showSnackError(getString(R.string.share_intent_error), true);
         }
@@ -126,7 +125,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void launchLinksListActivity() {
-        Log.v(LOG_TAG, "launchLinksListActivity()");
+        Timber.v("launchLinksListActivity()");
         Intent listIntent = new Intent(this, LinksListActivity.class);
         listIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(listIntent);
@@ -134,7 +133,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void launchLoginActivity() {
-        Log.v(LOG_TAG, "launchLoginActivity()");
+        Timber.v("launchLoginActivity()");
         Intent loginIntent = new Intent(this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(loginIntent);
@@ -142,13 +141,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void setToolbarTitle(String title, String subTitle) {
-        Log.v(LOG_TAG,
-                "setToolbarTitle() called with: "
-                        + "title = ["
-                        + title
-                        + "], subTitle = ["
-                        + subTitle
-                        + "]");
+        Timber.v("setToolbarTitle() called with: "
+                + "title = ["
+                + title
+                + "], subTitle = ["
+                + subTitle
+                + "]");
         ActionBar actionBar = getSupportActionBar();
         if (actionBar == null) return;
         actionBar.setTitle(title);

@@ -16,32 +16,21 @@
 
 package com.fernandobarillas.linkshare.activities;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.fernandobarillas.linkshare.R;
 
-import de.psdev.licensesdialog.LicenseResolver;
-import de.psdev.licensesdialog.LicensesDialog;
-import de.psdev.licensesdialog.licenses.ApacheSoftwareLicense20;
-import de.psdev.licensesdialog.licenses.License;
-import de.psdev.licensesdialog.model.Notice;
+import timber.log.Timber;
 
 public class AboutActivity extends BaseActivity {
-
-
-    private final String LOG_TAG = getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(LOG_TAG,
-                "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
+        Timber.v("onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         setContentView(R.layout.activity_about);
 
         ImageButton githubButton = (ImageButton) findViewById(R.id.github_button);

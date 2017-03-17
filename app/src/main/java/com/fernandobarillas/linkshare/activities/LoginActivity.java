@@ -10,7 +10,6 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +42,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 /**
  * A login screen that offers login via email/password.
@@ -80,7 +80,7 @@ public class LoginActivity extends BaseLinkActivity {
                 if (id == EditorInfo.IME_ACTION_DONE
                         || id == R.id.login
                         || id == EditorInfo.IME_NULL) {
-                    Log.i(LOG_TAG, "onEditorAction: Form submit request");
+                    Timber.i("onEditorAction: Form submit request");
                     closeSoftKeyboard();
                     attemptLogin();
                     return true;
@@ -221,7 +221,7 @@ public class LoginActivity extends BaseLinkActivity {
                 apiUrl = new URL(apiUrlString);
                 LinksApi.validateApiUrl(apiUrl);
             } catch (MalformedURLException | InvalidApiUrlException e) {
-                Log.e(LOG_TAG, "attemptLogin: Invalid API URL: " + apiUrlString);
+                Timber.e("attemptLogin: Invalid API URL: " + apiUrlString);
                 mServerAddressView.setError(getString(R.string.error_invalid_server_address));
                 focusView = mServerAddressView;
                 cancel = true;
@@ -246,7 +246,7 @@ public class LoginActivity extends BaseLinkActivity {
         try {
             mLinkService = new LinksApi(apiUrl).getLinkService();
         } catch (InvalidApiUrlException e) {
-            Log.e(LOG_TAG, "doLogin: ", e);
+            Timber.e("doLogin: ", e);
             showProgress(false);
             mServerAddressView.setError(getString(R.string.error_invalid_server_address));
             return;
@@ -256,10 +256,9 @@ public class LoginActivity extends BaseLinkActivity {
         loginCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.v(LOG_TAG,
-                        "doLogin onResponse() called with: " + "response = [" + response + "]");
-                Log.v(LOG_TAG, "doLogin onResponse: Body: " + response.body());
-                Log.v(LOG_TAG, "doLogin onResponse: Error body: " + response.errorBody());
+                Timber.v("doLogin onResponse() called with: " + "response = [" + response + "]");
+                Timber.v("doLogin onResponse: Body: " + response.body());
+                Timber.v("doLogin onResponse: Error body: " + response.errorBody());
                 Gson gson = new Gson();
                 try {
                     if (response.isSuccessful()) {
@@ -291,9 +290,8 @@ public class LoginActivity extends BaseLinkActivity {
                                         gson.fromJson(response.errorBody().string(),
                                                 ErrorResponse.class);
                                 if (errorResponse != null) {
-                                    Log.w(LOG_TAG,
-                                            "doLogin onResponse: API Response message: "
-                                                    + errorResponse.getErrorMessage());
+                                    Timber.w("doLogin onResponse: API Response message: "
+                                            + errorResponse.getErrorMessage());
                                     errorMessage = errorResponse.getErrorMessage();
                                 }
                             } catch (JsonSyntaxException ignored) {
@@ -304,15 +302,15 @@ public class LoginActivity extends BaseLinkActivity {
                                 errorMessage);
                     }
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "doLogin onResponse: ", e);
+                    Timber.e("doLogin onResponse: ", e);
                     handleLoginError(false, e, null);
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.v(LOG_TAG, "doLogin onFailure() called with: " + "t = [" + t + "]");
-                Log.e(LOG_TAG, "doLogin onFailure: ", t);
+                Timber.v("doLogin onFailure() called with: " + "t = [" + t + "]");
+                Timber.e("doLogin onFailure: ", t);
                 handleLoginError(true, t, null);
             }
         });
@@ -322,15 +320,14 @@ public class LoginActivity extends BaseLinkActivity {
             boolean isUsernameOrPasswordError,
             @Nullable Throwable t,
             @Nullable String errorMessage) {
-        Log.v(LOG_TAG,
-                "handleLoginError() called with: "
-                        + "isUsernameOrPasswordError = ["
-                        + isUsernameOrPasswordError
-                        + "], t = ["
-                        + t
-                        + "], errorMessage = ["
-                        + errorMessage
-                        + "]");
+        Timber.v("handleLoginError() called with: "
+                + "isUsernameOrPasswordError = ["
+                + isUsernameOrPasswordError
+                + "], t = ["
+                + t
+                + "], errorMessage = ["
+                + errorMessage
+                + "]");
         showProgress(false);
         String uiMessage;
         if (t != null) {
@@ -353,13 +350,12 @@ public class LoginActivity extends BaseLinkActivity {
     }
 
     private boolean handleLoginSuccess(final URL apiUrl, final LoginResponse loginResponse) {
-        Log.v(LOG_TAG,
-                "handleLoginSuccess() called with: "
-                        + "apiUrl = ["
-                        + apiUrl
-                        + "], loginResponse = ["
-                        + loginResponse
-                        + "]");
+        Timber.v("handleLoginSuccess() called with: "
+                + "apiUrl = ["
+                + apiUrl
+                + "], loginResponse = ["
+                + loginResponse
+                + "]");
         long userId = loginResponse.getUserId();
         String authString = loginResponse.getAuthString();
         if (!TextUtils.isEmpty(authString) && userId != LoginResponse.INVALID_USER_ID) {
@@ -367,7 +363,7 @@ public class LoginActivity extends BaseLinkActivity {
             mPreferences.setUserId(userId);
             mPreferences.setAuthString(authString);
             mPreferences.setUsername(loginResponse.getUsername());
-            Log.i(LOG_TAG, "doLogin Login completed, starting LinksListActivity");
+            Timber.i("doLogin Login completed, starting LinksListActivity");
             launchLinksListActivity();
             return true;
         }

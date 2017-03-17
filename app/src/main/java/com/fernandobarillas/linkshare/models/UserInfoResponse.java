@@ -10,12 +10,8 @@ public class UserInfoResponse {
 
     @Override
     public String toString() {
-        return "UserInfoResponse{" +
-                "lastUpdateTimestamp=" +
-                lastUpdateTimestamp +
-                "(" +
-                new Date(lastUpdateTimestamp * 1000) + ")" +
-                '}';
+        return "UserInfoResponse{" + "lastUpdateTimestamp=" + lastUpdateTimestamp + "(" + new Date(
+                lastUpdateTimestamp * 1000) + ")" + '}';
     }
 
     public long getLastUpdateTimestamp() {

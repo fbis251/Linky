@@ -2,7 +2,6 @@ package com.fernandobarillas.linkshare.activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.api.LinkService;
@@ -11,10 +10,9 @@ import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
 import io.realm.Realm;
+import timber.log.Timber;
 
 public abstract class BaseLinkActivity extends BaseActivity {
-
-    protected final String LOG_TAG = getClass().getSimpleName();
 
     protected Realm       mRealm;
     protected LinkStorage mLinkStorage;
@@ -22,8 +20,7 @@ public abstract class BaseLinkActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG,
-                "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
+        Timber.v("onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         super.onCreate(savedInstanceState);
 
         // Initialize the database
@@ -34,7 +31,7 @@ public abstract class BaseLinkActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        Log.v(LOG_TAG, "onDestroy()");
+        Timber.v("onDestroy()");
         if (mRealm != null) {
             mRealm.close();
             mRealm = null;
@@ -44,17 +41,17 @@ public abstract class BaseLinkActivity extends BaseActivity {
     }
 
     protected void performLogout() {
-        Log.v(LOG_TAG, "performLogout()");
+        Timber.v("performLogout()");
         mPreferences.deleteAllPreferences();
         mLinkStorage.deleteAllLinks();
         launchLoginActivity();
     }
 
     protected void serviceSetup() {
-        Log.v(LOG_TAG, "serviceSetup()");
+        Timber.v("serviceSetup()");
         String authToken = mPreferences.getAuthString();
         if (TextUtils.isEmpty(authToken)) {
-            Log.i(LOG_TAG, "serviceSetup: No refresh token stored, starting LoginActivity");
+            Timber.i("serviceSetup: No refresh token stored, starting LoginActivity");
             performLogout();
             return;
         }
@@ -67,7 +64,7 @@ public abstract class BaseLinkActivity extends BaseActivity {
                 mLinksApp.setLinkService(linksApi.getLinkService());
                 mLinkService = mLinksApp.getLinkService();
             } catch (InvalidApiUrlException e) {
-                Log.e(LOG_TAG, "serviceSetup: Invalid API URL, launching login activity", e);
+                Timber.e("serviceSetup: Invalid API URL, launching login activity", e);
                 performLogout();
             }
         }

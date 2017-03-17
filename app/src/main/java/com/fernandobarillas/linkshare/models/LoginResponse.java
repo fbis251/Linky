@@ -12,11 +12,16 @@ public class LoginResponse {
 
     @Override
     public String toString() {
-        return "LoginResponse{" +
-                "userId=" + userId +
-                ", authString='" + authString + '\'' +
-                ", username='" + username + '\'' +
-                '}';
+        return "LoginResponse{"
+                + "userId="
+                + userId
+                + ", authString='"
+                + authString
+                + '\''
+                + ", username='"
+                + username
+                + '\''
+                + '}';
     }
 
     public String getAuthString() {

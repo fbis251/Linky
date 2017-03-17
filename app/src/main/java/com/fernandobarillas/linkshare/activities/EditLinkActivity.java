@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -24,6 +23,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 public class EditLinkActivity extends BaseLinkActivity {
 
@@ -52,19 +52,19 @@ public class EditLinkActivity extends BaseLinkActivity {
         mIntentLink = null;
         Intent intent = getIntent();
         if (intent != null) {
-            Log.i(LOG_TAG, "onCreate: Intent: " + intent);
+            Timber.i("onCreate: Itent: %s", intent);
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
                 if (intent.hasExtra(EXTRA_LINK_ID)) {
                     long linkId = extras.getLong(EXTRA_LINK_ID);
-                    Log.i(LOG_TAG, "onCreate: Intent link ID: " + linkId);
+                    Timber.i("onCreate: Intent link ID: %d", linkId);
                     mIntentLink = mLinkStorage.findByLinkId(linkId);
                 }
             }
         }
 
         if (mIntentLink == null) {
-            Log.e(LOG_TAG, "onCreate: Intent Link was null, cannot edit Link");
+            Timber.e("onCreate: Intent Link was null, cannot edit Link");
             // Show UI error
             finish();
             return;
@@ -113,16 +113,15 @@ public class EditLinkActivity extends BaseLinkActivity {
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v(LOG_TAG,
-                "onRestoreInstanceState() called with: "
-                        + "savedInstanceState = ["
-                        + savedInstanceState
-                        + "]");
+        Timber.v("onRestoreInstanceState() called with: "
+                + "savedInstanceState = ["
+                + savedInstanceState
+                + "]");
         super.onRestoreInstanceState(savedInstanceState);
 
         if (mTitleEditText != null) {
             String savedTitle = savedInstanceState.getString(STATE_TITLE);
-            Log.v(LOG_TAG, "onRestoreInstanceState: savedTitle = [" + savedTitle + "]");
+            Timber.v("onRestoreInstanceState: savedTitle = [" + savedTitle + "]");
             mTitleEditText.addOnAttachStateChangeListener(new RestoreTextOnAttachListener(
                     mTitleEditText,
                     savedTitle));
@@ -130,14 +129,14 @@ public class EditLinkActivity extends BaseLinkActivity {
 
         if (mUrlEditText != null) {
             String savedUrl = savedInstanceState.getString(STATE_URL);
-            Log.v(LOG_TAG, "onRestoreInstanceState: savedUrl = [" + savedUrl + "]");
+            Timber.v("onRestoreInstanceState: savedUrl = [" + savedUrl + "]");
             mUrlEditText.addOnAttachStateChangeListener(new RestoreTextOnAttachListener(mUrlEditText,
                     savedUrl));
         }
 
         if (mCategoryEditText != null) {
             String savedCategory = savedInstanceState.getString(STATE_CATEGORY);
-            Log.v(LOG_TAG, "onRestoreInstanceState: savedCategory = [" + savedCategory + "]");
+            Timber.v("onRestoreInstanceState: savedCategory = [" + savedCategory + "]");
             mCategoryEditText.addOnAttachStateChangeListener(new RestoreTextOnAttachListener(
                     mCategoryEditText,
                     savedCategory));
@@ -145,7 +144,7 @@ public class EditLinkActivity extends BaseLinkActivity {
 
         if (mArchivedSwitch != null) {
             boolean savedIsArchived = savedInstanceState.getBoolean(STATE_IS_ARCHIVED);
-            Log.v(LOG_TAG, "onRestoreInstanceState: savedIsArchived = [" + savedIsArchived + "]");
+            Timber.v("onRestoreInstanceState: savedIsArchived = [" + savedIsArchived + "]");
             mArchivedSwitch.addOnAttachStateChangeListener(new RestoreSwitchOnAttachListener(
                     mArchivedSwitch,
                     savedIsArchived));
@@ -153,7 +152,7 @@ public class EditLinkActivity extends BaseLinkActivity {
 
         if (mFavoriteSwitch != null) {
             boolean savedIsFavorite = savedInstanceState.getBoolean(STATE_IS_FAVORITE);
-            Log.v(LOG_TAG, "onRestoreInstanceState: savedIsFavorite = [" + savedIsFavorite + "]");
+            Timber.v("onRestoreInstanceState: savedIsFavorite = [" + savedIsFavorite + "]");
             mFavoriteSwitch.addOnAttachStateChangeListener(new RestoreSwitchOnAttachListener(
                     mFavoriteSwitch,
                     savedIsFavorite));
@@ -162,7 +161,7 @@ public class EditLinkActivity extends BaseLinkActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.v(LOG_TAG, "onSaveInstanceState() called with: " + "outState = [" + outState + "]");
+        Timber.v("onSaveInstanceState() called with: " + "outState = [" + outState + "]");
         // TODO: Save the state of all the form inputs
         if (mIntentLink != null) {
             outState.putLong(EXTRA_LINK_ID, mIntentLink.getLinkId());
@@ -192,32 +191,33 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     private void updateLink(final Link link) {
-        Log.v(LOG_TAG, "updateLink() called with: " + "link = [" + link + "]");
+        Timber.v("updateLink() called with: " + "link = [" + link + "]");
         AddLinkRequest request = new AddLinkRequest(link);
-        Log.i(LOG_TAG, "updateLink: Request: " + request);
+        Timber.i("updateLink: request = [" + request + "]");
         mLinkService.updateLink(link.getLinkId(), request).enqueue(new Callback<AddLinkResponse>() {
             @Override
             public void onResponse(Call<AddLinkResponse> call, Response<AddLinkResponse> response) {
-                Log.v(LOG_TAG,
-                        "updateLink onResponse() called with: "
-                                + "call = ["
-                                + call
-                                + "], response = ["
-                                + response
-                                + "]");
+                Timber.v("updateLink onResponse() called with: "
+                        + "call = ["
+                        + call
+                        + "], response = ["
+                        + response
+                        + "]");
                 if (response.isSuccessful()) {
                     mLinkStorage.add(link);
                     // Let the caller know that it's okay to update the adapter with the new changes
                     setResult(RESULT_OK, new Intent());
                 } else {
                     // TODO: Show UI error
-                    Log.e(LOG_TAG, "onResponse: Unsuccessful response");
+                    Timber.e("onResponse: Unsuccessful response");
                     ResponseBody errorResponse = response.errorBody();
                     if (errorResponse != null) {
                         try {
-                            Log.e(LOG_TAG, "onResponse: " + errorResponse.string());
+                            Timber.e("onResponse: errorResponse = ["
+                                    + errorResponse.string()
+                                    + "]");
                         } catch (IOException e) {
-                            Log.e(LOG_TAG, "onResponse: Could not parse error response", e);
+                            Timber.e(e, "onResponse: onResponse: Could not parse error response");
                         }
                     }
                 }
@@ -227,39 +227,26 @@ public class EditLinkActivity extends BaseLinkActivity {
 
             @Override
             public void onFailure(Call<AddLinkResponse> call, Throwable t) {
-                Log.v(LOG_TAG,
-                        "updateLink onFailure() called with: "
-                                + "call = ["
-                                + call
-                                + "], t = ["
-                                + t
-                                + "]");
+                Timber.v("onFailure() called with: " + "call = [" + call + "], t = [" + t + "]");
             }
         });
     }
 
-    private void validateForm() {
-        Log.v(LOG_TAG, "validateForm()");
-        // TODO: implement me
-    }
-
     public class EditLinkHandler {
-        private final String LOG_TAG = getClass().getSimpleName();
-
         private Link mOldLink;
 
         public EditLinkHandler(Link oldLink) {
-            Log.v(LOG_TAG, "EditLinkHandler() called with: " + "oldLink = [" + oldLink + "]");
+            Timber.v("EditLinkHandler() called with: " + "oldLink = [" + oldLink + "]");
             mOldLink = oldLink;
         }
 
         public void onClickCancel(View view) {
-            Log.v(LOG_TAG, "onClickCancel() called with: " + "view = [" + view + "]");
+            Timber.v("onClickCancel() called with: " + "view = [" + view + "]");
             finish();
         }
 
         public void onClickSave(View view) {
-            Log.v(LOG_TAG, "onClickSave() called with: " + "view = [" + view + "]");
+            Timber.v("onClickSave() called with: " + "view = [" + view + "]");
             if (mOldLink == null) {
                 // TODO: Handle error
                 return;
@@ -278,25 +265,28 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     private class RestoreSwitchOnAttachListener implements View.OnAttachStateChangeListener {
-        private static final String LOG_TAG = "RestoreSwitchOnAttach";
-
         private SwitchCompat mSwitchCompat;
         private boolean      mIsChecked;
 
         public RestoreSwitchOnAttachListener(SwitchCompat switchCompat, boolean isChecked) {
+            Timber.v("RestoreSwitchOnAttachListener() called with: "
+                    + "switchCompat = ["
+                    + switchCompat
+                    + "], isChecked = ["
+                    + isChecked
+                    + "]");
             mSwitchCompat = switchCompat;
             mIsChecked = isChecked;
         }
 
         @Override
         public void onViewAttachedToWindow(View v) {
-            Log.v(LOG_TAG,
-                    "onViewAttachedToWindow() called with: "
-                            + "switchCompat = ["
-                            + mSwitchCompat
-                            + "], isChecked = ["
-                            + mIsChecked
-                            + "]");
+            Timber.v("RestoreSwitchOnAttachListener() called with: "
+                    + "switchCompat = ["
+                    + mSwitchCompat
+                    + "], isChecked = ["
+                    + mIsChecked
+                    + "]");
             if (mSwitchCompat == null) return;
             mSwitchCompat.setChecked(mIsChecked);
         }
@@ -308,8 +298,6 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     private class RestoreTextOnAttachListener implements View.OnAttachStateChangeListener {
-        private static final String LOG_TAG = "RestoreTextOnAttach";
-
         private EditText mEditText;
         private String   mSavedString;
 
@@ -320,13 +308,12 @@ public class EditLinkActivity extends BaseLinkActivity {
 
         @Override
         public void onViewAttachedToWindow(View v) {
-            Log.v(LOG_TAG,
-                    "RestoreTextOnAttachListener() called with: "
-                            + "editText = ["
-                            + mEditText
-                            + "], savedString = ["
-                            + mSavedString
-                            + "]");
+            Timber.v("RestoreTextOnAttachListener() called with: "
+                    + "editText = ["
+                    + mEditText
+                    + "], savedString = ["
+                    + mSavedString
+                    + "]");
             if (mEditText == null) return;
             mEditText.setText(mSavedString);
         }

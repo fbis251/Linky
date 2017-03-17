@@ -25,7 +25,6 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -57,6 +56,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 public class LinksListActivity extends BaseLinkActivity
         implements RealmChangeListener<RealmResults<Link>>,
@@ -100,15 +100,14 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v(LOG_TAG,
-                "onActivityResult() called with: "
-                        + "requestCode = ["
-                        + requestCode
-                        + "], resultCode = ["
-                        + resultCode
-                        + "], data = ["
-                        + data
-                        + "]");
+        Timber.v("onActivityResult() called with: "
+                + "requestCode = ["
+                + requestCode
+                + "], resultCode = ["
+                + resultCode
+                + "], data = ["
+                + data
+                + "]");
         if (requestCode == EDIT_LINK_REQUEST && resultCode == RESULT_OK) {
             // We can't reliably tell what operation the user performed on the Link, so it's best
             // to just tell the adapter the entire dataset changed. Examples of not being able
@@ -133,7 +132,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     protected void onResume() {
-        Log.v(LOG_TAG, "onResume()");
+        Timber.v("onResume()");
         super.onResume();
         updateToolbarScrollBehavior();
         if (mLinkStorage.getLinksCount() == 0) {
@@ -145,7 +144,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public void onChange(RealmResults<Link> element) {
-        Log.v(LOG_TAG, "onChange() called with: " + "element = [" + element + "]");
+        Timber.v("onChange() called with: " + "element = [" + element + "]");
         populateDrawerCategories();
         updateToolbarTitle();
     }
@@ -217,8 +216,7 @@ public class LinksListActivity extends BaseLinkActivity
                 String title = String.format(getString(R.string.nav_welcome_format),
                         mPreferences.getUsername());
                 mDrawerUsername.setText(title);
-                Log.i(LOG_TAG,
-                        "onCreate: userdrawer Set drawer text: " + mDrawerUsername.getText());
+                Timber.i("onCreate: userdrawer Set drawer text: " + mDrawerUsername.getText());
                 mDrawerUsername.setOnClickListener(navAccountShowListener());
             }
         }
@@ -229,7 +227,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     protected void onDestroy() {
-        Log.v(LOG_TAG, "onDestroy()");
+        Timber.v("onDestroy()");
         if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
             mLinksAdapter.getLinks().removeChangeListener(this);
         }
@@ -238,7 +236,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.v(LOG_TAG, "onCreateOptionsMenu() called with: " + "menu = [" + menu + "]");
+        Timber.v("onCreateOptionsMenu() called with: " + "menu = [" + menu + "]");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_links_list, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
@@ -258,7 +256,7 @@ public class LinksListActivity extends BaseLinkActivity
             // Creating a copy of the String inside the if block below didn't work either
             final String searchTerm = mSearchTerm;
             if (!TextUtils.isEmpty(searchTerm)) {
-                Log.v(LOG_TAG, "onCreateOptionsMenu: searchTerm = [" + searchTerm + "]");
+                Timber.v("onCreateOptionsMenu: searchTerm = [" + searchTerm + "]");
                 mSearchView.onActionViewExpanded();
                 mSearchView.setQuery(searchTerm, false);
             }
@@ -268,26 +266,26 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.v(LOG_TAG, "onOptionsItemSelected() called with: " + "item = [" + item + "]");
+        Timber.v("onOptionsItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
 
         // Keep track of the current SortMode to update the UI if it changes
         int lastSortMode = mSortMode;
         switch (id) {
             case (R.id.sort_title_ascending):
-                Log.d(LOG_TAG, "onOptionsItemSelected: Title Ascending");
+                Timber.d("onOptionsItemSelected: Title Ascending");
                 mSortMode = LinkStorage.SORT_TITLE_ASCENDING;
                 break;
             case (R.id.sort_title_descending):
-                Log.d(LOG_TAG, "onOptionsItemSelected: Title Descending");
+                Timber.d("onOptionsItemSelected: Title Descending");
                 mSortMode = LinkStorage.SORT_TITLE_DESCENDING;
                 break;
             case (R.id.sort_timestamp_ascending):
-                Log.d(LOG_TAG, "onOptionsItemSelected: Timestamp Ascending");
+                Timber.d("onOptionsItemSelected: Timestamp Ascending");
                 mSortMode = LinkStorage.SORT_TIMESTAMP_ASCENDING;
                 break;
             case (R.id.sort_timestamp_descending):
-                Log.d(LOG_TAG, "onOptionsItemSelected: Timestamp Descending");
+                Timber.d("onOptionsItemSelected: Timestamp Descending");
                 mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
                 break;
             default:
@@ -304,39 +302,39 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Log.v(LOG_TAG, "onNavigationItemSelected() called with: " + "item = [" + item + "]");
+        Timber.v("onNavigationItemSelected() called with: " + "item = [" + item + "]");
         int id = item.getItemId();
 
         // Keep track of the current filter mode and category to update the UI if they change
         int lastFilterMode = mFilterMode;
         String lastCategory = mCategory;
         if (item.getGroupId() == R.id.nav_drawer_account) {
-            Log.v(LOG_TAG, "onNavigationItemSelected: item = [" + item + "]");
+            Timber.v("onNavigationItemSelected: item = [" + item + "]");
             performLogout();
         } else if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
             mFilterMode = LinkStorage.FILTER_CATEGORY;
             mCategory = item.getTitle().toString();
-            Log.d(LOG_TAG, "onNavigationItemSelected: Tapped category: " + mCategory);
+            Timber.d("onNavigationItemSelected: Tapped category: " + mCategory);
         } else {
             switch (id) {
                 case (R.id.nav_fresh_links):
-                    Log.i(LOG_TAG, "onNavigationItemSelected: Displaying fresh Links");
+                    Timber.i("onNavigationItemSelected: Displaying fresh Links");
                     mFilterMode = LinkStorage.FILTER_FRESH;
                     break;
                 case (R.id.nav_all_links):
-                    Log.i(LOG_TAG, "onNavigationItemSelected: Displaying all Links");
+                    Timber.i("onNavigationItemSelected: Displaying all Links");
                     mFilterMode = LinkStorage.FILTER_ALL;
                     break;
                 case (R.id.nav_favorites):
-                    Log.i(LOG_TAG, "onNavigationItemSelected: Displaying favorite Links");
+                    Timber.i("onNavigationItemSelected: Displaying favorite Links");
                     mFilterMode = LinkStorage.FILTER_FAVORITES;
                     break;
                 case (R.id.nav_archived):
-                    Log.i(LOG_TAG, "onNavigationItemSelected: Displaying archived Links");
+                    Timber.i("onNavigationItemSelected: Displaying archived Links");
                     mFilterMode = LinkStorage.FILTER_ARCHIVED;
                     break;
                 case (R.id.nav_settings):
-                    Log.i(LOG_TAG, "onNavigationItemSelected: Opening Settings");
+                    Timber.i("onNavigationItemSelected: Opening Settings");
                     startActivity(new Intent(this, SettingsActivity.class));
                     return false;
                 default:
@@ -359,35 +357,35 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Log.v(LOG_TAG, "onQueryTextSubmit() called with: " + "query = [" + query + "]");
+        Timber.v("onQueryTextSubmit() called with: " + "query = [" + query + "]");
         handleSearch(query);
         return true;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        Log.v(LOG_TAG, "onQueryTextChange() called with: " + "newText = [" + newText + "]");
+        Timber.v("onQueryTextChange() called with: " + "newText = [" + newText + "]");
         handleSearch(newText);
         return true;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.v(LOG_TAG, "onSaveInstanceState() called with: " + "outState = [" + outState + "]");
+        Timber.v("onSaveInstanceState() called with: " + "outState = [" + outState + "]");
         outState.putString(STATE_SEARCH_TERM, mSearchTerm);
         outState.putString(STATE_CATEGORY, mCategory);
         outState.putInt(STATE_FILTER_MODE, mFilterMode);
         outState.putInt(STATE_PREVIOUS_FILTER_MODE, mPreviousFilterMode);
         outState.putInt(STATE_SORT_MODE, mSortMode);
-        Log.d(LOG_TAG, "onSaveInstanceState() returned: " + outState);
+        Timber.d("onSaveInstanceState() returned: " + outState);
         super.onSaveInstanceState(outState);
     }
 
     public void copyLink(final int position) {
-        Log.v(LOG_TAG, "copyUrl() called with: " + "position = [" + position + "]");
+        Timber.v("copyUrl() called with: " + "position = [" + position + "]");
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
-            Log.e(LOG_TAG, "copyUrl: Link instance was null before copying URL");
+            Timber.e("copyUrl: Link instance was null before copying URL");
             showSnackError("Could not copy link URL, please refresh", getRefreshSnackAction());
             return;
         }
@@ -398,10 +396,10 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     public void deleteLink(final int position) {
-        Log.v(LOG_TAG, "deleteLink() called with: " + "position = [" + position + "]");
+        Timber.v("deleteLink() called with: " + "position = [" + position + "]");
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
-            Log.e(LOG_TAG, "deleteLink: Link instance was null before making delete API call");
+            Timber.e("deleteLink: Link instance was null before making delete API call");
             showSnackError("Could not delete link, please refresh", getRefreshSnackAction());
             return;
         }
@@ -411,13 +409,15 @@ public class LinksListActivity extends BaseLinkActivity
         final String successMessage = "Deleted " + title;
         final String errorMessage = "Error deleting " + title;
 
-        Log.i(LOG_TAG, "deleteLink: Trying to remove link: " + link);
+        Timber.i("deleteLink: Trying to remove link: " + link);
         Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
         deleteCall.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                Log.v(LOG_TAG,
-                        "deleteLink: onResponse() called with: " + "response = [" + response + "]");
+                Timber.v("deleteLink: onResponse() called with: "
+                        + "response = ["
+                        + response
+                        + "]");
                 if (response.isSuccessful()) {
                     if (mRecyclerView == null) return;
                     showSnackSuccess(successMessage);
@@ -425,24 +425,23 @@ public class LinksListActivity extends BaseLinkActivity
                     return;
                 }
 
-                Log.e(LOG_TAG, "deleteLink: onResponse: " + errorMessage);
-                Log.e(LOG_TAG,
-                        String.format("deleteLink: onResponse: %d %s",
-                                response.code(),
-                                response.message()));
+                Timber.e("deleteLink: onResponse: " + errorMessage);
+                Timber.e(String.format("deleteLink: onResponse: %d %s",
+                        response.code(),
+                        response.message()));
                 errorResponseHandler(response, errorMessage, position);
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(LOG_TAG, "deleteLink: onFailure: " + errorMessage, t);
+                Timber.e(t, "deleteLink: onFailure: " + errorMessage);
                 errorResponseHandler(null, errorMessage, position);
             }
         });
     }
 
     public void displayBottomSheet(final int position) {
-        Log.v(LOG_TAG, "displayBottomSheet() called with: " + "position = [" + position + "]");
+        Timber.v("displayBottomSheet() called with: " + "position = [" + position + "]");
         Link link = mLinksAdapter.getLink(position);
         if (link == null) return;
         new BottomSheet.Builder(this).setSheet(R.menu.link_options)
@@ -463,36 +462,35 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     public void openLink(final int position) {
-        Log.v(LOG_TAG, "openLink() called with: " + "position = [" + position + "]");
+        Timber.v("openLink() called with: " + "position = [" + position + "]");
         Link link = mLinksAdapter.getLink(position);
-        Log.i(LOG_TAG, "openLink: Link: " + link);
+        Timber.i("openLink: Link: " + link);
         if (link == null) {
-            Log.e(LOG_TAG, "openLink: Null Link when attempting to open URL: " + position);
+            Timber.e("openLink: Null Link when attempting to open URL: " + position);
             showSnackError(getString(R.string.error_link_null), false);
             return;
         }
 
         String url = link.getUrl();
         if (TextUtils.isEmpty(url)) {
-            Log.e(LOG_TAG, "openLink: Cannot open empty or null link");
+            Timber.e("openLink: Cannot open empty or null link");
             showSnackError(getString(R.string.error_link_url_null), false);
         }
-        Log.i(LOG_TAG, "openLink: Opening URL: " + url);
+        Timber.i("openLink: Opening URL: " + url);
         openUrlExternally(url);
     }
 
     public void setFavorite(final int position, final boolean isFavorite) {
-        Log.v(LOG_TAG,
-                "setFavorite() called with: "
-                        + "position = ["
-                        + position
-                        + "], isFavorite = ["
-                        + isFavorite
-                        + "]");
+        Timber.v("setFavorite() called with: "
+                + "position = ["
+                + position
+                + "], isFavorite = ["
+                + isFavorite
+                + "]");
         final Link link = mLinksAdapter.getLink(position);
-        Log.i(LOG_TAG, "setFavorite: Link: " + link);
+        Timber.i("setFavorite: Link: " + link);
         if (link == null) {
-            Log.e(LOG_TAG, "openLink: Null Link when attempting to favorite position " + position);
+            Timber.e("openLink: Null Link when attempting to favorite position " + position);
             showSnackError(getString(R.string.error_link_favorite), false);
             return;
         }
@@ -506,11 +504,10 @@ public class LinksListActivity extends BaseLinkActivity
                 new Snacks.Action(R.string.retry, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.v(LOG_TAG,
-                                "setFavorite retryAction onClick() called with: "
-                                        + "view = ["
-                                        + view
-                                        + "]");
+                        Timber.v("setFavorite retryAction onClick() called with: "
+                                + "view = ["
+                                + view
+                                + "]");
                         setFavorite(position, isFavorite);
                     }
                 });
@@ -523,15 +520,14 @@ public class LinksListActivity extends BaseLinkActivity
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                Log.v(LOG_TAG,
-                        "setFavorite onResponse() called with: "
-                                + "call = ["
-                                + call
-                                + "], response = ["
-                                + response
-                                + "]");
+                Timber.v("setFavorite onResponse() called with: "
+                        + "call = ["
+                        + call
+                        + "], response = ["
+                        + response
+                        + "]");
                 if (response.isSuccessful()) {
-                    Log.d(LOG_TAG, "setFavorite onResponse: Successful");
+                    Timber.d("setFavorite onResponse: Successful");
                     if (mLinkStorage != null) mLinkStorage.setFavorite(link, isFavorite);
                 } else {
                     if (!handleHttpResponseError(response)) {
@@ -542,14 +538,18 @@ public class LinksListActivity extends BaseLinkActivity
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(LOG_TAG, "setFavorite: onFailure: " + errorMessage, t);
-                showSnackError(errorMessage, retryAction);
+                String message = errorMessage;
+                if (t != null) {
+                    message += " " + t.getLocalizedMessage();
+                }
+                Timber.e(t, "setFavorite: onFailure: " + message);
+                showSnackError(message, retryAction);
             }
         });
     }
 
     public void shareLink(final int position) {
-        Log.v(LOG_TAG, "shareLink() called with: " + "position = [" + position + "]");
+        Timber.v("shareLink() called with: " + "position = [" + position + "]");
         Link link = mLinksAdapter.getLink(position);
         if (link == null) {
             showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
@@ -559,13 +559,12 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     public void showLinkCategory(final int position, final boolean isTapAction) {
-        Log.v(LOG_TAG,
-                "showLinkCategory() called with: "
-                        + "position = ["
-                        + position
-                        + "], isTapAction = ["
-                        + isTapAction
-                        + "]");
+        Timber.v("showLinkCategory() called with: "
+                + "position = ["
+                + position
+                + "], isTapAction = ["
+                + isTapAction
+                + "]");
         if (isTapAction && !mPreferences.isTapCategoryToBrowse()) {
             // User has tap category to browse disabled, this is a tap so do nothing
             return;
@@ -586,7 +585,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void adapterSetup() {
-        Log.v(LOG_TAG, "adapterSetup()");
+        Timber.v("adapterSetup()");
         if (mLinksAdapter == null) {
             showAllLinks();
         }
@@ -603,10 +602,10 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void archiveLink(final int position) {
-        Log.v(LOG_TAG, "archiveLink() called with: " + "position = [" + position + "]");
+        Timber.v("archiveLink() called with: " + "position = [" + position + "]");
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
-            Log.e(LOG_TAG, "archiveLink: Link instance was null before making archive API call");
+            Timber.e("archiveLink: Link instance was null before making archive API call");
             showSnackError("Could not archive link, please refresh", getRefreshSnackAction());
             return;
         }
@@ -615,16 +614,15 @@ public class LinksListActivity extends BaseLinkActivity
         final String successMessage = "Archived " + title;
         final String errorMessage = "Error archiving " + title;
 
-        Log.i(LOG_TAG, "archiveLink: Trying to archive link: " + link);
+        Timber.i("archiveLink: Trying to archive link: " + link);
         Call<Void> archiveCall = mLinkService.archiveLink(link.getLinkId());
         archiveCall.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                Log.v(LOG_TAG,
-                        "archiveLink: onResponse() called with: "
-                                + "response = ["
-                                + response
-                                + "]");
+                Timber.v("archiveLink: onResponse() called with: "
+                        + "response = ["
+                        + response
+                        + "]");
                 if (response.isSuccessful()) {
                     if (mRecyclerView == null) return;
                     showSnackSuccess(successMessage);
@@ -637,26 +635,25 @@ public class LinksListActivity extends BaseLinkActivity
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(LOG_TAG, "archiveLink: onFailure: " + errorMessage, t);
+                Timber.e(t, "archiveLink: onFailure: " + errorMessage, t);
                 errorResponseHandler(null, errorMessage, position);
             }
         });
     }
 
     private void closeDrawer() {
-        Log.v(LOG_TAG, "closeDrawer()");
+        Timber.v("closeDrawer()");
         if (mDrawerLayout == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private void confirmExit() {
-        Log.v(LOG_TAG, "confirmExit()");
+        Timber.v("confirmExit()");
         DialogInterface.OnClickListener positiveClickListener =
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Log.i(LOG_TAG,
-                                "confirmExit onClick: User requested exit, finishing Activity");
+                        Timber.i("confirmExit onClick: User requested exit, finishing Activity");
                         finish();
                     }
                 };
@@ -669,13 +666,12 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void errorResponseHandler(Response<Void> response, String errorMessage, int position) {
-        Log.v(LOG_TAG,
-                "errorResponseHandler() called with: "
-                        + "response = ["
-                        + response
-                        + "], errorMessage = ["
-                        + errorMessage
-                        + "]");
+        Timber.v("errorResponseHandler() called with: "
+                + "response = ["
+                + response
+                + "], errorMessage = ["
+                + errorMessage
+                + "]");
         // Restore the item in the UI
         mLinksAdapter.notifyItemChanged(position);
         if (!handleHttpResponseError(response)) {
@@ -684,19 +680,19 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void getList() {
-        Log.v(LOG_TAG, "getList()");
+        Timber.v("getList()");
         mSwipeRefreshLayout.setRefreshing(true);
         Call<List<Link>> call = mLinkService.getLinks();
         call.enqueue(new Callback<List<Link>>() {
             @Override
             public void onResponse(Call<List<Link>> call, Response<List<Link>> response) {
-                Log.v(LOG_TAG, "getLinks: onResponse: " + ResponseUtils.httpCodeString(response));
+                Timber.v("getLinks: onResponse: " + ResponseUtils.httpCodeString(response));
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (!response.isSuccessful()) {
                     String message =
                             "Invalid response returned by server: " + ResponseUtils.httpCodeString(
                                     response);
-                    Log.e(LOG_TAG, "getLinks: onResponse: " + message);
+                    Timber.e("getLinks: onResponse: " + message);
                     if (!handleHttpResponseError(response)) {
                         showSnackError(message, retryGetLinksAction());
                     }
@@ -707,7 +703,7 @@ public class LinksListActivity extends BaseLinkActivity
                 List<Link> downloadedLinks = response.body();
                 if (downloadedLinks == null) {
                     String message = "No links returned by server";
-                    Log.e(LOG_TAG, "getLinks: onResponse: " + message);
+                    Timber.e("getLinks: onResponse: " + message);
                     showSnackError(message, retryGetLinksAction());
                     return;
                 }
@@ -720,16 +716,16 @@ public class LinksListActivity extends BaseLinkActivity
                 String message = String.format("Downloaded %d %s",
                         mLinkStorage.getLinksCount(),
                         mLinkStorage.getLinksCount() == 1 ? "link" : "links");
-                Log.i(LOG_TAG, "getLinks: onResponse: " + message);
+                Timber.i("getLinks: onResponse: " + message);
                 showSnackSuccess(message);
             }
 
             @Override
             public void onFailure(Call<List<Link>> call, Throwable t) {
-                Log.e(LOG_TAG, "getLinks: onFailure() called with: " + "t = [" + t + "]");
+                Timber.e("getLinks: onFailure() called with: " + "t = [" + t + "]");
                 String errorMessage =
                         "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
-                Log.e(LOG_TAG, errorMessage);
+                Timber.e(t, errorMessage);
                 showSnackError(errorMessage, false);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -737,7 +733,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void getListIfUpdatedOnServer() {
-        Log.v(LOG_TAG, "getListIfUpdatedOnServer()");
+        Timber.v("getListIfUpdatedOnServer()");
         getUserInfo();
     }
 
@@ -751,19 +747,18 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void getUserInfo() {
-        Log.v(LOG_TAG, "getUserInfo()");
+        Timber.v("getUserInfo()");
         Call<UserInfoResponse> call = mLinkService.getUserInfo();
         final String errorMessage = "Error getting user info";
         call.enqueue(new Callback<UserInfoResponse>() {
             @Override
             public void onResponse(
                     Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
-                Log.v(LOG_TAG,
-                        "getUserInfo: onResponse: " + ResponseUtils.httpCodeString(response));
+                Timber.v("getUserInfo: onResponse: " + ResponseUtils.httpCodeString(response));
                 mSwipeRefreshLayout.setRefreshing(false);
                 UserInfoResponse userInfoResponse = response.body();
                 if (!response.isSuccessful() || userInfoResponse == null) {
-                    Log.e(LOG_TAG, "getUserInfo: onResponse: Non-successful response from server");
+                    Timber.e("getUserInfo: onResponse: Non-successful response from server");
 
                     if (!handleHttpResponseError(response)) {
                         showSnackError(errorMessage, false);
@@ -771,24 +766,23 @@ public class LinksListActivity extends BaseLinkActivity
                     adapterSetup();
                     return;
                 }
-                Log.d(LOG_TAG, "getUserInfo: onResponse: " + userInfoResponse);
+                Timber.d("getUserInfo: onResponse: " + userInfoResponse);
                 long serverTimestamp = userInfoResponse.getLastUpdateTimestamp();
                 long localTimestamp = mPreferences.getLastUpdateTimestamp();
                 boolean needsUpdate = localTimestamp < serverTimestamp;
                 if (needsUpdate) {
-                    Log.i(LOG_TAG,
-                            "onResponse: onResponse: Data on server is newer, updating locally");
+                    Timber.i("onResponse: onResponse: Data on server is newer, updating locally");
                     mPreferences.setLastUpdateTimestamp(userInfoResponse.getLastUpdateTimestamp());
                     getList();
                 } else {
-                    Log.i(LOG_TAG, "onResponse: onResponse: Local data is up to date");
+                    Timber.i("onResponse: onResponse: Local data is up to date");
                     adapterSetup();
                 }
             }
 
             @Override
             public void onFailure(Call<UserInfoResponse> call, Throwable t) {
-                Log.e(LOG_TAG, "getUserInfo: onFailure: " + errorMessage, t);
+                Timber.e(t, "getUserInfo: onFailure: " + errorMessage);
                 String errorMessage =
                         "getUserInfo: onFailure: Error during call: " + t.getLocalizedMessage();
                 mSwipeRefreshLayout.setRefreshing(false);
@@ -799,7 +793,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private boolean handleHttpResponseError(Response response) {
-        Log.v(LOG_TAG, "handleHttpResponseError() called with: " + "response = [" + response + "]");
+        Timber.v("handleHttpResponseError() called with: " + "response = [" + response + "]");
         if (response == null) return false;
         ResponseBody errorBody = response.errorBody();
         if (errorBody == null) return false;
@@ -822,13 +816,13 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void handleSearch(String query) {
-        Log.v(LOG_TAG, "handleSearch() called with: " + "query = [" + query + "]");
+        Timber.v("handleSearch() called with: " + "query = [" + query + "]");
         mSearchTerm = query;
         // Keep track of the current filter mode to update the UI if it changes
         int lastFilterMode = mFilterMode;
 
         if (!mSearchTerm.isEmpty()) {
-            Log.v(LOG_TAG, "handleSearch: Searching for mSearchTerm = [" + mSearchTerm + "]");
+            Timber.v("handleSearch: Searching for mSearchTerm = [" + mSearchTerm + "]");
             if (mFilterMode != LinkStorage.FILTER_SEARCH) {
                 // mPreviousFilterMode keeps track of the pre-search filter mode to make restoring
                 // that mode easy during onResume(), etc
@@ -837,7 +831,7 @@ public class LinksListActivity extends BaseLinkActivity
             mFilterMode = LinkStorage.FILTER_SEARCH;
             showSearchResultLinks(mSearchTerm);
         } else {
-            Log.v(LOG_TAG, "handleSearch: Restoring previous view state");
+            Timber.v("handleSearch: Restoring previous view state");
             mFilterMode = mPreviousFilterMode;
         }
 
@@ -877,7 +871,7 @@ public class LinksListActivity extends BaseLinkActivity
      * (All, Archived, etc.)
      */
     private void performUiUpdate() {
-        Log.v(LOG_TAG, "performUiUpdate()");
+        Timber.v("performUiUpdate()");
         boolean skipShowAllLinks = false; // Call showAllLinks() after setting the filter mode
         switch (mFilterMode) {
             case LinkStorage.FILTER_SEARCH:
@@ -901,7 +895,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void populateDrawerCategories() {
-        Log.v(LOG_TAG, "populateDrawerCategories()");
+        Timber.v("populateDrawerCategories()");
         if (mLinkStorage == null) return;
         Set<String> categories = mLinkStorage.getCategories();
         if (categories.size() > 0) {
@@ -939,7 +933,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void showCategoryLinks(String category) {
-        Log.v(LOG_TAG, "showCategoryLinks() called with: " + "category = [" + category + "]");
+        Timber.v("showCategoryLinks() called with: " + "category = [" + category + "]");
         String searchTerm = category;
         if (category.equalsIgnoreCase(getString(R.string.category_uncategorized))) {
             searchTerm = "";
@@ -949,7 +943,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void showNavAccountMenu(final boolean show) {
-        Log.v(LOG_TAG, "showNavAccountMenu() called with: " + "show = [" + show + "]");
+        Timber.v("showNavAccountMenu() called with: " + "show = [" + show + "]");
         if (mNavigationView == null) return;
         Menu menu = mNavigationView.getMenu();
         if (menu == null) return;
@@ -957,23 +951,21 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void showSearchResultLinks(String searchTerm) {
-        Log.v(LOG_TAG,
-                "showSearchResultLinks() called with: " + "searchTerm = [" + searchTerm + "]");
+        Timber.v("showSearchResultLinks() called with: " + "searchTerm = [" + searchTerm + "]");
         mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByString(searchTerm, mSortMode));
         updateUiAfterAdapterChange();
     }
 
     private void touchHelperSetup() {
-        Log.v(LOG_TAG, "touchHelperSetup()");
+        Timber.v("touchHelperSetup()");
         ItemTouchHelperCallback callback =
                 new ItemTouchHelperCallback(new ItemSwipedRightCallback() {
                     @Override
                     public void swipeCallback(RecyclerView.ViewHolder viewHolder) {
-                        Log.v(LOG_TAG,
-                                "swipeCallback() called with: "
-                                        + "viewHolder = ["
-                                        + viewHolder
-                                        + "]");
+                        Timber.v("swipeCallback() called with: "
+                                + "viewHolder = ["
+                                + viewHolder
+                                + "]");
                         archiveLink(viewHolder.getAdapterPosition());
                     }
                 });
@@ -982,7 +974,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void updateToolbarScrollBehavior() {
-        Log.v(LOG_TAG, "updateToolbarScrollBehavior()");
+        Timber.v("updateToolbarScrollBehavior()");
         if (mToolbar == null) return;
         AppBarLayout.LayoutParams toolbarParams =
                 (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
@@ -998,15 +990,14 @@ public class LinksListActivity extends BaseLinkActivity
                     | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
         }
 
-        Log.v(LOG_TAG,
-                "updateToolbarScrollBehavior: toolbar scroll flags = ["
-                        + toolbarParams.getScrollFlags()
-                        + "]");
+        Timber.v("updateToolbarScrollBehavior: toolbar scroll flags = ["
+                + toolbarParams.getScrollFlags()
+                + "]");
 
         if (oldHideToolbarOnScroll != mHideToolbarOnScroll) {
             // The user changed the hide preference, recreate the activity to make the new scroll
             // behavior apply
-            Log.d(LOG_TAG, "updateToolbarScrollBehavior: Hide preference changed, recreating");
+            Timber.d("updateToolbarScrollBehavior: Hide preference changed, recreating");
             recreate();
         }
     }
@@ -1055,15 +1046,14 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         title = String.format(format, title, mLinksAdapter.getItemCount());
-        Log.i(LOG_TAG,
-                "updateToolbarTitle() called with: "
-                        + "title = ["
-                        + title
-                        + "], subtitle = ["
-                        + subtitle
-                        + "], format = ["
-                        + format
-                        + "]");
+        Timber.i("updateToolbarTitle() called with: "
+                + "title = ["
+                + title
+                + "], subtitle = ["
+                + subtitle
+                + "], format = ["
+                + format
+                + "]");
         setToolbarTitle(title, subtitle);
     }
 
@@ -1088,34 +1078,33 @@ public class LinksListActivity extends BaseLinkActivity
 
         @Override
         public void onSheetItemSelected(@NonNull BottomSheet bottomSheet, MenuItem menuItem) {
-            Log.v(LOG_TAG,
-                    "onSheetItemSelected() called with: "
-                            + "bottomSheet = ["
-                            + bottomSheet
-                            + "], menuItem = ["
-                            + menuItem
-                            + "]");
+            Timber.v("onSheetItemSelected() called with: "
+                    + "bottomSheet = ["
+                    + bottomSheet
+                    + "], menuItem = ["
+                    + menuItem
+                    + "]");
 
             int id = menuItem.getItemId();
             switch (id) {
                 case (R.id.link_edit):
-                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Edit");
+                    Timber.d("onOptionsItemSelected: Link Edit");
                     editLink(mLinkPosition);
                     break;
                 case (R.id.link_category):
-                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Category");
+                    Timber.d("onOptionsItemSelected: Link Category");
                     showLinkCategory(mLinkPosition, false);
                     break;
                 case (R.id.link_share):
-                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Share");
+                    Timber.d("onOptionsItemSelected: Link Share");
                     shareLink(mLinkPosition);
                     break;
                 case (R.id.link_copy):
-                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Copy");
+                    Timber.d("onOptionsItemSelected: Link Copy");
                     copyLink(mLinkPosition);
                     break;
                 case (R.id.link_delete):
-                    Log.d(LOG_TAG, "onOptionsItemSelected: Link Delete");
+                    Timber.d("onOptionsItemSelected: Link Delete");
                     deleteLink(mLinkPosition);
                     break;
                 default:

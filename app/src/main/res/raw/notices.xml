@@ -50,6 +50,12 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
+        <name>Timber</name>
+        <url>https://github.com/JakeWharton/timber</url>
+        <copyright>Copyright 2013 Jake Wharton</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
         <name>OkHttp</name>
         <url>https://square.github.io/okhttp/</url>
         <copyright>Copyright 2016 Square, Inc.</copyright>
@@ -72,5 +78,11 @@
         <url>https://github.com/Gericop/Android-Support-Preference-V7-Fix</url>
         <copyright>Public Domain</copyright>
         <license>The Unlicense</license>
+    </notice>
+    <notice>
+        <name>realm-android-adapters</name>
+        <url>https://github.com/realm/realm-android-adapters</url>
+        <copyright>Copyright 2016 Realm Inc.</copyright>
+        <license>Apache Software License 2.0</license>
     </notice>
 </notices>
