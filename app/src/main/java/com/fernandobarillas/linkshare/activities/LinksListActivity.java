@@ -62,9 +62,6 @@ public class LinksListActivity extends BaseLinkActivity
         implements RealmChangeListener<RealmResults<Link>>,
         NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
 
-    /** An invalid position for a Link within an Adapter */
-    public static final int INVALID_LINK_POSITION = -1;
-
     private static final int EDIT_LINK_REQUEST     = 1;// Request code for EditLinkActivity
     private static final int CATEGORIES_MENU_GROUP = 2; // Menu Group ID to use for link categories
 
@@ -425,9 +422,6 @@ public class LinksListActivity extends BaseLinkActivity
                     if (mRecyclerView == null) return;
                     showSnackSuccess(successMessage);
                     if (mLinkStorage != null) mLinkStorage.remove(link);
-                    if (mLinksAdapter != null) {
-                        mLinksAdapter.notifyItemRemoved(position);
-                    }
                     return;
                 }
 
@@ -539,13 +533,6 @@ public class LinksListActivity extends BaseLinkActivity
                 if (response.isSuccessful()) {
                     Log.d(LOG_TAG, "setFavorite onResponse: Successful");
                     if (mLinkStorage != null) mLinkStorage.setFavorite(link, isFavorite);
-                    if (mLinksAdapter != null) {
-                        if (mFilterMode == LinkStorage.FILTER_FAVORITES && !isFavorite) {
-                            mLinksAdapter.notifyItemRemoved(position);
-                        } else {
-                            mLinksAdapter.notifyItemChanged(position);
-                        }
-                    }
                 } else {
                     if (!handleHttpResponseError(response)) {
                         showSnackError(errorMessage, retryAction);
