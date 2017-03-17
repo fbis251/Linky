@@ -28,3 +28,6 @@
 -dontwarn java.lang.invoke.**
 -keep class org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# This is an open source app, don't need obfuscation
+-dontobfuscate
