@@ -27,6 +27,11 @@
                 android:title="HTTP Proxy Port"/>
 
         <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="@bool/preference_use_logcat_line_numbers_default"
+                android:key="@string/preference_use_logcat_line_numbers_key"
+                android:title="Use Log Line Numbers"/>
+
+        <android.support.v7.preference.SwitchPreferenceCompat
                 android:defaultValue="@bool/preference_log_http_calls_default"
                 android:key="@string/preference_log_http_calls_key"
                 android:title="Log HTTP Calls"/>

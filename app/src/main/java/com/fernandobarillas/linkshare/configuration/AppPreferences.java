@@ -29,6 +29,7 @@ public class AppPreferences {
     private static String sKeyUseHttpProxy;
     private static String sKeyHttpProxyAddress;
     private static String sKeyHttpProxyPort;
+    private static String sKeyUseLogcatLineNumbers;
     private static String sKeyLogHttpCalls;
 
     private static boolean sDefaultConfirmExitOnBackPress;
@@ -37,6 +38,7 @@ public class AppPreferences {
     private static boolean sDefaultUseHttpProxy;
     private static String  sDefaultHttpProxyAddress;
     private static String  sDefaultHttpProxyPort;
+    private static boolean sDefaultUseLogcatLineNumbers;
     private static boolean sDefaultLogHttpCalls;
 
     private SharedPreferences mPreferences;
@@ -54,6 +56,8 @@ public class AppPreferences {
         sKeyUseHttpProxy = context.getString(R.string.preference_use_http_proxy_key);
         sKeyHttpProxyAddress = context.getString(R.string.preference_http_proxy_address_key);
         sKeyHttpProxyPort = context.getString(R.string.preference_http_proxy_port_key);
+        sKeyUseLogcatLineNumbers =
+                context.getString(R.string.preference_use_logcat_line_numbers_key);
         sKeyLogHttpCalls = context.getString(R.string.preference_log_http_calls_key);
 
         // Get default preference values
@@ -69,6 +73,8 @@ public class AppPreferences {
                     resources.getString(R.string.preference_http_proxy_address_default);
             sDefaultHttpProxyPort =
                     resources.getString(R.string.preference_http_proxy_port_default);
+            sDefaultUseLogcatLineNumbers =
+                    resources.getBoolean(R.bool.preference_use_logcat_line_numbers_default);
             sDefaultLogHttpCalls = resources.getBoolean(R.bool.preference_log_http_calls_default);
         }
     }
@@ -148,5 +154,9 @@ public class AppPreferences {
 
     public boolean isUseHttpProxy() {
         return mPreferences.getBoolean(sKeyUseHttpProxy, sDefaultUseHttpProxy);
+    }
+
+    public boolean isUseLogcatLineNumbers() {
+        return mPreferences.getBoolean(sKeyUseLogcatLineNumbers, sDefaultUseLogcatLineNumbers);
     }
 }

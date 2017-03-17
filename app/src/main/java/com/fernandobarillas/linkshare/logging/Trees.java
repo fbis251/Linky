@@ -10,10 +10,20 @@ import timber.log.Timber;
 
 public class Trees {
     public static class DebugTree extends Timber.DebugTree {
+        private boolean mIsUseLogcatLineNumbers;
+
+        public DebugTree(boolean isUseLogcatLineNumbers) {
+            mIsUseLogcatLineNumbers = isUseLogcatLineNumbers;
+        }
+
         @Override
         protected String createStackElementTag(StackTraceElement element) {
-            // Use filename and line numbers in logging output
-            return "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
+            if (mIsUseLogcatLineNumbers) {
+                // Use filename and line numbers in logging output
+                return "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
+            } else {
+                return super.createStackElementTag(element);
+            }
         }
     }
 

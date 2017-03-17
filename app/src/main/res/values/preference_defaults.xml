@@ -10,6 +10,7 @@
     <bool name="preference_use_http_proxy_default">false</bool>
     <string name="preference_http_proxy_address_default">proxy.lan</string>
     <string name="preference_http_proxy_port_default">8080</string>
+    <bool name="preference_use_logcat_line_numbers_default">false</bool>
     <bool name="preference_log_http_calls_default">false</bool>
 
 </resources>

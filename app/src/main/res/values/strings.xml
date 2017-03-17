@@ -122,6 +122,7 @@
     <string name="preference_use_http_proxy_key">pref_use_http_proxy</string>
     <string name="preference_http_proxy_address_key">pref_http_proxy_address</string>
     <string name="preference_http_proxy_port_key">pref_http_proxy_port</string>
+    <string name="preference_use_logcat_line_numbers_key">pref_use_logcat_line_numbers</string>
     <string name="preference_log_http_calls_key">pref_log_http_calls</string>
 
     <!-- Information -->
