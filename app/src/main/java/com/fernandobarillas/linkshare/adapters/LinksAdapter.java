@@ -111,7 +111,7 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
 
         private void setFavorite(final boolean isFavorite) {
             Timber.v("setFavorite() called with: " + "isFavorite = [" + isFavorite + "]");
-            if (mActivity != null) mActivity.setFavorite(getPosition(), isFavorite);
+            if (mActivity != null) mActivity.setLinkFavorite(getPosition(), isFavorite);
         }
     }
 

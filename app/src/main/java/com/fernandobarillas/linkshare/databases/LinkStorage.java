@@ -149,6 +149,7 @@ public class LinkStorage {
 
     public void remove(final Link link) {
         Timber.v("remove() called with: " + "link = [" + link + "]");
+        if(link == null) return;
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {

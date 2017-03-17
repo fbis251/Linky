@@ -13,12 +13,15 @@
 
     <!-- Common Strings -->
     <string name="address">Address</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
     <string name="archived">Archived</string>
     <string name="category">Category</string>
     <string name="copy">Copy</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="favorite">Favorite</string>
+    <string name="unfavorite">Unfavorite</string>
     <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
     <string name="search">Search</string>
@@ -56,6 +59,9 @@
     <string name="confirm_exit_message">Are you sure you want to exit?</string>
     <string name="confirm_exit_button_positive">Yes</string>
     <string name="confirm_exit_button_negative">No</string>
+    <string name="link_update_success">%1$s Success: %2$s</string>
+    <string name="link_update_error">%1$s Error: %2$s</string>
+    <string name="link_update_error_refresh">Error updating link, please refresh</string>
 
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>

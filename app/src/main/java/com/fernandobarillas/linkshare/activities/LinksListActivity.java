@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.NavigationView;
@@ -47,6 +48,8 @@ import com.google.gson.JsonParseException;
 import com.kennyc.bottomsheet.BottomSheet;
 import com.kennyc.bottomsheet.BottomSheetListener;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Set;
 
@@ -74,6 +77,11 @@ public class LinksListActivity extends BaseLinkActivity
     private static final String STATE_FILTER_MODE          = "filterMode";
     private static final String STATE_PREVIOUS_FILTER_MODE = "previousFilterMode";
     private static final String STATE_SORT_MODE            = "sortMode";
+
+    // Link Update actions
+    private static final int UPDATE_ARCHIVE  = 0;
+    private static final int UPDATE_DELETE   = 1;
+    private static final int UPDATE_FAVORITE = 2;
 
     // Toolbar behavior
     private static final int TOOLBAR_SCROLL_FLAG_RESET = 0;
@@ -386,7 +394,7 @@ public class LinksListActivity extends BaseLinkActivity
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
             Timber.e("copyUrl: Link instance was null before copying URL");
-            showSnackError("Could not copy link URL, please refresh", getRefreshSnackAction());
+            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
             return;
         }
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -400,44 +408,11 @@ public class LinksListActivity extends BaseLinkActivity
         final Link link = mLinksAdapter.getLink(position);
         if (link == null) {
             Timber.e("deleteLink: Link instance was null before making delete API call");
-            showSnackError("Could not delete link, please refresh", getRefreshSnackAction());
+            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
             return;
         }
-
-        // TODO: maybe add confirmation popup or some UI confirmation element?
-        final String title = link.getTitle();
-        final String successMessage = "Deleted " + title;
-        final String errorMessage = "Error deleting " + title;
-
-        Timber.i("deleteLink: Trying to remove link: " + link);
         Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
-        deleteCall.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                Timber.v("deleteLink: onResponse() called with: "
-                        + "response = ["
-                        + response
-                        + "]");
-                if (response.isSuccessful()) {
-                    if (mRecyclerView == null) return;
-                    showSnackSuccess(successMessage);
-                    if (mLinkStorage != null) mLinkStorage.remove(link);
-                    return;
-                }
-
-                Timber.e("deleteLink: onResponse: " + errorMessage);
-                Timber.e(String.format("deleteLink: onResponse: %d %s",
-                        response.code(),
-                        response.message()));
-                errorResponseHandler(response, errorMessage, position);
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Timber.e(t, "deleteLink: onFailure: " + errorMessage);
-                errorResponseHandler(null, errorMessage, position);
-            }
-        });
+        deleteCall.enqueue(new LinkUpdateCallback(link, UPDATE_DELETE, false, position));
     }
 
     public void displayBottomSheet(final int position) {
@@ -480,72 +455,22 @@ public class LinksListActivity extends BaseLinkActivity
         openUrlExternally(url);
     }
 
-    public void setFavorite(final int position, final boolean isFavorite) {
-        Timber.v("setFavorite() called with: "
+    public void setLinkFavorite(final int position, final boolean isFavorite) {
+        Timber.v("setLinkFavorite() called with: "
                 + "position = ["
                 + position
                 + "], isFavorite = ["
                 + isFavorite
                 + "]");
         final Link link = mLinksAdapter.getLink(position);
-        Timber.i("setFavorite: Link: " + link);
         if (link == null) {
             Timber.e("openLink: Null Link when attempting to favorite position " + position);
             showSnackError(getString(R.string.error_link_favorite), false);
             return;
         }
-
-        // TODO: Extract strings
-        final String errorMessage = String.format("API Error %s favorite: %s",
-                isFavorite ? "adding" : "removing",
-                link.getTitle());
-
-        final Snacks.Action retryAction =
-                new Snacks.Action(R.string.retry, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Timber.v("setFavorite retryAction onClick() called with: "
-                                + "view = ["
-                                + view
-                                + "]");
-                        setFavorite(position, isFavorite);
-                    }
-                });
-
-        Call<Void> call = mLinkService.favoriteLink(link.getLinkId());
-        if (!isFavorite) {
-            call = mLinkService.unfavoriteLink(link.getLinkId());
-        }
-
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                Timber.v("setFavorite onResponse() called with: "
-                        + "call = ["
-                        + call
-                        + "], response = ["
-                        + response
-                        + "]");
-                if (response.isSuccessful()) {
-                    Timber.d("setFavorite onResponse: Successful");
-                    if (mLinkStorage != null) mLinkStorage.setFavorite(link, isFavorite);
-                } else {
-                    if (!handleHttpResponseError(response)) {
-                        showSnackError(errorMessage, retryAction);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                String message = errorMessage;
-                if (t != null) {
-                    message += " " + t.getLocalizedMessage();
-                }
-                Timber.e(t, "setFavorite: onFailure: " + message);
-                showSnackError(message, retryAction);
-            }
-        });
+        Call<Void> favoriteCall = isFavorite ? mLinkService.favoriteLink(link.getLinkId())
+                : mLinkService.unfavoriteLink(link.getLinkId());
+        favoriteCall.enqueue(new LinkUpdateCallback(link, UPDATE_FAVORITE, isFavorite, position));
     }
 
     public void shareLink(final int position) {
@@ -599,46 +524,6 @@ public class LinksListActivity extends BaseLinkActivity
             links.removeChangeListener(this);
             links.addChangeListener(this);
         }
-    }
-
-    private void archiveLink(final int position) {
-        Timber.v("archiveLink() called with: " + "position = [" + position + "]");
-        final Link link = mLinksAdapter.getLink(position);
-        if (link == null) {
-            Timber.e("archiveLink: Link instance was null before making archive API call");
-            showSnackError("Could not archive link, please refresh", getRefreshSnackAction());
-            return;
-        }
-
-        final String title = link.getTitle();
-        final String successMessage = "Archived " + title;
-        final String errorMessage = "Error archiving " + title;
-
-        Timber.i("archiveLink: Trying to archive link: " + link);
-        Call<Void> archiveCall = mLinkService.archiveLink(link.getLinkId());
-        archiveCall.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                Timber.v("archiveLink: onResponse() called with: "
-                        + "response = ["
-                        + response
-                        + "]");
-                if (response.isSuccessful()) {
-                    if (mRecyclerView == null) return;
-                    showSnackSuccess(successMessage);
-                    if (mLinkStorage != null) mLinkStorage.setArchived(link, true);
-                    return;
-                }
-
-                errorResponseHandler(response, errorMessage, position);
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Timber.e(t, "archiveLink: onFailure: " + errorMessage, t);
-                errorResponseHandler(null, errorMessage, position);
-            }
-        });
     }
 
     private void closeDrawer() {
@@ -927,6 +812,24 @@ public class LinksListActivity extends BaseLinkActivity
         });
     }
 
+    private void setLinkArchived(final int position, final boolean isArchived) {
+        Timber.v("setLinkArchived() called with: "
+                + "position = ["
+                + position
+                + "], isArchived = ["
+                + isArchived
+                + "]");
+        final Link link = mLinksAdapter.getLink(position);
+        if (link == null) {
+            Timber.e("setLinkArchived: Link instance was null before making archive API call");
+            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
+            return;
+        }
+        Call<Void> archiveCall = isArchived ? mLinkService.archiveLink(link.getLinkId())
+                : mLinkService.unarchiveLink(link.getLinkId());
+        archiveCall.enqueue(new LinkUpdateCallback(link, UPDATE_ARCHIVE, isArchived, position));
+    }
+
     private void showAllLinks() {
         mLinksAdapter = new LinksAdapter(this, mLinkStorage.getAllLinks(mFilterMode, mSortMode));
         updateUiAfterAdapterChange();
@@ -966,7 +869,7 @@ public class LinksListActivity extends BaseLinkActivity
                                 + "viewHolder = ["
                                 + viewHolder
                                 + "]");
-                        archiveLink(viewHolder.getAdapterPosition());
+                        setLinkArchived(viewHolder.getAdapterPosition(), true);
                     }
                 });
         ItemTouchHelper simpleItemTouchHelper = new ItemTouchHelper(callback);
@@ -1065,6 +968,12 @@ public class LinksListActivity extends BaseLinkActivity
         addLinksChangeListener();
     }
 
+    // Link Update actions
+    @IntDef({UPDATE_ARCHIVE, UPDATE_DELETE, UPDATE_FAVORITE})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface UpdateType {
+    }
+
     private class BottomSheetLinkMenuListener implements BottomSheetListener {
         private int mLinkPosition;
 
@@ -1155,6 +1064,93 @@ public class LinksListActivity extends BaseLinkActivity
             }
 
             outRect.top = mDivider.getIntrinsicHeight();
+        }
+    }
+
+    private class LinkUpdateCallback implements Callback<Void> {
+        private Link    mLink;
+        @UpdateType
+        private int     mUpdateType;
+        private boolean mNewIsArchivedOrFavoriteValue;
+        private String  mSuccessMessage;
+        private String  mErrorMessage;
+        private int     mPosition;
+        private String  mUpdateAction;
+
+        private LinkUpdateCallback(
+                final Link link,
+                final @UpdateType int updateType,
+                final boolean newIsArchivedOrFavoriteValue,
+                final int position) {
+            mLink = link;
+            mUpdateType = updateType;
+            mNewIsArchivedOrFavoriteValue = newIsArchivedOrFavoriteValue;
+            mPosition = position;
+
+            mUpdateAction = "";
+            switch (mUpdateType) {
+                case UPDATE_ARCHIVE:
+                    mUpdateAction = mNewIsArchivedOrFavoriteValue ? getString(R.string.archive)
+                            : getString(R.string.unarchive);
+                    break;
+                case UPDATE_DELETE:
+                    mUpdateAction = getString(R.string.delete);
+                    break;
+                case UPDATE_FAVORITE:
+                    mUpdateAction = mNewIsArchivedOrFavoriteValue ? getString(R.string.favorite)
+                            : getString(R.string.unfavorite);
+                    break;
+            }
+
+            String title = link != null ? link.getTitle() : "";
+            mSuccessMessage = getString(R.string.link_update_success, mUpdateAction, title);
+            mErrorMessage = getString(R.string.link_update_error, mUpdateAction, title);
+
+            Timber.i("LinkUpdateCallback: Trying to %s: %s", mUpdateAction, title);
+        }
+
+        @Override
+        public void onResponse(Call<Void> call, Response<Void> response) {
+            Timber.v(mUpdateAction
+                    + " onResponse() called with: "
+                    + "call = ["
+                    + call
+                    + "], response = ["
+                    + response
+                    + "]");
+            if (response.isSuccessful()) {
+                if (mLinkStorage == null) return;
+                switch (mUpdateType) {
+                    case UPDATE_ARCHIVE:
+                        mLinkStorage.setArchived(mLink, mNewIsArchivedOrFavoriteValue);
+                        break;
+                    case UPDATE_DELETE:
+                        mLinkStorage.remove(mLink);
+                        break;
+                    case UPDATE_FAVORITE:
+                        mLinkStorage.setFavorite(mLink, mNewIsArchivedOrFavoriteValue);
+                        break;
+                }
+                showSnackSuccess(mSuccessMessage);
+            } else {
+                String logMessage = String.format("%s onResponse: %d %s",
+                        mUpdateAction,
+                        response.code(),
+                        response.message());
+                Timber.e(logMessage);
+                errorResponseHandler(response, mErrorMessage, mPosition);
+            }
+        }
+
+        @Override
+        public void onFailure(Call<Void> call, Throwable t) {
+            Timber.e(t, "%s onFailure", mUpdateAction);
+            if (t != null) {
+                mErrorMessage = getString(R.string.link_update_error,
+                        mUpdateAction,
+                        t.getLocalizedMessage());
+            }
+            errorResponseHandler(null, mErrorMessage, mPosition);
         }
     }
 }
