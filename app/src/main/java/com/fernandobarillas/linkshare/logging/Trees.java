@@ -9,10 +9,16 @@ import timber.log.Timber;
  */
 
 public class Trees {
+    private static boolean isLowerThanWarning(int priority) {
+        return (priority < Log.WARN);
+    }
+
     public static class DebugTree extends Timber.DebugTree {
+        private boolean mIsLogErrorsOnly;
         private boolean mIsUseLogcatLineNumbers;
 
-        public DebugTree(boolean isUseLogcatLineNumbers) {
+        public DebugTree(boolean isLogErrorsOnly, boolean isUseLogcatLineNumbers) {
+            mIsLogErrorsOnly = isLogErrorsOnly;
             mIsUseLogcatLineNumbers = isUseLogcatLineNumbers;
         }
 
@@ -25,12 +31,18 @@ public class Trees {
                 return super.createStackElementTag(element);
             }
         }
+
+        @Override
+        protected void log(int priority, String tag, String message, Throwable t) {
+            if (mIsLogErrorsOnly && isLowerThanWarning(priority)) return;
+            super.log(priority, tag, message, t);
+        }
     }
 
     public static class ReleaseTree extends Timber.DebugTree {
         @Override
         protected void log(int priority, String tag, String message, Throwable t) {
-            if (priority == Log.VERBOSE || priority == Log.DEBUG || priority == Log.INFO) return;
+            if (isLowerThanWarning(priority)) return;
             super.log(priority, tag, message, t);
         }
     }

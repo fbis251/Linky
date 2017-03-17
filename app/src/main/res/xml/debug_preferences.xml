@@ -32,7 +32,14 @@
                 android:title="Use Log Line Numbers"/>
 
         <android.support.v7.preference.SwitchPreferenceCompat
+                android:defaultValue="@bool/preference_log_errors_only_default"
+                android:key="@string/preference_log_errors_only_key"
+                android:disableDependentsState="true"
+                android:title="Log Errors Only"/>
+
+        <android.support.v7.preference.SwitchPreferenceCompat
                 android:defaultValue="@bool/preference_log_http_calls_default"
+                android:dependency="@string/preference_log_errors_only_key"
                 android:key="@string/preference_log_http_calls_key"
                 android:title="Log HTTP Calls"/>
 

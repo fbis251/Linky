@@ -21,9 +21,14 @@ public class LinksApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        boolean isUseLogcatLineNumbers = getPreferences().isUseLogcatLineNumbers();
-        Timber.Tree tree = BuildConfig.DEBUG ? new Trees.DebugTree(isUseLogcatLineNumbers)
-                : new Trees.ReleaseTree();
+        Timber.Tree tree;
+        if (BuildConfig.DEBUG) {
+            boolean isLogErrorsOnly = getPreferences().isLogErrorsOnly();
+            boolean isUseLogcatLineNumbers = getPreferences().isUseLogcatLineNumbers();
+            tree = new Trees.DebugTree(isLogErrorsOnly, isUseLogcatLineNumbers);
+        } else {
+            tree = new Trees.ReleaseTree();
+        }
         Timber.plant(tree);
         Timber.v("onCreate()");
     }

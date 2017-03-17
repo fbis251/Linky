@@ -41,7 +41,7 @@ public class OkHttpClientUtil {
             }
         }
 
-        if (appPreferences.isLogHttpCalls()) {
+        if (!appPreferences.isLogErrorsOnly() && appPreferences.isLogHttpCalls()) {
             Timber.i("debugConfiguration: Logging all HTTP calls");
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
