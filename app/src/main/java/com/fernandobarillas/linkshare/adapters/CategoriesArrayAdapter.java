@@ -6,7 +6,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
 import com.fernandobarillas.linkshare.BuildConfig;
-import com.fernandobarillas.linkshare.LinksApp;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 
 import java.util.ArrayList;
@@ -14,19 +13,17 @@ import java.util.List;
 import java.util.Set;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import timber.log.Timber;
 
 /**
  * An ArrayAdapter that provides search results from Link categories
  */
 public class CategoriesArrayAdapter extends ArrayAdapter<String> {
-    private Filter             mFilter;
-    private RealmConfiguration mRealmConfiguration;
 
-    public CategoriesArrayAdapter(Context context, int resource, LinksApp linksApp) {
-        super(context, resource);
-        mRealmConfiguration = linksApp.getRealmConfiguration();
+    private Filter mFilter;
+
+    public CategoriesArrayAdapter(final Context context) {
+        super(context, android.R.layout.simple_dropdown_item_1line);
     }
 
     @NonNull
@@ -46,21 +43,22 @@ public class CategoriesArrayAdapter extends ArrayAdapter<String> {
             Timber.v("performFiltering() called with: " + "charSequence = [" + charSequence + "]");
             if (charSequence == null) return results;
             String searchString = charSequence.toString();
-
-            Realm mRealm;
-            LinkStorage mLinkStorage;
-            mRealm = Realm.getInstance(mRealmConfiguration);
-            mLinkStorage = new LinkStorage(mRealm);
-            Set<String> categoriesSet = mLinkStorage.findByCategoryString(searchString);
-            ArrayList<String> categoriesResults = new ArrayList<>(categoriesSet);
-            results.values = categoriesResults;
-            results.count = categoriesResults.size();
+            // Initialize a Realm instance here since this code is called from a different thread
+            // than the passed-in Context and Realm objects are only valid on the thread they were
+            // created on
+            Realm realm = Realm.getDefaultInstance();
+            LinkStorage linkStorage = new LinkStorage(realm);
+            Set<String> categoriesSet = linkStorage.findByCategoryString(searchString);
+            List<String> categories = new ArrayList<>(categoriesSet);
+            results.values = categories;
+            results.count = categories.size();
             if (BuildConfig.DEBUG) {
-                for (String result : categoriesResults) {
-                    Timber.v("performFiltering: result = [" + result + "]");
+                for (String category : categories) {
+                    Timber.v("performFiltering: category = [" + category + "]");
                 }
             }
-            mRealm.close();
+            // We're done with the realm instance, we can safely close
+            realm.close();
             Timber.d("performFiltering() returned: " + results);
             return results;
         }

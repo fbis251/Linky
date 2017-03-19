@@ -105,9 +105,7 @@ public class EditLinkActivity extends BaseLinkActivity {
         mTitleEditText.setFilters(noReturnsInputFilter);
         mCategoryEditText.setFilters(noReturnsInputFilter);
 
-        CategoriesArrayAdapter categoriesAdapter = new CategoriesArrayAdapter(this,
-                android.R.layout.simple_dropdown_item_1line,
-                mLinksApp);
+        CategoriesArrayAdapter categoriesAdapter = new CategoriesArrayAdapter(this);
         mCategoryEditText.setAdapter(categoriesAdapter);
     }
 
