@@ -12,10 +12,20 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 /**
- * Created by fb on 3/17/17.
+ * Provides utilities for manipulating OkHttp Clients and Builders
  */
-
 public class OkHttpClientUtil {
+
+    /**
+     * Adds debugging options to an OkHttpClient.Builder instance if a user has requested them
+     * through their Preferences and the Application is debuggable
+     *
+     * @param appPreferences      The user's preferences to get debug options from
+     * @param okHttpClientBuilder The builder to add debugging options to
+     * @return If the application is debuggable, a modified OkHttpClient.Builder instance with the
+     * debug options the user chose in their Preferences, otherwise it returns the instance
+     * unmodified
+     */
     public static OkHttpClient.Builder debugConfiguration(
             AppPreferences appPreferences, OkHttpClient.Builder okHttpClientBuilder) {
         Timber.v("debugConfiguration() called with: "
