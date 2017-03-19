@@ -66,6 +66,7 @@ public class EditLinkActivity extends BaseLinkActivity {
         if (mIntentLink == null) {
             Timber.e("onCreate: Intent Link was null, cannot edit Link");
             // Show UI error
+            showSnackError(getString(R.string.edit_link_error), false);
             finish();
             return;
         }
@@ -231,9 +232,9 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     public class EditLinkHandler {
-        private Link mOldLink;
+        private final Link mOldLink;
 
-        public EditLinkHandler(Link oldLink) {
+        private EditLinkHandler(Link oldLink) {
             Timber.v("EditLinkHandler() called with: " + "oldLink = [" + oldLink + "]");
             mOldLink = oldLink;
         }
@@ -263,8 +264,8 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     private class RestoreSwitchOnAttachListener implements View.OnAttachStateChangeListener {
-        private SwitchCompat mSwitchCompat;
-        private boolean      mIsChecked;
+        private final SwitchCompat mSwitchCompat;
+        private final boolean      mIsChecked;
 
         public RestoreSwitchOnAttachListener(SwitchCompat switchCompat, boolean isChecked) {
             Timber.v("RestoreSwitchOnAttachListener() called with: "
@@ -296,8 +297,8 @@ public class EditLinkActivity extends BaseLinkActivity {
     }
 
     private class RestoreTextOnAttachListener implements View.OnAttachStateChangeListener {
-        private EditText mEditText;
-        private String   mSavedString;
+        private final EditText mEditText;
+        private final String   mSavedString;
 
         private RestoreTextOnAttachListener(EditText editText, String savedString) {
             mEditText = editText;

@@ -393,32 +393,6 @@ public class LinksListActivity extends BaseLinkActivity
         super.onSaveInstanceState(outState);
     }
 
-    public void copyLink(final int position) {
-        Timber.v("copyUrl() called with: " + "position = [" + position + "]");
-        final Link link = getLink(position);
-        if (link == null) {
-            Timber.e("copyUrl: Link instance was null before copying URL");
-            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
-            return;
-        }
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(CLIPBOARD_LABEL, link.getUrl());
-        clipboard.setPrimaryClip(clipData);
-        showSnackSuccess("Copied URL: " + link.getUrl());
-    }
-
-    public void deleteLink(final int position) {
-        Timber.v("deleteLink() called with: " + "position = [" + position + "]");
-        final Link link = getLink(position);
-        if (link == null) {
-            Timber.e("deleteLink: Link instance was null before making delete API call");
-            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
-            return;
-        }
-        Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
-        deleteCall.enqueue(new LinkUpdateCallback(link, UPDATE_DELETE, false, position));
-    }
-
     public void displayBottomSheet(final int position) {
         Timber.v("displayBottomSheet() called with: " + "position = [" + position + "]");
         Link link = getLink(position);
@@ -427,17 +401,6 @@ public class LinksListActivity extends BaseLinkActivity
                 .setTitle(link.getTitle())
                 .setListener(new BottomSheetLinkMenuListener(position))
                 .show();
-    }
-
-    public void editLink(final int position) {
-        Link link = getLink(position);
-        if (link == null) {
-            showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
-            return;
-        }
-        Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
-        editIntent.putExtra(EditLinkActivity.EXTRA_LINK_ID, link.getLinkId());
-        startActivityForResult(editIntent, EDIT_LINK_REQUEST);
     }
 
     public void openLink(final int position) {
@@ -475,16 +438,6 @@ public class LinksListActivity extends BaseLinkActivity
         Call<Void> favoriteCall = isFavorite ? mLinkService.favoriteLink(link.getLinkId())
                 : mLinkService.unfavoriteLink(link.getLinkId());
         favoriteCall.enqueue(new LinkUpdateCallback(link, UPDATE_FAVORITE, isFavorite, position));
-    }
-
-    public void shareLink(final int position) {
-        Timber.v("shareLink() called with: " + "position = [" + position + "]");
-        Link link = getLink(position);
-        if (link == null) {
-            showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
-            return;
-        }
-        shareUrl(link.getTitle(), link.getUrl());
     }
 
     public void showLinkCategory(final int position, final boolean isTapAction) {
@@ -544,6 +497,43 @@ public class LinksListActivity extends BaseLinkActivity
                 .setPositiveButton(R.string.confirm_exit_button_positive, positiveClickListener)
                 .setNegativeButton(R.string.confirm_exit_button_negative, null)
                 .show();
+    }
+
+    private void copyLink(final int position) {
+        Timber.v("copyUrl() called with: " + "position = [" + position + "]");
+        final Link link = getLink(position);
+        if (link == null) {
+            Timber.e("copyUrl: Link instance was null before copying URL");
+            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
+            return;
+        }
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText(CLIPBOARD_LABEL, link.getUrl());
+        clipboard.setPrimaryClip(clipData);
+        showSnackSuccess("Copied URL: " + link.getUrl());
+    }
+
+    private void deleteLink(final int position) {
+        Timber.v("deleteLink() called with: " + "position = [" + position + "]");
+        final Link link = getLink(position);
+        if (link == null) {
+            Timber.e("deleteLink: Link instance was null before making delete API call");
+            showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
+            return;
+        }
+        Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
+        deleteCall.enqueue(new LinkUpdateCallback(link, UPDATE_DELETE, false, position));
+    }
+
+    private void editLink(final int position) {
+        Link link = getLink(position);
+        if (link == null) {
+            showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
+            return;
+        }
+        Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
+        editIntent.putExtra(EditLinkActivity.EXTRA_LINK_ID, link.getLinkId());
+        startActivityForResult(editIntent, EDIT_LINK_REQUEST);
     }
 
     private void errorResponseHandler(Response<Void> response, String errorMessage, int position) {
@@ -835,6 +825,16 @@ public class LinksListActivity extends BaseLinkActivity
         archiveCall.enqueue(new LinkUpdateCallback(link, UPDATE_ARCHIVE, isArchived, position));
     }
 
+    private void shareLink(final int position) {
+        Timber.v("shareLink() called with: " + "position = [" + position + "]");
+        Link link = getLink(position);
+        if (link == null) {
+            showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
+            return;
+        }
+        shareUrl(link.getTitle(), link.getUrl());
+    }
+
     private void showAllLinks() {
         mLinks = mLinkStorage.getAllLinks(mFilterMode, mSortMode);
         mLinksAdapter = new LinksAdapter(this, mLinks);
@@ -986,7 +986,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private class BottomSheetLinkMenuListener implements BottomSheetListener {
-        private int mLinkPosition;
+        private final int mLinkPosition;
 
         private BottomSheetLinkMenuListener(int linkPosition) {
             mLinkPosition = linkPosition;
@@ -1039,7 +1039,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     // Courtesy of https://www.bignerdranch.com/blog/a-view-divided-adding-dividers-to-your-recyclerview-with-itemdecoration/
     private class DividerItemDecoration extends RecyclerView.ItemDecoration {
-        private Drawable mDivider;
+        private final Drawable mDivider;
 
         private DividerItemDecoration(Drawable divider) {
             mDivider = divider;
@@ -1079,14 +1079,15 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private class LinkUpdateCallback implements Callback<Void> {
-        private Link    mLink;
+        private final Link    mLink;
         @UpdateType
-        private int     mUpdateType;
-        private boolean mNewIsArchivedOrFavoriteValue;
-        private String  mSuccessMessage;
-        private String  mErrorMessage;
-        private int     mPosition;
-        private String  mUpdateAction;
+        private final int     mUpdateType;
+        private final boolean mNewIsArchivedOrFavoriteValue;
+        private final String  mSuccessMessage;
+        private final int     mPosition;
+
+        private String mErrorMessage;
+        private String mUpdateAction;
 
         private LinkUpdateCallback(
                 final Link link,

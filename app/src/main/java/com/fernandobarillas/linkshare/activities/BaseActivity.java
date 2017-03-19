@@ -36,9 +36,9 @@ import timber.log.Timber;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected LinksApp       mLinksApp;
-    protected AppPreferences mPreferences;
-    private   Snackbar       mSnackbar;
+    LinksApp       mLinksApp;
+    AppPreferences mPreferences;
+    private Snackbar mSnackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +56,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    public void closeSoftKeyboard() {
+    void closeSoftKeyboard() {
         Timber.v("closeSoftKeyboard()");
         closeSoftKeyboard(getCurrentFocus());
     }
 
-    public void closeSoftKeyboard(final View view) {
+    void closeSoftKeyboard(final View view) {
         Timber.v("closeSoftKeyboard() called with: " + "view = [" + view + "]");
         if (view == null) {
             Timber.d("closeSoftKeyboard: View was null, not closing keyboard");
@@ -73,13 +73,29 @@ public abstract class BaseActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    public void dismissSnackbar() {
+    void dismissSnackbar() {
         Timber.v("dismissSnackbar()");
         if (mSnackbar == null) return;
         mSnackbar.dismiss();
     }
 
-    public void openUrlExternally(final String url) {
+    void launchLinksListActivity() {
+        Timber.v("launchLinksListActivity()");
+        Intent listIntent = new Intent(this, LinksListActivity.class);
+        listIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(listIntent);
+        finish();
+    }
+
+    void launchLoginActivity() {
+        Timber.v("launchLoginActivity()");
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(loginIntent);
+        finish();
+    }
+
+    void openUrlExternally(final String url) {
         Timber.v("openUrlExternally() called with: " + "url = [" + url + "]");
         if (url == null) return;
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -92,14 +108,27 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public void shareUrl(final String title, final String url) {
+    void setToolbarTitle(String title, String subTitle) {
+        Timber.v("setToolbarTitle() called with: "
+                + "title = ["
+                + title
+                + "], subTitle = ["
+                + subTitle
+                + "]");
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) return;
+        actionBar.setTitle(title);
+        actionBar.setSubtitle(subTitle);
+    }
+
+    void shareUrl(final String title, final String url) {
         Timber.v("shareUrl() called with: " + "title = [" + title + "], url = [" + url + "]");
         if (url == null || !ShareHandler.share(title, url, this)) {
             showSnackError(getString(R.string.share_intent_error), true);
         }
     }
 
-    public void showSnackError(final String message, final boolean showDismissAction) {
+    void showSnackError(final String message, final boolean showDismissAction) {
         Snacks.Action dismissAction = null;
         if (showDismissAction) {
             dismissAction = new Snacks.Action(R.string.dismiss, new View.OnClickListener() {
@@ -112,44 +141,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         showSnackError(message, dismissAction);
     }
 
-    public void showSnackError(final String message, final Snacks.Action snackAction) {
+    void showSnackError(final String message, final Snacks.Action snackAction) {
         View view = findViewById(android.R.id.content);
         if (view == null) return;
         mSnackbar = Snacks.showError(view, message, snackAction);
     }
 
-    public void showSnackSuccess(final String message) {
+    void showSnackSuccess(final String message) {
         View view = findViewById(android.R.id.content);
         if (view == null) return;
         mSnackbar = Snacks.showMessage(view, message);
-    }
-
-    protected void launchLinksListActivity() {
-        Timber.v("launchLinksListActivity()");
-        Intent listIntent = new Intent(this, LinksListActivity.class);
-        listIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(listIntent);
-        finish();
-    }
-
-    protected void launchLoginActivity() {
-        Timber.v("launchLoginActivity()");
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(loginIntent);
-        finish();
-    }
-
-    protected void setToolbarTitle(String title, String subTitle) {
-        Timber.v("setToolbarTitle() called with: "
-                + "title = ["
-                + title
-                + "], subTitle = ["
-                + subTitle
-                + "]");
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null) return;
-        actionBar.setTitle(title);
-        actionBar.setSubtitle(subTitle);
     }
 }

@@ -17,7 +17,7 @@ public class Snacks {
     }
 
     public static Snackbar showSnackbar(View view, String message, boolean indefinite) {
-        return showSnackbar(view, message, false, null);
+        return showSnackbar(view, message, indefinite, null);
     }
 
     public static Snackbar showSnackbar(
@@ -37,11 +37,13 @@ public class Snacks {
     }
 
     public static class Action {
-        static final int INVALID_ID = -1;
+        private static final int INVALID_ID = -1;
+
+        private final View.OnClickListener mOnClickListener;
+
         @StringRes
-        int mResId = INVALID_ID;
-        String               mActionMessage;
-        View.OnClickListener mOnClickListener;
+        private int mResId = INVALID_ID;
+        private String mActionMessage;
 
         public Action(int resId, View.OnClickListener onClickListener) {
             mResId = resId;

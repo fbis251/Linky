@@ -1,7 +1,6 @@
 package com.fernandobarillas.linkshare.databases;
 
 import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -47,7 +46,8 @@ public class LinkStorage {
     private static final String COLUMN_TIMESTAMP   = "timestamp";
     private static final String COLUMN_TITLE       = "title";
     private static final String COLUMN_URL         = "url";
-    private Realm mRealm;
+
+    private final Realm mRealm;
 
     public LinkStorage(Realm realm) {
         mRealm = realm;
@@ -132,12 +132,6 @@ public class LinkStorage {
         return categories;
     }
 
-    public Link getLastLink() {
-        Link lastLink = mRealm.where(Link.class).findAllSorted("linkId", Sort.DESCENDING).first();
-        Timber.i("getLastLink: Last link: " + lastLink);
-        return lastLink;
-    }
-
     public long getLinksCount() {
         return mRealm.where(Link.class).count();
     }
@@ -190,21 +184,6 @@ public class LinkStorage {
             public void execute(Realm realm) {
                 link.setArchived(isArchived);
                 Timber.i("setArchived: Edited Link: " + link);
-            }
-        });
-    }
-
-    public void setCategory(@NonNull final Link link, @Nullable final String category) {
-        Timber.v("setCategory() called with: "
-                + "link = ["
-                + link
-                + "], category = ["
-                + category
-                + "]");
-        mRealm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                link.setCategory(category);
             }
         });
     }

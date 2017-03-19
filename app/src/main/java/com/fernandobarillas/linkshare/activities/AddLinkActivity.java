@@ -48,6 +48,7 @@ public class AddLinkActivity extends BaseLinkActivity {
         if (intentReader.isShareIntent()) {
             String title = intentReader.getSubject();
             String url = intentReader.getText().toString();
+            // TODO: 12/27/16 need better validation here, what happens if the URL is also null?
             if (TextUtils.isEmpty(title)) title = "";
             intentLink = new Link(url);
             intentLink.setTitle(title);
@@ -70,7 +71,7 @@ public class AddLinkActivity extends BaseLinkActivity {
         addLink(intentLink);
     }
 
-    public void addLink(final Link newLink) {
+    private void addLink(final Link newLink) {
         Timber.v("addLink() called with: " + "newLink = [" + newLink + "]");
         if (newLink == null) {
             // TODO: Show error
@@ -165,7 +166,7 @@ public class AddLinkActivity extends BaseLinkActivity {
 
     public class AddLinkHandler {
 
-        private Link mLink;
+        private final Link mLink;
 
         public AddLinkHandler(Link link) {
             mLink = link;

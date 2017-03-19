@@ -7,7 +7,6 @@ import android.text.format.DateUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import io.realm.RealmModel;
 import io.realm.annotations.Index;
@@ -20,8 +19,8 @@ import io.realm.annotations.RealmClass;
 @RealmClass
 public class Link implements RealmModel {
 
-    public static final int TITLE_MAX_LENGTH    = 100;
-    public static final int CATEGORY_MAX_LENGTH = 50;
+    private static final int TITLE_MAX_LENGTH    = 100;
+    private static final int CATEGORY_MAX_LENGTH = 50;
 
     @PrimaryKey
     private long    linkId;
@@ -96,7 +95,6 @@ public class Link implements RealmModel {
     public void setCategory(String category) {
         this.category = category;
         if (this.category == null) return;
-        // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
         this.category = category.trim()
                 .toLowerCase()
                 .substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
@@ -131,10 +129,6 @@ public class Link implements RealmModel {
         return timestamp;
     }
 
-    public void setTimestamp(Date date) {
-        this.timestamp = TimeUnit.MILLISECONDS.toSeconds(date.getTime());
-    }
-
     public String getTitle() {
         return !TextUtils.isEmpty(title) ? title : getDomain();
     }
@@ -142,7 +136,6 @@ public class Link implements RealmModel {
     public void setTitle(String title) {
         this.title = title;
         if (this.title == null) return;
-        // TODO: 9/30/16 Consider adding ellipsis to indicate truncation
         this.title = title.trim().substring(0, Math.min(title.length(), TITLE_MAX_LENGTH));
     }
 
@@ -150,7 +143,7 @@ public class Link implements RealmModel {
         return url;
     }
 
-    public void setUrl(String url) {
+    private void setUrl(String url) {
         this.url = url;
     }
 

@@ -18,7 +18,7 @@ import timber.log.Timber;
  * Created by fb on 1/29/16.
  */
 public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.LinkViewHolder> {
-    private LinksListActivity mActivity;
+    private final LinksListActivity mActivity;
 
     public LinksAdapter(LinksListActivity activity, @Nullable OrderedRealmCollection<Link> links) {
         super(links, true);
@@ -59,7 +59,7 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
     }
 
     public class LinkHandler {
-        private LinkViewHolder holder;
+        private final LinkViewHolder holder;
 
         private LinkHandler(LinkViewHolder holder) {
             this.holder = holder;

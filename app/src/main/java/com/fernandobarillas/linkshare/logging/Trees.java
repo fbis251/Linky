@@ -14,8 +14,8 @@ public class Trees {
     }
 
     public static class DebugTree extends Timber.DebugTree {
-        private boolean mIsLogErrorsOnly;
-        private boolean mIsUseLogcatLineNumbers;
+        private final boolean mIsLogErrorsOnly;
+        private final boolean mIsUseLogcatLineNumbers;
 
         public DebugTree(boolean isLogErrorsOnly, boolean isUseLogcatLineNumbers) {
             mIsLogErrorsOnly = isLogErrorsOnly;

@@ -14,9 +14,9 @@ import timber.log.Timber;
 
 public abstract class BaseLinkActivity extends BaseActivity {
 
-    protected Realm       mRealm;
-    protected LinkStorage mLinkStorage;
-    protected LinkService mLinkService;
+    LinkStorage mLinkStorage;
+    LinkService mLinkService;
+    private Realm mRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +40,14 @@ public abstract class BaseLinkActivity extends BaseActivity {
         super.onDestroy();
     }
 
-    protected void performLogout() {
+    void performLogout() {
         Timber.v("performLogout()");
         mPreferences.deleteAllPreferences();
         mLinkStorage.deleteAllLinks();
         launchLoginActivity();
     }
 
-    protected void serviceSetup() {
+    void serviceSetup() {
         Timber.v("serviceSetup()");
         String authToken = mPreferences.getAuthString();
         if (TextUtils.isEmpty(authToken)) {
