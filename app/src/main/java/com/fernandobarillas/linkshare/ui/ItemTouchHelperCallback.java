@@ -9,7 +9,7 @@ import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
  * Created by fb on 2/2/16.
  */
 public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
-    ItemSwipedRightCallback mCallback;
+    private ItemSwipedRightCallback mCallback;
 
     public ItemTouchHelperCallback(ItemSwipedRightCallback callback) {
         // Only swipe right is implemented

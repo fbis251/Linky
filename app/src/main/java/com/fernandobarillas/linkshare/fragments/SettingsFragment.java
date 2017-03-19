@@ -18,7 +18,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.app_preferences);
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             addPreferencesFromResource(R.xml.debug_preferences);
         }
         mActivity = (SettingsActivity) getActivity();

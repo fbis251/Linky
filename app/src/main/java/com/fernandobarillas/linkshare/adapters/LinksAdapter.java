@@ -12,7 +12,6 @@ import com.fernandobarillas.linkshare.models.Link;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
-import io.realm.RealmResults;
 import timber.log.Timber;
 
 /**
