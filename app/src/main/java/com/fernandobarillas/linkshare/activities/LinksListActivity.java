@@ -458,8 +458,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
         String category = link.getCategory();
         if (TextUtils.isEmpty(category)) {
-            showSnackError(getString(R.string.error_category_blank), false);
-            return;
+            category = getString(R.string.category_uncategorized);
         }
         mFilterMode = LinkStorage.FILTER_CATEGORY;
         mCategory = category;

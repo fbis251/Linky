@@ -132,7 +132,6 @@
     <string name="open_url_error">No apps can open that link</string>
     <string name="error_cannot_edit">Cannot edit that link. Please refresh</string>
     <string name="error_cannot_show_category">Cannot show category. Please refresh</string>
-    <string name="error_category_blank">Link does not have a category</string>
     <string name="error_link_null">Link data is missing, cannot open</string>
     <string name="error_link_url_null">No URL was found for that link</string>
     <string name="error_link_favorite">Could not add link to favorites</string>
