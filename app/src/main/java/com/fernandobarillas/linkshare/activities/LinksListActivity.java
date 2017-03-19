@@ -563,9 +563,9 @@ public class LinksListActivity extends BaseLinkActivity
     private Link getLink(final int position) {
         if (mLinks == null) return null;
         try {
-            return getLink(position);
+            return mLinks.get(position);
         } catch (ArrayIndexOutOfBoundsException e) {
-            Timber.e(e, "getLink: Invalid array index");
+            Timber.e(e, "getLink: Invalid array index: %d", position);
             return null;
         }
     }
