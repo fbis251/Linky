@@ -107,13 +107,8 @@ public class LinkStorage {
 
     public RealmResults<Link> findByString(String searchTerm, @SortMode int sortMode) {
         Timber.v("findByString() called with: " + "searchTerm = [" + searchTerm + "]");
-        RealmQuery<Link> query = mRealm.where(Link.class)
-                .contains(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE)
-                .or()
-                .contains(COLUMN_TITLE, searchTerm, Case.INSENSITIVE)
-                .or()
-                .contains(COLUMN_URL, searchTerm, Case.INSENSITIVE);
-        return applyQuerySort(query, null, FILTER_ALL, sortMode);
+        RealmQuery<Link> query = mRealm.where(Link.class);
+        return applyQuerySort(query, searchTerm, FILTER_SEARCH, sortMode);
     }
 
     public RealmResults<Link> getAllLinks(@FilterMode int filterMode, @SortMode int sortMode) {
@@ -149,7 +144,7 @@ public class LinkStorage {
 
     public void remove(final Link link) {
         Timber.v("remove() called with: " + "link = [" + link + "]");
-        if(link == null) return;
+        if (link == null) return;
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -237,11 +232,11 @@ public class LinkStorage {
             @FilterMode int filterMode,
             @SortMode int sortMode) {
         switch (filterMode) {
-            case FILTER_FRESH:
-                query = query.equalTo(COLUMN_IS_ARCHIVED, false);
-                break;
             case FILTER_ALL:
                 // Don't apply filtering in the query to return all results
+                break;
+            case FILTER_FRESH:
+                query = query.equalTo(COLUMN_IS_ARCHIVED, false);
                 break;
             case FILTER_FAVORITES:
                 query = query.equalTo(COLUMN_IS_FAVORITE, true);
@@ -251,6 +246,13 @@ public class LinkStorage {
                 break;
             case FILTER_CATEGORY:
                 query = query.equalTo(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE);
+                break;
+            case FILTER_SEARCH:
+                query = query.contains(COLUMN_CATEGORY, searchTerm, Case.INSENSITIVE)
+                        .or()
+                        .contains(COLUMN_TITLE, searchTerm, Case.INSENSITIVE)
+                        .or()
+                        .contains(COLUMN_URL, searchTerm, Case.INSENSITIVE);
                 break;
         }
 
