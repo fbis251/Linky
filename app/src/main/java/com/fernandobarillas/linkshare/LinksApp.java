@@ -31,6 +31,8 @@ public class LinksApp extends Application {
         }
         Timber.plant(tree);
         Timber.v("onCreate()");
+
+        realmInit();
     }
 
     public LinkService getLinkService() {
@@ -50,8 +52,11 @@ public class LinksApp extends Application {
         return mPreferences;
     }
 
-    public RealmConfiguration getRealmConfiguration() {
+    private void realmInit() {
+        Timber.v("realmInit() called");
         Realm.init(this);
-        return new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
+        RealmConfiguration realmConfiguration =
+                new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
+        Realm.setDefaultConfiguration(realmConfiguration);
     }
 }
