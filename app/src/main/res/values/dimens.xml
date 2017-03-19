@@ -4,11 +4,11 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
     <!-- Link -->
     <dimen name="link_layout_height">88dp</dimen>
+    <dimen name="link_title_top_margin">16dp</dimen>
     <dimen name="link_favorite_top_margin">
         <!-- link_layout_height minus 24dp (icon size) minus 16dp for padding -->
         48dp
@@ -16,12 +16,6 @@
     <dimen name="link_information_margin">8dp</dimen>
     <dimen name="link_category_bg_horizontal_padding">4dp</dimen>
     <dimen name="link_category_bg_vertical_padding">0dp</dimen>
-    <dimen name="link_options_horizontal_margin">16dp</dimen>
-    <dimen name="link_bottom_spacer_height">1dp</dimen>
-    <dimen name="link_bottom_spacer_margin_top">
-        <!-- link_layout_height minus link_bottom_spacer_height -->
-        87dp
-    </dimen>
     <dimen name="link_divider_size">1dp</dimen>
 
     <!-- Add Link Activity -->
@@ -29,6 +23,4 @@
     <dimen name="link_save_spark_size">32dp</dimen>
     <dimen name="link_save_success_error_layout_padding_top">16dp</dimen>
 
-    <!-- Edit Link Activity -->
-    <dimen name="add_new_category_name_layout_bottom_margin">32dp</dimen>
 </resources>

@@ -77,12 +77,8 @@
     <string name="error_http_format">HTTP Error %1$d, please try again later</string>
     <string name="error_invalid_username">This username is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_incorrect_username_or_password">Incorrect username or password</string>
     <string name="error_field_required">This field is required</string>
-
-    <!-- Link view -->
-    <string name="link_information_separator" translatable="false">•</string>
 
     <!-- About Activity -->
     <string name="about_text">Proudly made in the USA by</string>
@@ -96,9 +92,6 @@
 
     <!-- Edit Link Activity -->
     <string name="edit_link_error">There was an error editing your link</string>
-    <string name="category_add_new">Add new category…</string>
-    <string name="add_new_category_title">New Category</string>
-    <string name="add_new_category_empty_error">Category cannot be empty</string>
 
     <!-- Settings Activity -->
     <!-- Behavior -->
