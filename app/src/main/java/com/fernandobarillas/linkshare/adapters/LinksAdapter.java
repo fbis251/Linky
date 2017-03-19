@@ -21,7 +21,7 @@ import timber.log.Timber;
 public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.LinkViewHolder> {
     private LinksListActivity mActivity;
 
-    public LinksAdapter(LinksListActivity activity, @Nullable RealmResults<Link> links) {
+    public LinksAdapter(LinksListActivity activity, @Nullable OrderedRealmCollection<Link> links) {
         super(links, true);
         Timber.v("LinksAdapter() called with: "
                 + "activity = ["
@@ -37,7 +37,7 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
     @Override
     public long getItemId(int index) {
         long result = RecyclerView.NO_ID;
-        Link link = getLink(index);
+        Link link = getItem(index);
         if (link != null) result = link.getLinkId();
         return result;
     }
@@ -57,19 +57,6 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
         // Hide category view (and background drawable) if link has no category set
         boolean isVisible = link.getCategory() != null;
         holder.showCategory(isVisible);
-    }
-
-    public Link getLink(int position) {
-        return super.getItem(position);
-    }
-
-    public RealmResults<Link> getLinks() {
-        OrderedRealmCollection<Link> data = getData();
-        if (data instanceof RealmResults) {
-            // This class should only be instantiated with a RealmResults<Link>, check constructor
-            return (RealmResults<Link>) data;
-        }
-        return null;
     }
 
     public class LinkHandler {

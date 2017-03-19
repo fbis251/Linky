@@ -85,8 +85,14 @@ public class LinksListActivity extends BaseLinkActivity
 
     // Toolbar behavior
     private static final int TOOLBAR_SCROLL_FLAG_RESET = 0;
+
+    // Links to display
+    private RealmResults<Link> mLinks;
+
+    // UI Behavior
     private boolean mHideToolbarOnScroll;
 
+    // UI Views
     private DrawerLayout       mDrawerLayout;
     private TextView           mDrawerUsername;
     private NavigationView     mNavigationView;
@@ -236,9 +242,7 @@ public class LinksListActivity extends BaseLinkActivity
     @Override
     protected void onDestroy() {
         Timber.v("onDestroy()");
-        if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
-            mLinksAdapter.getLinks().removeChangeListener(this);
-        }
+        if (mLinks != null) mLinks.removeChangeListener(this);
         super.onDestroy();
     }
 
@@ -391,7 +395,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     public void copyLink(final int position) {
         Timber.v("copyUrl() called with: " + "position = [" + position + "]");
-        final Link link = mLinksAdapter.getLink(position);
+        final Link link = getLink(position);
         if (link == null) {
             Timber.e("copyUrl: Link instance was null before copying URL");
             showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
@@ -405,7 +409,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     public void deleteLink(final int position) {
         Timber.v("deleteLink() called with: " + "position = [" + position + "]");
-        final Link link = mLinksAdapter.getLink(position);
+        final Link link = getLink(position);
         if (link == null) {
             Timber.e("deleteLink: Link instance was null before making delete API call");
             showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
@@ -417,7 +421,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     public void displayBottomSheet(final int position) {
         Timber.v("displayBottomSheet() called with: " + "position = [" + position + "]");
-        Link link = mLinksAdapter.getLink(position);
+        Link link = getLink(position);
         if (link == null) return;
         new BottomSheet.Builder(this).setSheet(R.menu.link_options)
                 .setTitle(link.getTitle())
@@ -426,7 +430,7 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     public void editLink(final int position) {
-        Link link = mLinksAdapter.getLink(position);
+        Link link = getLink(position);
         if (link == null) {
             showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
             return;
@@ -438,7 +442,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     public void openLink(final int position) {
         Timber.v("openLink() called with: " + "position = [" + position + "]");
-        Link link = mLinksAdapter.getLink(position);
+        Link link = getLink(position);
         Timber.i("openLink: Link: " + link);
         if (link == null) {
             Timber.e("openLink: Null Link when attempting to open URL: " + position);
@@ -462,7 +466,7 @@ public class LinksListActivity extends BaseLinkActivity
                 + "], isFavorite = ["
                 + isFavorite
                 + "]");
-        final Link link = mLinksAdapter.getLink(position);
+        final Link link = getLink(position);
         if (link == null) {
             Timber.e("openLink: Null Link when attempting to favorite position " + position);
             showSnackError(getString(R.string.error_link_favorite), false);
@@ -475,7 +479,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     public void shareLink(final int position) {
         Timber.v("shareLink() called with: " + "position = [" + position + "]");
-        Link link = mLinksAdapter.getLink(position);
+        Link link = getLink(position);
         if (link == null) {
             showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
             return;
@@ -494,7 +498,7 @@ public class LinksListActivity extends BaseLinkActivity
             // User has tap category to browse disabled, this is a tap so do nothing
             return;
         }
-        Link link = mLinksAdapter.getLink(position);
+        Link link = getLink(position);
         if (link == null) {
             showSnackError(getString(R.string.error_cannot_show_category), getRefreshSnackAction());
             return;
@@ -516,14 +520,6 @@ public class LinksListActivity extends BaseLinkActivity
         }
         populateDrawerCategories();
         touchHelperSetup();
-    }
-
-    private void addLinksChangeListener() {
-        if (mLinksAdapter != null && mLinksAdapter.getLinks() != null) {
-            RealmResults<Link> links = mLinksAdapter.getLinks();
-            links.removeChangeListener(this);
-            links.addChangeListener(this);
-        }
     }
 
     private void closeDrawer() {
@@ -564,6 +560,16 @@ public class LinksListActivity extends BaseLinkActivity
         }
     }
 
+    private Link getLink(final int position) {
+        if (mLinks == null) return null;
+        try {
+            return getLink(position);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Timber.e(e, "getLink: Invalid array index");
+            return null;
+        }
+    }
+
     private void getList() {
         Timber.v("getList()");
         mSwipeRefreshLayout.setRefreshing(true);
@@ -596,7 +602,6 @@ public class LinksListActivity extends BaseLinkActivity
                 // Store the links in the database
                 mLinkStorage.replaceLinks(downloadedLinks);
                 mSwipeRefreshLayout.setRefreshing(false);
-                if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
                 adapterSetup();
                 String message = String.format("Downloaded %d %s",
                         mLinkStorage.getLinksCount(),
@@ -819,7 +824,7 @@ public class LinksListActivity extends BaseLinkActivity
                 + "], isArchived = ["
                 + isArchived
                 + "]");
-        final Link link = mLinksAdapter.getLink(position);
+        final Link link = getLink(position);
         if (link == null) {
             Timber.e("setLinkArchived: Link instance was null before making archive API call");
             showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
@@ -831,7 +836,8 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     private void showAllLinks() {
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage.getAllLinks(mFilterMode, mSortMode));
+        mLinks = mLinkStorage.getAllLinks(mFilterMode, mSortMode);
+        mLinksAdapter = new LinksAdapter(this, mLinks);
         updateUiAfterAdapterChange();
     }
 
@@ -841,7 +847,8 @@ public class LinksListActivity extends BaseLinkActivity
         if (category.equalsIgnoreCase(getString(R.string.category_uncategorized))) {
             searchTerm = "";
         }
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByCategory(searchTerm, mSortMode));
+        mLinks = mLinkStorage.findByCategory(searchTerm, mSortMode);
+        mLinksAdapter = new LinksAdapter(this, mLinks);
         updateUiAfterAdapterChange();
     }
 
@@ -855,7 +862,8 @@ public class LinksListActivity extends BaseLinkActivity
 
     private void showSearchResultLinks(String searchTerm) {
         Timber.v("showSearchResultLinks() called with: " + "searchTerm = [" + searchTerm + "]");
-        mLinksAdapter = new LinksAdapter(this, mLinkStorage.findByString(searchTerm, mSortMode));
+        mLinks = mLinkStorage.findByString(searchTerm, mSortMode);
+        mLinksAdapter = new LinksAdapter(this, mLinks);
         updateUiAfterAdapterChange();
     }
 
@@ -965,7 +973,10 @@ public class LinksListActivity extends BaseLinkActivity
             mRecyclerView.setAdapter(mLinksAdapter);
         }
         updateToolbarTitle();
-        addLinksChangeListener();
+        if (mLinks != null) {
+            mLinks.removeChangeListener(this);
+            mLinks.addChangeListener(this);
+        }
     }
 
     // Link Update actions
