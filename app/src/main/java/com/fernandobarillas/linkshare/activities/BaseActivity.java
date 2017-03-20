@@ -16,6 +16,8 @@
 
 package com.fernandobarillas.linkshare.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -31,6 +33,8 @@ import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ShareHandler;
+
+import java.io.File;
 
 import timber.log.Timber;
 
@@ -73,6 +77,20 @@ public abstract class BaseActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    void deleteRecursive(File fileOrDirectory) {
+        Timber.v("deleteRecursive() called with: " + "fileOrDirectory = [" + fileOrDirectory + "]");
+        if (fileOrDirectory == null) return;
+        if (fileOrDirectory.isDirectory()) {
+            // Delete all the files/directories under the current directory
+            for (File directoryFile : fileOrDirectory.listFiles()) {
+                deleteRecursive(directoryFile);
+            }
+        }
+
+        boolean isDeleted = fileOrDirectory.delete();
+        Timber.d("deleteRecursive: isDeleted = [" + isDeleted + "], " + fileOrDirectory);
+    }
+
     void dismissSnackbar() {
         Timber.v("dismissSnackbar()");
         if (mSnackbar == null) return;
@@ -106,6 +124,21 @@ public abstract class BaseActivity extends AppCompatActivity {
         } else {
             showSnackError(getString(R.string.open_url_error), true);
         }
+    }
+
+    void restartApplication() {
+        Timber.v("restartApplication() called");
+        // Launch the LoginActivity after terminating the application to make sure the Realm file
+        // handles are released after they are deleted
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        int intentId = 9001;
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                intentId,
+                loginIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 1, pendingIntent);
+        System.exit(0);
     }
 
     void setToolbarTitle(String title, String subTitle) {

@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -64,7 +63,6 @@ public class LoginActivity extends BaseLinkActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        setupActionBar();
         // Set up the login form.
         mHttpCheckbox = (CheckBox) findViewById(R.id.http_checkbox);
         mServerAddressView = (EditText) findViewById(R.id.api_url);
@@ -376,14 +374,6 @@ public class LoginActivity extends BaseLinkActivity {
 
     private boolean isUsernameValid(String username) {
         return username.length() >= AppPreferences.USERNAME_MIN_LENGTH;
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}
-     */
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     /**

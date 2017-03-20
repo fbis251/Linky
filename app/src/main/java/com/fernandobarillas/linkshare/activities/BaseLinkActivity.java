@@ -42,9 +42,15 @@ public abstract class BaseLinkActivity extends BaseActivity {
 
     void performLogout() {
         Timber.v("performLogout()");
-        mPreferences.deleteAllPreferences();
+        mPreferences.deleteAccount();
         mLinkStorage.deleteAllLinks();
-        launchLoginActivity();
+
+        // Delete Realm files from disk
+        if (mRealm != null) mRealm.close();
+        deleteRecursive(getFilesDir());
+
+        // Terminate and relaunch the application
+        restartApplication();
     }
 
     void serviceSetup() {
@@ -52,7 +58,7 @@ public abstract class BaseLinkActivity extends BaseActivity {
         String authToken = mPreferences.getAuthString();
         if (TextUtils.isEmpty(authToken)) {
             Timber.i("serviceSetup: No refresh token stored, starting LoginActivity");
-            performLogout();
+            launchLoginActivity();
             return;
         }
         mLinkService = mLinksApp.getLinkService();

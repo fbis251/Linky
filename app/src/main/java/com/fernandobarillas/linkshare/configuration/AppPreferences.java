@@ -17,6 +17,7 @@ public class AppPreferences {
     public static final int USERNAME_MIN_LENGTH = 2;
     public static final int PASSWORD_MIN_LENGTH = 8;
 
+    private static final String ACCOUNT_PREFERENCES_NAME  = "account";
     private static final String KEY_API_URL               = "api_url";
     private static final String KEY_AUTH_STRING           = "auth_string";
     private static final String KEY_USERNAME              = "username";
@@ -44,10 +45,14 @@ public class AppPreferences {
     private static boolean sDefaultLogHttpCalls;
 
     private SharedPreferences mPreferences;
+    private SharedPreferences mAccountPreferences;
 
     public AppPreferences(Context context) {
         if (context == null) return;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mAccountPreferences =
+                context.getSharedPreferences(ACCOUNT_PREFERENCES_NAME, Context.MODE_PRIVATE);
+
         Resources resources = context.getResources();
 
         // Get preference key strings
@@ -83,28 +88,28 @@ public class AppPreferences {
         }
     }
 
-    public void deleteAllPreferences() {
-        mPreferences.edit().clear().commit();
+    public void deleteAccount() {
+        mAccountPreferences.edit().clear().commit();
     }
 
     public URL getApiUrl() {
         try {
-            return new URL(mPreferences.getString(KEY_API_URL, null));
+            return new URL(mAccountPreferences.getString(KEY_API_URL, null));
         } catch (MalformedURLException e) {
             return null;
         }
     }
 
     public void setApiUrl(String apiUrl) {
-        mPreferences.edit().putString(KEY_API_URL, apiUrl).apply();
+        mAccountPreferences.edit().putString(KEY_API_URL, apiUrl).apply();
     }
 
     public String getAuthString() {
-        return mPreferences.getString(KEY_AUTH_STRING, null);
+        return mAccountPreferences.getString(KEY_AUTH_STRING, null);
     }
 
     public void setAuthString(String authString) {
-        mPreferences.edit().putString(KEY_AUTH_STRING, authString).apply();
+        mAccountPreferences.edit().putString(KEY_AUTH_STRING, authString).apply();
     }
 
     public String getHttpProxyAddress() {
@@ -117,27 +122,27 @@ public class AppPreferences {
     }
 
     public long getLastUpdateTimestamp() {
-        return mPreferences.getLong(KEY_LAST_UPDATE_TIMESTAMP, -1);
+        return mAccountPreferences.getLong(KEY_LAST_UPDATE_TIMESTAMP, -1);
     }
 
     public void setLastUpdateTimestamp(long lastUpdateTimestamp) {
-        mPreferences.edit().putLong(KEY_LAST_UPDATE_TIMESTAMP, lastUpdateTimestamp).apply();
+        mAccountPreferences.edit().putLong(KEY_LAST_UPDATE_TIMESTAMP, lastUpdateTimestamp).apply();
     }
 
     public long getUserId() {
-        return mPreferences.getLong(KEY_USER_ID, -1);
+        return mAccountPreferences.getLong(KEY_USER_ID, -1);
     }
 
     public void setUserId(long userId) {
-        mPreferences.edit().putLong(KEY_USER_ID, userId).apply();
+        mAccountPreferences.edit().putLong(KEY_USER_ID, userId).apply();
     }
 
     public String getUsername() {
-        return mPreferences.getString(KEY_USERNAME, null);
+        return mAccountPreferences.getString(KEY_USERNAME, null);
     }
 
     public void setUsername(String username) {
-        mPreferences.edit().putString(KEY_USERNAME, username).apply();
+        mAccountPreferences.edit().putString(KEY_USERNAME, username).apply();
     }
 
     public boolean isConfirmExitOnBackPress() {
