@@ -44,7 +44,7 @@
     <string name="nav_log_out">Log out</string>
     <string name="nav_log_out_description">Log out and delete local data</string>
     <string name="title_categories">Categories</string>
-    <string name="title_links_format" translatable="false">%1$s: %2$d</string>
+    <string name="title_links_format">%1$s: %2$d</string>
     <string name="title_all_links">All Links</string>
     <string name="title_archived_links">Archived Links</string>
     <string name="title_category_links_format">%1$s Links</string>
@@ -95,36 +95,36 @@
     <!-- Settings Activity -->
     <!-- Behavior -->
     <string name="preference_category_behavior">Behavior</string>
-    <string name="preference_tap_category_key">pref_tap_category</string>
+    <string name="preference_tap_category_key" translatable="false">pref_tap_category</string>
     <string name="preference_tap_category_title">Tap Category Name to Browse</string>
     <string name="preference_tap_category_summary_on">Tapping a category will browse links for that category</string>
     <string name="preference_tap_category_summary_off">Tapping a category does nothing</string>
 
-    <string name="preference_hide_toolbar_on_scroll_key">pref_hide_toolbar_on_scroll</string>
+    <string name="preference_hide_toolbar_on_scroll_key" translatable="false">pref_hide_toolbar_on_scroll</string>
     <string name="preference_hide_toolbar_on_scroll_title">Hide Toolbar on Scroll</string>
     <string name="preference_hide_toolbar_on_scroll_summary_on">Toolbar will hide when the list is scrolled</string>
     <string name="preference_hide_toolbar_on_scroll_summary_off">Toolbar will never hide</string>
 
-    <string name="preference_confirm_exit_on_back_press_key">pref_confirm_exit_on_back_press</string>
+    <string name="preference_confirm_exit_on_back_press_key" translatable="false">pref_confirm_exit_on_back_press</string>
     <string name="preference_confirm_exit_on_back_press_title">Confirm Exit on Back Press</string>
     <string name="preference_confirm_exit_on_back_press_summary_on">App will ask you to confirm exiting when you press the back key</string>
     <string name="preference_confirm_exit_on_back_press_summary_off">App will exit when you press the back key</string>
 
     <!-- Debug -->
-    <string name="preference_category_debug">Debug</string>
-    <string name="preference_use_http_proxy_key">pref_use_http_proxy</string>
-    <string name="preference_http_proxy_address_key">pref_http_proxy_address</string>
-    <string name="preference_http_proxy_port_key">pref_http_proxy_port</string>
-    <string name="preference_use_logcat_line_numbers_key">pref_use_logcat_line_numbers</string>
-    <string name="preference_log_errors_only_key">pref_log_errors_only</string>
-    <string name="preference_log_http_calls_key">pref_log_http_calls</string>
+    <string name="preference_category_debug" translatable="false">Debug</string>
+    <string name="preference_use_http_proxy_key" translatable="false">pref_use_http_proxy</string>
+    <string name="preference_http_proxy_address_key" translatable="false">pref_http_proxy_address</string>
+    <string name="preference_http_proxy_port_key" translatable="false">pref_http_proxy_port</string>
+    <string name="preference_use_logcat_line_numbers_key" translatable="false">pref_use_logcat_line_numbers</string>
+    <string name="preference_log_errors_only_key" translatable="false">pref_log_errors_only</string>
+    <string name="preference_log_http_calls_key" translatable="false">pref_log_http_calls</string>
 
     <!-- Information -->
     <string name="preference_category_information">Information</string>
-    <string name="preference_about_key">pref_about</string>
+    <string name="preference_about_key" translatable="false">pref_about</string>
     <string name="preference_about_title">@string/title_about</string>
     <string name="preference_about_summary">View application information</string>
-    <string name="preference_licenses_key">pref_licenses</string>
+    <string name="preference_licenses_key" translatable="false">pref_licenses</string>
     <string name="preference_licenses_title">Licenses</string>
     <string name="preference_licenses_summary">View software licenses</string>
 
