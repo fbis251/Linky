@@ -25,15 +25,11 @@ android {
     }
     buildTypes {
         release {
-            debuggable false
             signingConfig signingConfigs.release
-            minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-realm.pro'
         }
         debug {
-            debuggable true
-            minifyEnabled false
             shrinkResources false
             versionNameSuffix '-debug'
             applicationIdSuffix '.debug'
