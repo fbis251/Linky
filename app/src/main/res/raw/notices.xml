@@ -8,6 +8,12 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
+        <name>TextDrawable</name>
+        <url>https://github.com/amulyakhare/TextDrawable</url>
+        <copyright>Copyright (c) 2014 Amulya Khare</copyright>
+        <license>MIT License</license>
+    </notice>
+    <notice>
         <name>Android AppCompat</name>
         <url>https://www.android.com/</url>
         <copyright>Copyright (C) 2012 The Android Open Source Project</copyright>
@@ -53,6 +59,12 @@
         <name>Timber</name>
         <url>https://github.com/JakeWharton/timber</url>
         <copyright>Copyright 2013 Jake Wharton</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>MaterialDrawer</name>
+        <url>https://github.com/mikepenz/MaterialDrawer</url>
+        <copyright>Copyright 2016 Mike Penz</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
