@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Linky.iml" filepath="$PROJECT_DIR$/Linky.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file:///media/2tb/fb/Programming/Linky/Linky.iml" filepath="/media/2tb/fb/Programming/Linky/Linky.iml" />
+      <module fileurl="file:///media/2tb/fb/Programming/Linky/app/app.iml" filepath="/media/2tb/fb/Programming/Linky/app/app.iml" />
     </modules>
   </component>
 </project>
