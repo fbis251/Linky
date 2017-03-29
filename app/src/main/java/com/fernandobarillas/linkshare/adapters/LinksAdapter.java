@@ -22,11 +22,12 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
 
     public LinksAdapter(LinksListActivity activity, @Nullable OrderedRealmCollection<Link> links) {
         super(links, true);
+        int linksSize = links == null ? 0 : links.size();
         Timber.v("LinksAdapter() called with: "
                 + "activity = ["
                 + activity
                 + "], links = ["
-                + links
+                + linksSize
                 + "]");
         // Link objects have a unique long type ID
         setHasStableIds(true);
