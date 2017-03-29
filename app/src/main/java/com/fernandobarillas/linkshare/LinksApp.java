@@ -40,16 +40,16 @@ public class LinksApp extends Application {
         return mLinkService;
     }
 
-    public void setLinkService(LinkService linkService) {
-        Timber.d("setLinkService() called with: linkService = [" + linkService + "]");
-        mLinkService = linkService;
-    }
-
     public AppPreferences getPreferences() {
         if (mPreferences == null) {
             mPreferences = new AppPreferences(this);
         }
         return mPreferences;
+    }
+
+    public void setLinkService(LinkService linkService) {
+        Timber.d("setLinkService() called with: linkService = [" + linkService + "]");
+        mLinkService = linkService;
     }
 
     private void realmInit() {

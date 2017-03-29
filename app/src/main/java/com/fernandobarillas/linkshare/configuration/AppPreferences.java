@@ -100,16 +100,8 @@ public class AppPreferences {
         }
     }
 
-    public void setApiUrl(String apiUrl) {
-        mAccountPreferences.edit().putString(KEY_API_URL, apiUrl).apply();
-    }
-
     public String getAuthString() {
         return mAccountPreferences.getString(KEY_AUTH_STRING, null);
-    }
-
-    public void setAuthString(String authString) {
-        mAccountPreferences.edit().putString(KEY_AUTH_STRING, authString).apply();
     }
 
     public String getHttpProxyAddress() {
@@ -125,24 +117,12 @@ public class AppPreferences {
         return mAccountPreferences.getLong(KEY_LAST_UPDATE_TIMESTAMP, -1);
     }
 
-    public void setLastUpdateTimestamp(long lastUpdateTimestamp) {
-        mAccountPreferences.edit().putLong(KEY_LAST_UPDATE_TIMESTAMP, lastUpdateTimestamp).apply();
-    }
-
     public long getUserId() {
         return mAccountPreferences.getLong(KEY_USER_ID, -1);
     }
 
-    public void setUserId(long userId) {
-        mAccountPreferences.edit().putLong(KEY_USER_ID, userId).apply();
-    }
-
     public String getUsername() {
         return mAccountPreferences.getString(KEY_USERNAME, null);
-    }
-
-    public void setUsername(String username) {
-        mAccountPreferences.edit().putString(KEY_USERNAME, username).apply();
     }
 
     public boolean isConfirmExitOnBackPress() {
@@ -171,5 +151,25 @@ public class AppPreferences {
 
     public boolean isUseLogcatLineNumbers() {
         return mPreferences.getBoolean(sKeyUseLogcatLineNumbers, sDefaultUseLogcatLineNumbers);
+    }
+
+    public void setApiUrl(String apiUrl) {
+        mAccountPreferences.edit().putString(KEY_API_URL, apiUrl).apply();
+    }
+
+    public void setAuthString(String authString) {
+        mAccountPreferences.edit().putString(KEY_AUTH_STRING, authString).apply();
+    }
+
+    public void setLastUpdateTimestamp(long lastUpdateTimestamp) {
+        mAccountPreferences.edit().putLong(KEY_LAST_UPDATE_TIMESTAMP, lastUpdateTimestamp).apply();
+    }
+
+    public void setUserId(long userId) {
+        mAccountPreferences.edit().putLong(KEY_USER_ID, userId).apply();
+    }
+
+    public void setUsername(String username) {
+        mAccountPreferences.edit().putString(KEY_USERNAME, username).apply();
     }
 }

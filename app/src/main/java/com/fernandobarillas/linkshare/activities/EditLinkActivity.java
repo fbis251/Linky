@@ -86,8 +86,7 @@ public class EditLinkActivity extends BaseLinkActivity {
         InputFilter[] noReturnsInputFilter = new InputFilter[]{
                 new InputFilter() {
                     @Override
-                    public CharSequence filter(
-                            CharSequence charSequence,
+                    public CharSequence filter(CharSequence charSequence,
                             int i,
                             int i1,
                             Spanned spanned,
@@ -195,6 +194,11 @@ public class EditLinkActivity extends BaseLinkActivity {
         Timber.i("updateLink: request = [" + request + "]");
         mLinkService.updateLink(link.getLinkId(), request).enqueue(new Callback<AddLinkResponse>() {
             @Override
+            public void onFailure(Call<AddLinkResponse> call, Throwable t) {
+                Timber.v("onFailure() called with: " + "call = [" + call + "], t = [" + t + "]");
+            }
+
+            @Override
             public void onResponse(Call<AddLinkResponse> call, Response<AddLinkResponse> response) {
                 Timber.v("updateLink onResponse() called with: "
                         + "call = ["
@@ -222,11 +226,6 @@ public class EditLinkActivity extends BaseLinkActivity {
                 }
 
                 finish();
-            }
-
-            @Override
-            public void onFailure(Call<AddLinkResponse> call, Throwable t) {
-                Timber.v("onFailure() called with: " + "call = [" + call + "], t = [" + t + "]");
             }
         });
     }

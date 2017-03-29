@@ -35,8 +35,7 @@ public class Link implements RealmModel {
     public Link() {
     }
 
-    public Link(
-            long linkId,
+    public Link(long linkId,
             String category,
             boolean isArchived,
             boolean isFavorite,
@@ -92,14 +91,6 @@ public class Link implements RealmModel {
         return TextUtils.isEmpty(category) ? null : category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-        if (this.category == null) return;
-        this.category = category.trim()
-                .toLowerCase()
-                .substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
-    }
-
     public String getDomain() {
         if (url == null) return null;
         try {
@@ -133,33 +124,41 @@ public class Link implements RealmModel {
         return !TextUtils.isEmpty(title) ? title : getDomain();
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-        if (this.title == null) return;
-        this.title = title.trim().substring(0, Math.min(title.length(), TITLE_MAX_LENGTH));
-    }
-
     public String getUrl() {
         return url;
-    }
-
-    private void setUrl(String url) {
-        this.url = url;
     }
 
     public boolean isArchived() {
         return isArchived;
     }
 
-    public void setArchived(boolean archived) {
-        isArchived = archived;
-    }
-
     public boolean isFavorite() {
         return isFavorite;
     }
 
+    public void setArchived(boolean archived) {
+        isArchived = archived;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+        if (this.category == null) return;
+        this.category = category.trim()
+                .toLowerCase()
+                .substring(0, Math.min(category.length(), CATEGORY_MAX_LENGTH));
+    }
+
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        if (this.title == null) return;
+        this.title = title.trim().substring(0, Math.min(title.length(), TITLE_MAX_LENGTH));
+    }
+
+    private void setUrl(String url) {
+        this.url = url;
     }
 }

@@ -43,13 +43,6 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
     }
 
     @Override
-    public LinkViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        ContentLinkBinding binding = ContentLinkBinding.inflate(layoutInflater, parent, false);
-        return new LinkViewHolder(binding);
-    }
-
-    @Override
     public void onBindViewHolder(final LinkViewHolder holder, final int position) {
         final Link link = getItem(position);
         if (link == null) return;
@@ -57,6 +50,13 @@ public class LinksAdapter extends RealmRecyclerViewAdapter<Link, LinksAdapter.Li
         // Hide category view (and background drawable) if link has no category set
         boolean isVisible = link.getCategory() != null;
         holder.showCategory(isVisible);
+    }
+
+    @Override
+    public LinkViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        ContentLinkBinding binding = ContentLinkBinding.inflate(layoutInflater, parent, false);
+        return new LinkViewHolder(binding);
     }
 
     public class LinkHandler {

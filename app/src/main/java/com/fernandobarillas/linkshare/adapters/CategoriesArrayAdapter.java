@@ -64,8 +64,7 @@ public class CategoriesArrayAdapter extends ArrayAdapter<String> {
         }
 
         @Override
-        protected void publishResults(
-                CharSequence charSequence, FilterResults filterResults) {
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             Timber.v("publishResults() called with: "
                     + "charSequence = ["
                     + charSequence

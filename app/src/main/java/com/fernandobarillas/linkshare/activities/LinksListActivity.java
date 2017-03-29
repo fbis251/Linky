@@ -131,57 +131,6 @@ public class LinksListActivity extends BaseLinkActivity
     private int    mSortMode;
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Timber.v("onActivityResult() called with: "
-                + "requestCode = ["
-                + requestCode
-                + "], resultCode = ["
-                + resultCode
-                + "], data = ["
-                + data
-                + "]");
-        if (requestCode == EDIT_LINK_REQUEST && resultCode == RESULT_OK) {
-            // We can't reliably tell what operation the user performed on the Link, so it's best
-            // to just tell the adapter the entire dataset changed. Examples of not being able
-            // to tell include setting favorite to false when browsing favorites
-            if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mDrawer != null && mDrawer.isDrawerOpen()) {
-            mDrawer.closeDrawer();
-        } else if (mPreferences.isConfirmExitOnBackPress()) {
-            confirmExit();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        Timber.v("onResume()");
-        super.onResume();
-        updateToolbarScrollBehavior();
-        if (mLinkStorage.getLinksCount() == 0) {
-            getList();
-        } else {
-            getListIfUpdatedOnServer();
-        }
-    }
-
-    @Override
-    public void onChange(RealmResults<Link> element) {
-        Timber.v("onChange() called with: " + "element = [" + element + "]");
-        updateDrawerFreshLinkCount();
-        populateDrawerCategories();
-        updateToolbarTitle();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         serviceSetup();
@@ -232,10 +181,22 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
-    protected void onDestroy() {
-        Timber.v("onDestroy()");
-        if (mLinks != null) mLinks.removeChangeListener(this);
-        super.onDestroy();
+    public void onBackPressed() {
+        if (mDrawer != null && mDrawer.isDrawerOpen()) {
+            mDrawer.closeDrawer();
+        } else if (mPreferences.isConfirmExitOnBackPress()) {
+            confirmExit();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onChange(RealmResults<Link> element) {
+        Timber.v("onChange() called with: " + "element = [" + element + "]");
+        updateDrawerFreshLinkCount();
+        populateDrawerCategories();
+        updateToolbarTitle();
     }
 
     @Override
@@ -266,42 +227,6 @@ public class LinksListActivity extends BaseLinkActivity
             }
         }
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Timber.v("onOptionsItemSelected() called with: " + "item = [" + item + "]");
-        int id = item.getItemId();
-
-        // Keep track of the current SortMode to update the UI if it changes
-        int lastSortMode = mSortMode;
-        switch (id) {
-            case (R.id.sort_title_ascending):
-                Timber.d("onOptionsItemSelected: Title Ascending");
-                mSortMode = LinkStorage.SORT_TITLE_ASCENDING;
-                break;
-            case (R.id.sort_title_descending):
-                Timber.d("onOptionsItemSelected: Title Descending");
-                mSortMode = LinkStorage.SORT_TITLE_DESCENDING;
-                break;
-            case (R.id.sort_timestamp_ascending):
-                Timber.d("onOptionsItemSelected: Timestamp Ascending");
-                mSortMode = LinkStorage.SORT_TIMESTAMP_ASCENDING;
-                break;
-            case (R.id.sort_timestamp_descending):
-                Timber.d("onOptionsItemSelected: Timestamp Descending");
-                mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
-                break;
-            default:
-                break;
-        }
-
-        if (lastSortMode != mSortMode) {
-            performUiUpdate();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -365,6 +290,42 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Timber.v("onOptionsItemSelected() called with: " + "item = [" + item + "]");
+        int id = item.getItemId();
+
+        // Keep track of the current SortMode to update the UI if it changes
+        int lastSortMode = mSortMode;
+        switch (id) {
+            case (R.id.sort_title_ascending):
+                Timber.d("onOptionsItemSelected: Title Ascending");
+                mSortMode = LinkStorage.SORT_TITLE_ASCENDING;
+                break;
+            case (R.id.sort_title_descending):
+                Timber.d("onOptionsItemSelected: Title Descending");
+                mSortMode = LinkStorage.SORT_TITLE_DESCENDING;
+                break;
+            case (R.id.sort_timestamp_ascending):
+                Timber.d("onOptionsItemSelected: Timestamp Ascending");
+                mSortMode = LinkStorage.SORT_TIMESTAMP_ASCENDING;
+                break;
+            case (R.id.sort_timestamp_descending):
+                Timber.d("onOptionsItemSelected: Timestamp Descending");
+                mSortMode = LinkStorage.SORT_TIMESTAMP_DESCENDING;
+                break;
+            default:
+                break;
+        }
+
+        if (lastSortMode != mSortMode) {
+            performUiUpdate();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onProfileChanged(View view, IProfile profile, boolean current) {
         Timber.v("onProfileChanged() called with: "
                 + "view = ["
@@ -382,6 +343,13 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
+    public boolean onQueryTextChange(String newText) {
+        Timber.v("onQueryTextChange() called with: " + "newText = [" + newText + "]");
+        handleSearch(newText);
+        return true;
+    }
+
+    @Override
     public boolean onQueryTextSubmit(String query) {
         Timber.v("onQueryTextSubmit() called with: " + "query = [" + query + "]");
         handleSearch(query);
@@ -389,10 +357,43 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
-        Timber.v("onQueryTextChange() called with: " + "newText = [" + newText + "]");
-        handleSearch(newText);
-        return true;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Timber.v("onActivityResult() called with: "
+                + "requestCode = ["
+                + requestCode
+                + "], resultCode = ["
+                + resultCode
+                + "], data = ["
+                + data
+                + "]");
+        if (requestCode == EDIT_LINK_REQUEST && resultCode == RESULT_OK) {
+            // TODO: Is this needed anymore considering this activity has a realm change listener?
+            // We can't reliably tell what operation the user performed on the Link, so it's best
+            // to just tell the adapter the entire dataset changed. Examples of not being able
+            // to tell include setting favorite to false when browsing favorites
+            // if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Timber.v("onDestroy()");
+        if (mLinks != null) mLinks.removeChangeListener(this);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        Timber.v("onResume()");
+        super.onResume();
+        updateToolbarScrollBehavior();
+        if (mLinkStorage.getLinksCount() == 0) {
+            getList();
+        } else {
+            getListIfUpdatedOnServer();
+        }
     }
 
     @Override
@@ -634,6 +635,16 @@ public class LinksListActivity extends BaseLinkActivity
         Call<List<Link>> call = mLinkService.getLinks();
         call.enqueue(new Callback<List<Link>>() {
             @Override
+            public void onFailure(Call<List<Link>> call, Throwable t) {
+                Timber.e("getLinks: onFailure() called with: " + "t = [" + t + "]");
+                String errorMessage =
+                        "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
+                Timber.e(t, errorMessage);
+                showSnackError(errorMessage, false);
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
             public void onResponse(Call<List<Link>> call, Response<List<Link>> response) {
                 Timber.v("getLinks: onResponse: " + ResponseUtils.httpCodeString(response));
                 mSwipeRefreshLayout.setRefreshing(false);
@@ -662,20 +673,11 @@ public class LinksListActivity extends BaseLinkActivity
                 mSwipeRefreshLayout.setRefreshing(false);
                 adapterSetup();
                 String message = String.format("Downloaded %d %s",
+                        // TODO: Extract me
                         mLinkStorage.getLinksCount(),
                         mLinkStorage.getLinksCount() == 1 ? "link" : "links");
                 Timber.i("getLinks: onResponse: " + message);
                 showSnackSuccess(message);
-            }
-
-            @Override
-            public void onFailure(Call<List<Link>> call, Throwable t) {
-                Timber.e("getLinks: onFailure() called with: " + "t = [" + t + "]");
-                String errorMessage =
-                        "getLinks: onFailure: Error during call: " + t.getLocalizedMessage();
-                Timber.e(t, errorMessage);
-                showSnackError(errorMessage, false);
-                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -700,8 +702,18 @@ public class LinksListActivity extends BaseLinkActivity
         final String errorMessage = "Error getting user info";
         call.enqueue(new Callback<UserInfoResponse>() {
             @Override
-            public void onResponse(
-                    Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
+            public void onFailure(Call<UserInfoResponse> call, Throwable t) {
+                Timber.e(t, "getUserInfo: onFailure: " + errorMessage);
+                String errorMessage =
+                        "getUserInfo: onFailure: Error during call: " + t.getLocalizedMessage();
+                mSwipeRefreshLayout.setRefreshing(false);
+                adapterSetup();
+                showSnackError(errorMessage, true);
+            }
+
+            @Override
+            public void onResponse(Call<UserInfoResponse> call,
+                    Response<UserInfoResponse> response) {
                 Timber.v("getUserInfo: onResponse: " + ResponseUtils.httpCodeString(response));
                 mSwipeRefreshLayout.setRefreshing(false);
                 UserInfoResponse userInfoResponse = response.body();
@@ -726,16 +738,6 @@ public class LinksListActivity extends BaseLinkActivity
                     Timber.i("onResponse: onResponse: Local data is up to date");
                     adapterSetup();
                 }
-            }
-
-            @Override
-            public void onFailure(Call<UserInfoResponse> call, Throwable t) {
-                Timber.e(t, "getUserInfo: onFailure: " + errorMessage);
-                String errorMessage =
-                        "getUserInfo: onFailure: Error during call: " + t.getLocalizedMessage();
-                mSwipeRefreshLayout.setRefreshing(false);
-                adapterSetup();
-                showSnackError(errorMessage, true);
             }
         });
     }
@@ -775,7 +777,7 @@ public class LinksListActivity extends BaseLinkActivity
         } catch (JsonParseException ignored) {
             return false;
         }
-        if (TextUtils.isEmpty(errorMessage)) format = "Error %d%s";
+        if (TextUtils.isEmpty(errorMessage)) format = "Error %d%s"; // TODO: Extract me
         showSnackError(String.format(format, response.code(), errorMessage), true);
         return true;
     }
@@ -1047,7 +1049,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         @Override
-        public void onSheetShown(@NonNull BottomSheet bottomSheet) {
+        public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {
         }
 
         @Override
@@ -1087,7 +1089,7 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         @Override
-        public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {
+        public void onSheetShown(@NonNull BottomSheet bottomSheet) {
         }
     }
 
@@ -1097,6 +1099,21 @@ public class LinksListActivity extends BaseLinkActivity
 
         private DividerItemDecoration(Drawable divider) {
             mDivider = divider;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect,
+                View view,
+                RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+
+            if (parent.getChildAdapterPosition(view) == 0) {
+                // Don't decorate the first child
+                return;
+            }
+
+            outRect.top = mDivider.getIntrinsicHeight();
         }
 
         @Override
@@ -1117,19 +1134,6 @@ public class LinksListActivity extends BaseLinkActivity
                 mDivider.draw(canvas);
             }
         }
-
-        @Override
-        public void getItemOffsets(
-                Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            super.getItemOffsets(outRect, view, parent, state);
-
-            if (parent.getChildAdapterPosition(view) == 0) {
-                // Don't decorate the first child
-                return;
-            }
-
-            outRect.top = mDivider.getIntrinsicHeight();
-        }
     }
 
     private class LinkUpdateCallback implements Callback<Void> {
@@ -1143,8 +1147,7 @@ public class LinksListActivity extends BaseLinkActivity
         private String mErrorMessage;
         private String mUpdateAction;
 
-        private LinkUpdateCallback(
-                final Link link,
+        private LinkUpdateCallback(final Link link,
                 final @UpdateType int updateType,
                 final boolean newIsArchivedOrFavoriteValue,
                 final int position) {
@@ -1173,6 +1176,17 @@ public class LinksListActivity extends BaseLinkActivity
             mErrorMessage = getString(R.string.link_update_error, mUpdateAction, title);
 
             Timber.i("LinkUpdateCallback: Trying to %s: %s", mUpdateAction, title);
+        }
+
+        @Override
+        public void onFailure(Call<Void> call, Throwable t) {
+            Timber.e(t, "%s onFailure", mUpdateAction);
+            if (t != null) {
+                mErrorMessage = getString(R.string.link_update_error,
+                        mUpdateAction,
+                        t.getLocalizedMessage());
+            }
+            errorResponseHandler(null, mErrorMessage, mPosition);
         }
 
         @Override
@@ -1206,17 +1220,6 @@ public class LinksListActivity extends BaseLinkActivity
                 Timber.e(logMessage);
                 errorResponseHandler(response, mErrorMessage, mPosition);
             }
-        }
-
-        @Override
-        public void onFailure(Call<Void> call, Throwable t) {
-            Timber.e(t, "%s onFailure", mUpdateAction);
-            if (t != null) {
-                mErrorMessage = getString(R.string.link_update_error,
-                        mUpdateAction,
-                        t.getLocalizedMessage());
-            }
-            errorResponseHandler(null, mErrorMessage, mPosition);
         }
     }
 }

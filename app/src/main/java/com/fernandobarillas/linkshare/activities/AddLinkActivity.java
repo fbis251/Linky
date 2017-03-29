@@ -84,6 +84,14 @@ public class AddLinkActivity extends BaseLinkActivity {
         Timber.i("addLink: Calling URL: " + call.toString());
         call.enqueue(new Callback<AddLinkResponse>() {
             @Override
+            public void onFailure(Call<AddLinkResponse> call, Throwable t) {
+                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
+                Timber.e(errorMessage);
+                showResultLayout(false);
+                finish();
+            }
+
+            @Override
             public void onResponse(Call<AddLinkResponse> call, Response<AddLinkResponse> response) {
                 Timber.i("onResponse: " + ResponseUtils.httpCodeString(response));
                 if (response.isSuccessful()) {
@@ -105,14 +113,6 @@ public class AddLinkActivity extends BaseLinkActivity {
                     Timber.e("onResponse: " + response.body());
                     showResultLayout(false);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<AddLinkResponse> call, Throwable t) {
-                String errorMessage = "onFailure: Error during call: " + t.getLocalizedMessage();
-                Timber.e(errorMessage);
-                showResultLayout(false);
-                finish();
             }
         });
     }

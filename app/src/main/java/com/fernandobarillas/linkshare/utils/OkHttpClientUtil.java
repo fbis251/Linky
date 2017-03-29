@@ -26,8 +26,8 @@ public class OkHttpClientUtil {
      * debug options the user chose in their Preferences, otherwise it returns the instance
      * unmodified
      */
-    public static OkHttpClient.Builder debugConfiguration(
-            AppPreferences appPreferences, OkHttpClient.Builder okHttpClientBuilder) {
+    public static OkHttpClient.Builder debugConfiguration(AppPreferences appPreferences,
+            OkHttpClient.Builder okHttpClientBuilder) {
         Timber.v("debugConfiguration() called with: "
                 + "appPreferences = ["
                 + appPreferences

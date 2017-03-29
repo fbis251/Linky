@@ -49,6 +49,30 @@ public class LinkStorage {
 
     private final Realm mRealm;
 
+    // Query results filtering
+    @IntDef({
+            FILTER_FRESH,
+            FILTER_ALL,
+            FILTER_FAVORITES,
+            FILTER_ARCHIVED,
+            FILTER_CATEGORY,
+            FILTER_SEARCH
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FilterMode {
+    }
+
+    // Query results sorting
+    @IntDef({
+            SORT_TITLE_ASCENDING,
+            SORT_TITLE_DESCENDING,
+            SORT_TIMESTAMP_ASCENDING,
+            SORT_TIMESTAMP_DESCENDING
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SortMode {
+    }
+
     public LinkStorage(Realm realm) {
         mRealm = realm;
     }
@@ -210,8 +234,7 @@ public class LinkStorage {
         });
     }
 
-    private RealmResults<Link> applyQuerySort(
-            RealmQuery<Link> query,
+    private RealmResults<Link> applyQuerySort(RealmQuery<Link> query,
             @Nullable String searchTerm,
             @FilterMode int filterMode,
             @SortMode int sortMode) {
@@ -252,29 +275,5 @@ public class LinkStorage {
         }
 
         return null;
-    }
-
-    // Query results filtering
-    @IntDef({
-            FILTER_FRESH,
-            FILTER_ALL,
-            FILTER_FAVORITES,
-            FILTER_ARCHIVED,
-            FILTER_CATEGORY,
-            FILTER_SEARCH
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface FilterMode {
-    }
-
-    // Query results sorting
-    @IntDef({
-            SORT_TITLE_ASCENDING,
-            SORT_TITLE_DESCENDING,
-            SORT_TIMESTAMP_ASCENDING,
-            SORT_TIMESTAMP_DESCENDING
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface SortMode {
     }
 }

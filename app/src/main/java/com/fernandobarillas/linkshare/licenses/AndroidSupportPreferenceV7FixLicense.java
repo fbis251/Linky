@@ -17,19 +17,19 @@ public class AndroidSupportPreferenceV7FixLicense extends License {
         return "The Unlicense";
     }
 
-    public String readSummaryTextFromResources(Context context) {
-        return this.getContent(context, R.raw.android_support_preference_v7_fix_license_summary);
-    }
-
-    public String readFullTextFromResources(Context context) {
-        return this.getContent(context, R.raw.android_support_preference_v7_fix_license);
+    public String getUrl() {
+        return "https://unlicense.org/";
     }
 
     public String getVersion() {
         return "";
     }
 
-    public String getUrl() {
-        return "https://unlicense.org/";
+    public String readFullTextFromResources(Context context) {
+        return this.getContent(context, R.raw.android_support_preference_v7_fix_license);
+    }
+
+    public String readSummaryTextFromResources(Context context) {
+        return this.getContent(context, R.raw.android_support_preference_v7_fix_license_summary);
     }
 }

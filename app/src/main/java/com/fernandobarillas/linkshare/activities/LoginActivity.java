@@ -90,8 +90,7 @@ public class LoginActivity extends BaseLinkActivity {
         InputFilter[] noSpacesInputFilter = new InputFilter[]{
                 new InputFilter() {
                     @Override
-                    public CharSequence filter(
-                            CharSequence charSequence,
+                    public CharSequence filter(CharSequence charSequence,
                             int i,
                             int i1,
                             Spanned spanned,
@@ -112,14 +111,6 @@ public class LoginActivity extends BaseLinkActivity {
         mServerAddressView.setFilters(noSpacesInputFilter);
         mServerAddressView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
             public void afterTextChanged(Editable editable) {
                 String s = editable.toString();
                 String prefix = mHttpCheckbox.isChecked() ? PREFIX_HTTP : PREFIX_HTTPS;
@@ -135,6 +126,14 @@ public class LoginActivity extends BaseLinkActivity {
                     mServerAddressView.setText(s);
                     mServerAddressView.setSelection(prefix.length());
                 }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
         });
 
@@ -253,6 +252,13 @@ public class LoginActivity extends BaseLinkActivity {
         Call<ResponseBody> loginCall = mLinkService.login(loginRequest);
         loginCall.enqueue(new Callback<ResponseBody>() {
             @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Timber.v("doLogin onFailure() called with: " + "t = [" + t + "]");
+                Timber.e("doLogin onFailure: ", t);
+                handleLoginError(true, t, null);
+            }
+
+            @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 Timber.v("doLogin onResponse() called with: " + "response = [" + response + "]");
                 Timber.v("doLogin onResponse: Body: " + response.body());
@@ -304,18 +310,10 @@ public class LoginActivity extends BaseLinkActivity {
                     handleLoginError(false, e, null);
                 }
             }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Timber.v("doLogin onFailure() called with: " + "t = [" + t + "]");
-                Timber.e("doLogin onFailure: ", t);
-                handleLoginError(true, t, null);
-            }
         });
     }
 
-    private void handleLoginError(
-            boolean isUsernameOrPasswordError,
+    private void handleLoginError(boolean isUsernameOrPasswordError,
             @Nullable Throwable t,
             @Nullable String errorMessage) {
         Timber.v("handleLoginError() called with: "

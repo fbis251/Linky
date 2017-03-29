@@ -20,8 +20,10 @@ public class Snacks {
         return showSnackbar(view, message, indefinite, null);
     }
 
-    public static Snackbar showSnackbar(
-            View view, String message, boolean indefinite, Action snackAction) {
+    public static Snackbar showSnackbar(View view,
+            String message,
+            boolean indefinite,
+            Action snackAction) {
         if (view == null || message == null) return null;
         int length = indefinite ? Snackbar.LENGTH_INDEFINITE : Snackbar.LENGTH_LONG;
         Snackbar snackbar = Snackbar.make(view, message, length);
