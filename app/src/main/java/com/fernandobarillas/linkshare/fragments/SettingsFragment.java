@@ -9,7 +9,7 @@ import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.activities.SettingsActivity;
 
 /**
- * Created by fb on 3/8/17.
+ * A Fragment that displays Preferences
  */
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -22,13 +22,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             addPreferencesFromResource(R.xml.debug_preferences);
         }
         mActivity = (SettingsActivity) getActivity();
-        Preference licensesPreferences =
-                findPreference(getString(R.string.preference_licenses_key));
-        if (licensesPreferences != null) {
-            licensesPreferences.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+        Preference licensesPreference = findPreference(getString(R.string.preference_licenses_key));
+        if (licensesPreference != null) {
+            licensesPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     mActivity.openLicensesDialog();
+                    return true;
+                }
+            });
+        }
+
+        Preference aboutPreference = findPreference(getString(R.string.preference_about_key));
+        if (aboutPreference != null) {
+            aboutPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    mActivity.openAbout();
                     return true;
                 }
             });

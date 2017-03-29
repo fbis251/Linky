@@ -57,10 +57,6 @@
                 android:label="@string/title_about"
                 android:parentActivityName=".activities.SettingsActivity"
                 android:theme="@style/AboutTheme">
-            <intent-filter>
-                <action android:name="AboutActivity"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
         </activity>
     </application>
 

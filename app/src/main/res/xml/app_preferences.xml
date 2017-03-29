@@ -31,11 +31,11 @@
     <android.support.v7.preference.PreferenceCategory
             android:title="@string/preference_category_information">
 
-        <PreferenceScreen
-                android:summary="@string/preference_about_activity_summary"
-                android:title="@string/preference_about_activity_title">
-            <intent android:action="AboutActivity"/>
-        </PreferenceScreen>
+        <Preference
+                android:key="@string/preference_about_key"
+                android:summary="@string/preference_about_summary"
+                android:title="@string/preference_about_title">
+        </Preference>
 
         <Preference
                 android:key="@string/preference_licenses_key"

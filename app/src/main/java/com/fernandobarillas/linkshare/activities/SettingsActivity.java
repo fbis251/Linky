@@ -1,5 +1,6 @@
 package com.fernandobarillas.linkshare.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
@@ -9,6 +10,10 @@ import com.fernandobarillas.linkshare.licenses.AndroidSupportPreferenceV7FixLice
 import de.psdev.licensesdialog.LicenseResolver;
 import de.psdev.licensesdialog.LicensesDialog;
 import timber.log.Timber;
+
+/**
+ * An Activity that allows the user to change their preferences
+ */
 
 public class SettingsActivity extends BaseActivity {
 
@@ -28,6 +33,11 @@ public class SettingsActivity extends BaseActivity {
         Timber.v("onSupportNavigateUp()");
         onBackPressed();
         return true;
+    }
+
+    public void openAbout() {
+        Timber.v("openAbout() called");
+        startActivity(new Intent(this, AboutActivity.class));
     }
 
     public void openLicensesDialog() {

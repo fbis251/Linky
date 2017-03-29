@@ -111,6 +111,7 @@
     <string name="preference_confirm_exit_on_back_press_summary_off">App will exit when you press the back key</string>
 
     <!-- Debug -->
+    <string name="preference_category_debug">Debug</string>
     <string name="preference_use_http_proxy_key">pref_use_http_proxy</string>
     <string name="preference_http_proxy_address_key">pref_http_proxy_address</string>
     <string name="preference_http_proxy_port_key">pref_http_proxy_port</string>
@@ -120,8 +121,9 @@
 
     <!-- Information -->
     <string name="preference_category_information">Information</string>
-    <string name="preference_about_activity_title">@string/title_about</string>
-    <string name="preference_about_activity_summary">View application information</string>
+    <string name="preference_about_key">pref_about</string>
+    <string name="preference_about_title">@string/title_about</string>
+    <string name="preference_about_summary">View application information</string>
     <string name="preference_licenses_key">pref_licenses</string>
     <string name="preference_licenses_title">Licenses</string>
     <string name="preference_licenses_summary">View software licenses</string>
