@@ -77,6 +77,14 @@ public class LinksApi {
         }
     }
 
+    public String getApiUrlWithScheme() {
+        String result = "";
+        if (mApiUrl != null) {
+            result = String.format("%s://%s", mApiUrl.getProtocol(), mApiUrl.getHost());
+        }
+        return result;
+    }
+
     public LinkService getLinkService(final AppPreferences preferences) {
         if (preferences != null) {
             mHttpClientBuilder =

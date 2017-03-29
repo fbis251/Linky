@@ -6,19 +6,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,10 +26,9 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.adapters.LinksAdapter;
 import com.fernandobarillas.linkshare.callbacks.ItemSwipedRightCallback;
@@ -40,6 +36,7 @@ import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.models.ErrorResponse;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.models.UserInfoResponse;
+import com.fernandobarillas.linkshare.ui.CategoryDrawerItem;
 import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
 import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ResponseUtils;
@@ -47,9 +44,23 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.kennyc.bottomsheet.BottomSheet;
 import com.kennyc.bottomsheet.BottomSheetListener;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.BadgeStyle;
+import com.mikepenz.materialdrawer.holder.StringHolder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -62,8 +73,8 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public class LinksListActivity extends BaseLinkActivity
-        implements RealmChangeListener<RealmResults<Link>>,
-        NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
+        implements RealmChangeListener<RealmResults<Link>>, SearchView.OnQueryTextListener,
+        AccountHeader.OnAccountHeaderListener, Drawer.OnDrawerItemClickListener {
 
     private static final int EDIT_LINK_REQUEST     = 1;// Request code for EditLinkActivity
     private static final int CATEGORIES_MENU_GROUP = 2; // Menu Group ID to use for link categories
@@ -86,21 +97,28 @@ public class LinksListActivity extends BaseLinkActivity
     // Toolbar behavior
     private static final int TOOLBAR_SCROLL_FLAG_RESET = 0;
 
+    // Drawer Navigation
+    private static final int DRAWER_NAV_LOG_OUT   = -2;
+    private static final int DRAWER_NAV_PROFILE   = -1;
+    private static final int DRAWER_NAV_FRESH     = 0;
+    private static final int DRAWER_NAV_ALL       = 1;
+    private static final int DRAWER_NAV_FAVORITES = 2;
+    private static final int DRAWER_NAV_ARCHIVED  = 3;
+    private static final int DRAWER_NAV_SETTINGS  = 4;
+
     // Links to display
     private RealmResults<Link> mLinks;
 
     // UI Behavior
     private boolean mHideToolbarOnScroll;
 
-    // UI Views
-    private DrawerLayout       mDrawerLayout;
-    private TextView           mDrawerUsername;
-    private NavigationView     mNavigationView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private RecyclerView       mRecyclerView;
-    private LinksAdapter       mLinksAdapter;
-    private SearchView         mSearchView;
-    private Toolbar            mToolbar;
+    private Drawer               mDrawer;
+    private SwipeRefreshLayout   mSwipeRefreshLayout;
+    private RecyclerView         mRecyclerView;
+    private LinksAdapter         mLinksAdapter;
+    private SearchView           mSearchView;
+    private Toolbar              mToolbar;
+    private ExpandableDrawerItem mCategoriesDrawerItem;
 
     // Sorting and filtering for results
     private String mCategory;
@@ -134,9 +152,8 @@ public class LinksListActivity extends BaseLinkActivity
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout == null) super.onBackPressed();
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            closeDrawer();
+        if (mDrawer != null && mDrawer.isDrawerOpen()) {
+            mDrawer.closeDrawer();
         } else if (mPreferences.isConfirmExitOnBackPress()) {
             confirmExit();
         } else {
@@ -159,6 +176,7 @@ public class LinksListActivity extends BaseLinkActivity
     @Override
     public void onChange(RealmResults<Link> element) {
         Timber.v("onChange() called with: " + "element = [" + element + "]");
+        updateDrawerFreshLinkCount();
         populateDrawerCategories();
         updateToolbarTitle();
     }
@@ -187,7 +205,6 @@ public class LinksListActivity extends BaseLinkActivity
         }
 
         setContentView(R.layout.activity_links_list);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.links_drawer_layout);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.links_swipe_refresh_layout);
         mRecyclerView = (RecyclerView) findViewById(R.id.links_recycler_view);
         Drawable dividerDrawable = ContextCompat.getDrawable(this, R.drawable.link_divider);
@@ -196,20 +213,6 @@ public class LinksListActivity extends BaseLinkActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         mHideToolbarOnScroll = mPreferences.isHideToolbarOnScroll();
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
-                mDrawerLayout,
-                mToolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
-        mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (mNavigationView != null) {
-            mNavigationView.setNavigationItemSelectedListener(this);
-            showNavAccountMenu(false);
-        }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -222,19 +225,8 @@ public class LinksListActivity extends BaseLinkActivity
             }
         });
 
-        // Set up the drawer's username
-        View header = mNavigationView.getHeaderView(0);
-        if (header != null) {
-            mDrawerUsername = (TextView) header.findViewById(R.id.nav_drawer_username);
-            if (mDrawerUsername != null) {
-                String title = String.format(getString(R.string.nav_welcome_format),
-                        mPreferences.getUsername());
-                mDrawerUsername.setText(title);
-                Timber.i("onCreate: userdrawer Set drawer text: " + mDrawerUsername.getText());
-                mDrawerUsername.setOnClickListener(navAccountShowListener());
-            }
-        }
-
+        // Set up the navigation drawer
+        drawerSetup(savedInstanceState);
         // Show locally stored links right away, if available
         adapterSetup();
     }
@@ -313,42 +305,48 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Timber.v("onNavigationItemSelected() called with: " + "item = [" + item + "]");
-        int id = item.getItemId();
-
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        Timber.v("onItemClick() called with: "
+                + "view = ["
+                + view
+                + "], position = ["
+                + position
+                + "], drawerItem = ["
+                + drawerItem
+                + "]");
         // Keep track of the current filter mode and category to update the UI if they change
         int lastFilterMode = mFilterMode;
         String lastCategory = mCategory;
-        if (item.getGroupId() == R.id.nav_drawer_account) {
-            Timber.v("onNavigationItemSelected: item = [" + item + "]");
-            performLogout();
-        } else if (item.getGroupId() == CATEGORIES_MENU_GROUP) {
+
+        if (drawerItem instanceof CategoryDrawerItem) {
+            CategoryDrawerItem categoryDrawerItem = (CategoryDrawerItem) drawerItem;
             mFilterMode = LinkStorage.FILTER_CATEGORY;
-            mCategory = item.getTitle().toString();
-            Timber.d("onNavigationItemSelected: Tapped category: " + mCategory);
+            mCategory = categoryDrawerItem.getName().getText(this);
+            Timber.d("onItemClick: Tapped category: " + mCategory);
         } else {
-            switch (id) {
-                case (R.id.nav_fresh_links):
-                    Timber.i("onNavigationItemSelected: Displaying fresh Links");
+            // Cast to int since the IDs we've set for each item are all integer constants
+            int itemId = (int) drawerItem.getIdentifier();
+            switch (itemId) {
+                case (DRAWER_NAV_FRESH):
+                    Timber.i("onItemClick: Displaying fresh Links");
                     mFilterMode = LinkStorage.FILTER_FRESH;
                     break;
-                case (R.id.nav_all_links):
-                    Timber.i("onNavigationItemSelected: Displaying all Links");
+                case (DRAWER_NAV_ALL):
+                    Timber.i("onItemClick: Displaying all Links");
                     mFilterMode = LinkStorage.FILTER_ALL;
                     break;
-                case (R.id.nav_favorites):
-                    Timber.i("onNavigationItemSelected: Displaying favorite Links");
+                case (DRAWER_NAV_FAVORITES):
+                    Timber.i("onItemClick: Displaying favorite Links");
                     mFilterMode = LinkStorage.FILTER_FAVORITES;
                     break;
-                case (R.id.nav_archived):
-                    Timber.i("onNavigationItemSelected: Displaying archived Links");
+                case (DRAWER_NAV_ARCHIVED):
+                    Timber.i("onItemClick: Displaying archived Links");
                     mFilterMode = LinkStorage.FILTER_ARCHIVED;
                     break;
-                case (R.id.nav_settings):
-                    Timber.i("onNavigationItemSelected: Opening Settings");
-                    startActivity(new Intent(this, SettingsActivity.class));
-                    return false;
+                case (DRAWER_NAV_SETTINGS):
+                    Timber.i("onItemClick: Opening Settings");
+                    openSettings();
+                    return true; // Don't close nav drawer, don't need to do the UI update below
                 default:
                     break;
             }
@@ -363,8 +361,24 @@ public class LinksListActivity extends BaseLinkActivity
             updateUi = lastFilterMode != mFilterMode;
         }
         if (updateUi) performUiUpdate();
-        closeDrawer();
-        return true;
+        return false; // Returning false will close the drawer after click
+    }
+
+    @Override
+    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+        Timber.v("onProfileChanged() called with: "
+                + "view = ["
+                + view
+                + "], profile = ["
+                + profile
+                + "], current = ["
+                + current
+                + "]");
+        if (profile instanceof IDrawerItem && profile.getIdentifier() == DRAWER_NAV_LOG_OUT) {
+            Timber.i("onProfileChanged: Performing logout");
+            performLogout();
+        }
+        return false;
     }
 
     @Override
@@ -470,14 +484,9 @@ public class LinksListActivity extends BaseLinkActivity
         if (mLinksAdapter == null) {
             showAllLinks();
         }
+        updateDrawerFreshLinkCount();
         populateDrawerCategories();
         touchHelperSetup();
-    }
-
-    private void closeDrawer() {
-        Timber.v("closeDrawer()");
-        if (mDrawerLayout == null) return;
-        mDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private void confirmExit() {
@@ -522,6 +531,66 @@ public class LinksListActivity extends BaseLinkActivity
         }
         Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
         deleteCall.enqueue(new LinkUpdateCallback(link, UPDATE_DELETE, false, position));
+    }
+
+    private void drawerSetup(final Bundle savedInstanceState) {
+        Timber.v("drawerSetup() called with: "
+                + "savedInstanceState = ["
+                + savedInstanceState
+                + "]");
+        if (mPreferences == null || mLinkStorage == null) return;
+        String username = mPreferences.getUsername();
+        if (username == null) username = "";
+
+        String domain = "";
+        if (mLinksApi != null) domain = mLinksApi.getApiUrlWithScheme();
+        final IProfile profile = new ProfileDrawerItem().withNameShown(true)
+                .withName(username)
+                .withEmail(domain)
+                .withIcon(getUserProfileDrawable(username))
+                .withIdentifier(DRAWER_NAV_PROFILE);
+
+        AccountHeader accountHeader = new AccountHeaderBuilder().withActivity(this)
+                .withCompactStyle(true)
+                .withHeaderBackground(R.drawable.drawer_header_background)
+                .addProfiles(profile,
+                        new ProfileSettingDrawerItem().withName(getString(R.string.nav_log_out))
+                                .withDescription(getString(R.string.nav_log_out_description))
+                                .withIcon(R.drawable.ic_log_out_black_24dp)
+                                .withIdentifier(DRAWER_NAV_LOG_OUT))
+                .withOnAccountHeaderListener(this)
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+        mCategoriesDrawerItem = new ExpandableDrawerItem().withName(R.string.title_categories);
+
+        mDrawer = new DrawerBuilder().withActivity(this)
+                .withTranslucentStatusBar(false)
+                .withAccountHeader(accountHeader)
+                .withHasStableIds(true)
+                .withToolbar(mToolbar)
+                .addDrawerItems(new PrimaryDrawerItem().withName(R.string.nav_fresh_links)
+                                .withIcon(R.drawable.ic_fresh_links_24dp)
+                                .withIdentifier(DRAWER_NAV_FRESH)
+                                .withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE)
+                                        .withColorRes(R.color.md_red_700)),
+                        new PrimaryDrawerItem().withName(R.string.nav_all_links)
+                                .withIcon(R.drawable.ic_all_links_24dp)
+                                .withIdentifier(DRAWER_NAV_ALL),
+                        new PrimaryDrawerItem().withName(R.string.nav_favorite_links)
+                                .withIcon(R.drawable.ic_favorite_filled_black_24dp)
+                                .withIdentifier(DRAWER_NAV_FAVORITES),
+                        new PrimaryDrawerItem().withName(R.string.nav_archived_links)
+                                .withIcon(R.drawable.ic_archived_24dp)
+                                .withIdentifier(DRAWER_NAV_ARCHIVED),
+                        new PrimaryDrawerItem().withName(R.string.nav_settings)
+                                .withIcon(R.drawable.ic_settings_24dp)
+                                .withIdentifier(DRAWER_NAV_SETTINGS),
+                        new DividerDrawerItem(),
+                        mCategoriesDrawerItem)
+                .withSavedInstance(savedInstanceState)
+                .withOnDrawerItemClickListener(this)
+                .build();
     }
 
     private void editLink(final int position) {
@@ -671,6 +740,23 @@ public class LinksListActivity extends BaseLinkActivity
         });
     }
 
+    private Drawable getUserProfileDrawable(String username) {
+        if (username == null) username = "";
+        String firstLetter = username.length() > 0 ? username.substring(0, 1) : "";
+        int backgroundColor = ContextCompat.getColor(this, R.color.drawerUserIconBackground);
+        int textColor = ContextCompat.getColor(this, R.color.drawerUserIconText);
+        int iconSizeDimen = R.dimen.material_drawer_item_profile_icon;
+        int iconSize = getResources().getDimensionPixelSize(iconSizeDimen);
+        return TextDrawable.builder()
+                .beginConfig()
+                .textColor(textColor)
+                .toUpperCase()
+                .width(iconSize)
+                .height(iconSize)
+                .endConfig()
+                .buildRect(firstLetter, backgroundColor);
+    }
+
     private boolean handleHttpResponseError(Response response) {
         Timber.v("handleHttpResponseError() called with: " + "response = [" + response + "]");
         if (response == null) return false;
@@ -717,31 +803,6 @@ public class LinksListActivity extends BaseLinkActivity
         if (lastFilterMode != mFilterMode) performUiUpdate();
     }
 
-    private View.OnClickListener navAccountHideListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showNavAccountMenu(false);
-                if (mDrawerUsername != null) {
-                    mDrawerUsername.setOnClickListener(navAccountShowListener());
-                }
-            }
-        };
-    }
-
-    private View.OnClickListener navAccountShowListener() {
-        return new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                showNavAccountMenu(true);
-                if (mDrawerUsername != null) {
-                    mDrawerUsername.setOnClickListener(navAccountHideListener());
-                }
-            }
-        };
-    }
-
     /**
      * Handles updating the Toolbar title and the links that are displayed with the current mode the
      * application is in. These modes include which section the user was browsing (All, Archived,
@@ -775,26 +836,20 @@ public class LinksListActivity extends BaseLinkActivity
 
     private void populateDrawerCategories() {
         Timber.v("populateDrawerCategories()");
-        if (mLinkStorage == null) return;
-        Set<String> categories = mLinkStorage.getCategories();
-        if (categories.size() > 0) {
-            Menu navMenu = mNavigationView.getMenu();
-            navMenu.removeGroup(CATEGORIES_MENU_GROUP); // Avoid duplicate SubMenus
-            SubMenu categoriesMenu = navMenu.addSubMenu(CATEGORIES_MENU_GROUP,
-                    Menu.NONE,
-                    Menu.NONE,
-                    getString(R.string.title_categories));
-            categoriesMenu.add(CATEGORIES_MENU_GROUP,
-                    Menu.NONE,
-                    Menu.NONE,
-                    getString(R.string.category_uncategorized));
-            for (String category : categories) {
-                categoriesMenu.add(CATEGORIES_MENU_GROUP, Menu.NONE, Menu.NONE, category);
-            }
-
-            // Only allow one category to be checked/highlighted at a time
-            categoriesMenu.setGroupCheckable(CATEGORIES_MENU_GROUP, true, true);
+        if (mDrawer == null || mCategoriesDrawerItem == null || mLinkStorage == null) return;
+        List<IDrawerItem> drawerCategoriesList = new ArrayList<>();
+        drawerCategoriesList.add(new CategoryDrawerItem(R.string.category_uncategorized));
+        Set<String> categoriesSet = mLinkStorage.getCategories();
+        for (String category : categoriesSet) {
+            drawerCategoriesList.add(new CategoryDrawerItem(category));
         }
+
+        // Update the DrawerItem with the new List of categories
+        mCategoriesDrawerItem.withSubItems(drawerCategoriesList);
+        mDrawer.updateItem(mCategoriesDrawerItem);
+        Timber.v("populateDrawerCategories: category count = ["
+                + drawerCategoriesList.size()
+                + "]");
     }
 
     private Snacks.Action retryGetLinksAction() {
@@ -851,14 +906,6 @@ public class LinksListActivity extends BaseLinkActivity
         updateUiAfterAdapterChange();
     }
 
-    private void showNavAccountMenu(final boolean show) {
-        Timber.v("showNavAccountMenu() called with: " + "show = [" + show + "]");
-        if (mNavigationView == null) return;
-        Menu menu = mNavigationView.getMenu();
-        if (menu == null) return;
-        menu.setGroupVisible(R.id.nav_drawer_account, show);
-    }
-
     private void showSearchResultLinks(String searchTerm) {
         Timber.v("showSearchResultLinks() called with: " + "searchTerm = [" + searchTerm + "]");
         mLinks = mLinkStorage.findByString(searchTerm, mSortMode);
@@ -881,6 +928,14 @@ public class LinksListActivity extends BaseLinkActivity
                 });
         ItemTouchHelper simpleItemTouchHelper = new ItemTouchHelper(callback);
         simpleItemTouchHelper.attachToRecyclerView(mRecyclerView);
+    }
+
+    private void updateDrawerFreshLinkCount() {
+        Timber.v("updateDrawerFreshLinkCount() called");
+        if (mDrawer == null || mLinkStorage == null) return;
+        long freshLinkCount = mLinkStorage.getFreshLinkCount();
+        String newCount = Long.toString(freshLinkCount);
+        mDrawer.updateBadge(DRAWER_NAV_FRESH, new StringHolder(newCount));
     }
 
     private void updateToolbarScrollBehavior() {

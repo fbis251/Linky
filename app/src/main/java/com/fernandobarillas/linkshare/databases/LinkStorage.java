@@ -132,6 +132,11 @@ public class LinkStorage {
         return categories;
     }
 
+    public long getFreshLinkCount() {
+        Timber.v("getFreshLinkCount() called");
+        return mRealm.where(Link.class).equalTo(COLUMN_IS_ARCHIVED, false).count();
+    }
+
     public long getLinksCount() {
         return mRealm.where(Link.class).count();
     }

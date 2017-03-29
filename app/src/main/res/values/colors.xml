@@ -7,8 +7,11 @@
     <!-- Link colors -->
     <color name="linkCategoryBackground">@color/gray300</color>
 
-    <!-- Material colors -->
+    <!-- Drawer Colors -->
+    <color name="drawerUserIconBackground">@color/accent</color>
+    <color name="drawerUserIconText">@color/md_black_1000</color>
 
+    <!-- Material colors -->
     <color name="amber500">#ffc107</color>
 
     <color name="deepPurple500">#673ab7</color>

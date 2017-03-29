@@ -16,6 +16,7 @@ public abstract class BaseLinkActivity extends BaseActivity {
 
     LinkStorage mLinkStorage;
     LinkService mLinkService;
+    LinksApi    mLinksApi;
     private Realm mRealm;
 
     @Override
@@ -64,10 +65,10 @@ public abstract class BaseLinkActivity extends BaseActivity {
         mLinkService = mLinksApp.getLinkService();
         if (mLinkService == null) {
             try {
-                LinksApi linksApi = new LinksApi(mPreferences.getApiUrl(),
+                mLinksApi = new LinksApi(mPreferences.getApiUrl(),
                         mPreferences.getUserId(),
                         mPreferences.getAuthString());
-                mLinksApp.setLinkService(linksApi.getLinkService(mPreferences));
+                mLinksApp.setLinkService(mLinksApi.getLinkService(mPreferences));
                 mLinkService = mLinksApp.getLinkService();
             } catch (InvalidApiUrlException e) {
                 Timber.e("serviceSetup: Invalid API URL, launching login activity", e);

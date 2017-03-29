@@ -113,6 +113,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         finish();
     }
 
+    void openSettings() {
+        Timber.v("openSettings() called");
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
+
     void openUrlExternally(final String url) {
         Timber.v("openUrlExternally() called with: " + "url = [" + url + "]");
         if (url == null) return;
