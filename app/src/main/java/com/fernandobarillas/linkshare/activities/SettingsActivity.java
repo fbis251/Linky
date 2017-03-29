@@ -1,6 +1,7 @@
 package com.fernandobarillas.linkshare.activities;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 
 import com.fernandobarillas.linkshare.R;
 import com.fernandobarillas.linkshare.licenses.AndroidSupportPreferenceV7FixLicense;
@@ -18,6 +19,8 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         Timber.v("onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         setContentView(R.layout.activity_settings);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
