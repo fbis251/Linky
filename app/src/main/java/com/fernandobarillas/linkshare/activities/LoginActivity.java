@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fernandobarillas.linkshare.R;
-import com.fernandobarillas.linkshare.api.LinksApi;
+import com.fernandobarillas.linkshare.api.LinkyService;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 import com.fernandobarillas.linkshare.models.ErrorResponse;
@@ -216,7 +216,7 @@ public class LoginActivity extends BaseLinkActivity {
         } else {
             try {
                 apiUrl = new URL(apiUrlString);
-                LinksApi.validateApiUrl(apiUrl);
+                LinkyService.validateApiUrl(apiUrl);
             } catch (MalformedURLException | InvalidApiUrlException e) {
                 Timber.e("attemptLogin: Invalid API URL: " + apiUrlString);
                 mServerAddressView.setError(getString(R.string.error_invalid_server_address));
@@ -241,7 +241,7 @@ public class LoginActivity extends BaseLinkActivity {
     private void doLogin(final URL apiUrl, final String username, final String password) {
         LoginRequest loginRequest = new LoginRequest(username, password);
         try {
-            mLinkService = new LinksApi(apiUrl).getLinkService(mPreferences);
+            mLinkyApi = new LinkyService(apiUrl).getLinkService(mPreferences);
         } catch (InvalidApiUrlException e) {
             Timber.e("doLogin: ", e);
             showProgress(false);
@@ -249,7 +249,7 @@ public class LoginActivity extends BaseLinkActivity {
             return;
         }
 
-        Call<ResponseBody> loginCall = mLinkService.login(loginRequest);
+        Call<ResponseBody> loginCall = mLinkyApi.login(loginRequest);
         loginCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {

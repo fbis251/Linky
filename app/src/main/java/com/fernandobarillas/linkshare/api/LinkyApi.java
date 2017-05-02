@@ -20,7 +20,7 @@ import retrofit2.http.Path;
 /**
  * Created by fb on 1/28/16.
  */
-public interface LinkService {
+public interface LinkyApi {
     String API_BASE_URL = "/api/1/"; // Must have trailing slash
 
     @POST("links")

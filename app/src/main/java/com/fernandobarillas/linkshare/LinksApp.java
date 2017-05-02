@@ -2,7 +2,7 @@ package com.fernandobarillas.linkshare;
 
 import android.app.Application;
 
-import com.fernandobarillas.linkshare.api.LinkService;
+import com.fernandobarillas.linkshare.api.LinkyApi;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.logging.Trees;
 
@@ -16,7 +16,7 @@ import timber.log.Timber;
 public class LinksApp extends Application {
 
     private AppPreferences mPreferences;
-    private LinkService    mLinkService;
+    private LinkyApi       mLinkyApi;
 
     @Override
     public void onCreate() {
@@ -35,9 +35,9 @@ public class LinksApp extends Application {
         realmInit();
     }
 
-    public LinkService getLinkService() {
-        Timber.v("getLinkService() called");
-        return mLinkService;
+    public LinkyApi getLinkyApi() {
+        Timber.v("getLinkyApi() called");
+        return mLinkyApi;
     }
 
     public AppPreferences getPreferences() {
@@ -47,9 +47,9 @@ public class LinksApp extends Application {
         return mPreferences;
     }
 
-    public void setLinkService(LinkService linkService) {
-        Timber.d("setLinkService() called with: linkService = [" + linkService + "]");
-        mLinkService = linkService;
+    public void setLinkyApi(LinkyApi linkyApi) {
+        Timber.d("setLinkyApi() called with: linkyApi = [" + linkyApi + "]");
+        mLinkyApi = linkyApi;
     }
 
     private void realmInit() {

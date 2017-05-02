@@ -192,7 +192,7 @@ public class EditLinkActivity extends BaseLinkActivity {
         Timber.v("updateLink() called with: " + "link = [" + link + "]");
         AddLinkRequest request = new AddLinkRequest(link);
         Timber.i("updateLink: request = [" + request + "]");
-        mLinkService.updateLink(link.getLinkId(), request).enqueue(new Callback<AddLinkResponse>() {
+        mLinkyApi.updateLink(link.getLinkId(), request).enqueue(new Callback<AddLinkResponse>() {
             @Override
             public void onFailure(Call<AddLinkResponse> call, Throwable t) {
                 Timber.v("onFailure() called with: " + "call = [" + call + "], t = [" + t + "]");

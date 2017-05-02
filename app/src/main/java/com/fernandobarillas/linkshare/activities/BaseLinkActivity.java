@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.fernandobarillas.linkshare.LinksApp;
-import com.fernandobarillas.linkshare.api.LinkService;
-import com.fernandobarillas.linkshare.api.LinksApi;
+import com.fernandobarillas.linkshare.api.LinkyApi;
+import com.fernandobarillas.linkshare.api.LinkyService;
 import com.fernandobarillas.linkshare.databases.LinkStorage;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 
@@ -14,9 +14,9 @@ import timber.log.Timber;
 
 public abstract class BaseLinkActivity extends BaseActivity {
 
-    LinkStorage mLinkStorage;
-    LinkService mLinkService;
-    LinksApi    mLinksApi;
+    LinkStorage  mLinkStorage;
+    LinkyApi     mLinkyApi;
+    LinkyService mLinkyService;
     private Realm mRealm;
 
     @Override
@@ -62,14 +62,14 @@ public abstract class BaseLinkActivity extends BaseActivity {
             launchLoginActivity();
             return;
         }
-        mLinkService = mLinksApp.getLinkService();
-        if (mLinkService == null) {
+        mLinkyApi = mLinksApp.getLinkyApi();
+        if (mLinkyApi == null) {
             try {
-                mLinksApi = new LinksApi(mPreferences.getApiUrl(),
+                mLinkyService = new LinkyService(mPreferences.getApiUrl(),
                         mPreferences.getUserId(),
                         mPreferences.getAuthString());
-                mLinksApp.setLinkService(mLinksApi.getLinkService(mPreferences));
-                mLinkService = mLinksApp.getLinkService();
+                mLinksApp.setLinkyApi(mLinkyService.getLinkService(mPreferences));
+                mLinkyApi = mLinksApp.getLinkyApi();
             } catch (InvalidApiUrlException e) {
                 Timber.e("serviceSetup: Invalid API URL, launching login activity", e);
                 performLogout();

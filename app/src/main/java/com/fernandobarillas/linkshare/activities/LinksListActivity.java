@@ -450,8 +450,8 @@ public class LinksListActivity extends BaseLinkActivity
             showSnackError(getString(R.string.error_link_favorite), false);
             return;
         }
-        Call<Void> favoriteCall = isFavorite ? mLinkService.favoriteLink(link.getLinkId())
-                : mLinkService.unfavoriteLink(link.getLinkId());
+        Call<Void> favoriteCall = isFavorite ? mLinkyApi.favoriteLink(link.getLinkId())
+                : mLinkyApi.unfavoriteLink(link.getLinkId());
         favoriteCall.enqueue(new LinkUpdateCallback(link, UPDATE_FAVORITE, isFavorite, position));
     }
 
@@ -530,7 +530,7 @@ public class LinksListActivity extends BaseLinkActivity
             showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
             return;
         }
-        Call<Void> deleteCall = mLinkService.deleteLink(link.getLinkId());
+        Call<Void> deleteCall = mLinkyApi.deleteLink(link.getLinkId());
         deleteCall.enqueue(new LinkUpdateCallback(link, UPDATE_DELETE, false, position));
     }
 
@@ -544,7 +544,7 @@ public class LinksListActivity extends BaseLinkActivity
         if (username == null) username = "";
 
         String domain = "";
-        if (mLinksApi != null) domain = mLinksApi.getApiUrlWithScheme();
+        if (mLinkyService != null) domain = mLinkyService.getApiUrlWithScheme();
         final IProfile profile = new ProfileDrawerItem().withNameShown(true)
                 .withName(username)
                 .withEmail(domain)
@@ -632,7 +632,7 @@ public class LinksListActivity extends BaseLinkActivity
     private void getList() {
         Timber.v("getList()");
         mSwipeRefreshLayout.setRefreshing(true);
-        Call<List<Link>> call = mLinkService.getLinks();
+        Call<List<Link>> call = mLinkyApi.getLinks();
         call.enqueue(new Callback<List<Link>>() {
             @Override
             public void onFailure(Call<List<Link>> call, Throwable t) {
@@ -698,7 +698,7 @@ public class LinksListActivity extends BaseLinkActivity
 
     private void getUserInfo() {
         Timber.v("getUserInfo()");
-        Call<UserInfoResponse> call = mLinkService.getUserInfo();
+        Call<UserInfoResponse> call = mLinkyApi.getUserInfo();
         final String errorMessage = "Error getting user info";
         call.enqueue(new Callback<UserInfoResponse>() {
             @Override
@@ -876,8 +876,8 @@ public class LinksListActivity extends BaseLinkActivity
             showSnackError(getString(R.string.link_update_error_refresh), getRefreshSnackAction());
             return;
         }
-        Call<Void> archiveCall = isArchived ? mLinkService.archiveLink(link.getLinkId())
-                : mLinkService.unarchiveLink(link.getLinkId());
+        Call<Void> archiveCall = isArchived ? mLinkyApi.archiveLink(link.getLinkId())
+                : mLinkyApi.unarchiveLink(link.getLinkId());
         archiveCall.enqueue(new LinkUpdateCallback(link, UPDATE_ARCHIVE, isArchived, position));
     }
 

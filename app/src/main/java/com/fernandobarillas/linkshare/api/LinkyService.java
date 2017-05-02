@@ -24,20 +24,20 @@ import timber.log.Timber;
  * Created by fb on 3/5/17.
  */
 
-public class LinksApi {
+public class LinkyService {
     private URL                  mApiUrl;
     private OkHttpClient.Builder mHttpClientBuilder;
 
-    public LinksApi(final URL apiUrl) throws InvalidApiUrlException {
-        Timber.v("LinksApi() called with: " + "apiUrl = [" + apiUrl + "]");
+    public LinkyService(final URL apiUrl) throws InvalidApiUrlException {
+        Timber.v("LinkyService() called with: " + "apiUrl = [" + apiUrl + "]");
         validateApiUrl(apiUrl);
         mApiUrl = apiUrl;
         mHttpClientBuilder = new OkHttpClient.Builder();
     }
 
-    public LinksApi(final URL apiUrl, final long userId, final String authToken)
+    public LinkyService(final URL apiUrl, final long userId, final String authToken)
             throws InvalidApiUrlException {
-        Timber.v("LinksApi() called with: "
+        Timber.v("LinkyService() called with: "
                 + "apiUrl = ["
                 + apiUrl
                 + "], userId = ["
@@ -85,7 +85,7 @@ public class LinksApi {
         return result;
     }
 
-    public LinkService getLinkService(final AppPreferences preferences) {
+    public LinkyApi getLinkService(final AppPreferences preferences) {
         if (preferences != null) {
             mHttpClientBuilder =
                     OkHttpClientUtil.debugConfiguration(preferences, mHttpClientBuilder);
@@ -95,12 +95,12 @@ public class LinksApi {
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder().client(okHttpClient)
                 .baseUrl(getApiBaseUrl(mApiUrl))
                 .addConverterFactory(GsonConverterFactory.create(gson));
-        return retrofitBuilder.build().create(LinkService.class);
+        return retrofitBuilder.build().create(LinkyApi.class);
     }
 
     private String getApiBaseUrl(URL apiUrl) {
         Timber.v("getApiBaseUrl() called with: " + "apiUrl = [" + apiUrl + "]");
-        String result = apiUrl.toString() + LinkService.API_BASE_URL;
+        String result = apiUrl.toString() + LinkyApi.API_BASE_URL;
         Timber.v("getApiBaseUrl: API base URL: " + result);
         return result;
     }

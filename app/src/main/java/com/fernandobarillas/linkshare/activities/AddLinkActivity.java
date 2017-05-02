@@ -80,7 +80,7 @@ public class AddLinkActivity extends BaseLinkActivity {
 
         showProgress(true);
         AddLinkRequest linkRequest = new AddLinkRequest(newLink);
-        Call<AddLinkResponse> call = mLinkService.addLink(linkRequest);
+        Call<AddLinkResponse> call = mLinkyApi.addLink(linkRequest);
         Timber.i("addLink: Calling URL: " + call.toString());
         call.enqueue(new Callback<AddLinkResponse>() {
             @Override
