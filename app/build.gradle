@@ -48,21 +48,22 @@ android {
 
 dependencies {
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    compile 'com.android.support:appcompat-v7:25.3.0'
-    compile 'com.android.support:design:25.3.0'
-    compile 'com.android.support:recyclerview-v7:25.3.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.github.Kennyc1012:BottomSheet:2.3.1'
-    compile 'com.github.varunest:sparkbutton:1.0.4'
+    compile 'com.github.Kennyc1012:BottomSheet:2.3.4'
+    compile 'com.github.varunest:sparkbutton:1.0.5'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.jakewharton.timber:timber:4.5.1'
-    compile('com.mikepenz:materialdrawer:5.8.2@aar') { transitive = true }
-    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile('com.mikepenz:materialdrawer:5.9.0@aar') { transitive = true }
+    compile 'com.squareup.moshi:moshi:1.4.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.7.0'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
-    compile 'com.takisoft.fix:preference-v7:25.3.0.0'
-    compile 'de.psdev.licensesdialog:licensesdialog:1.8.1'
+    compile 'com.takisoft.fix:preference-v7:25.3.1.0'
+    compile 'de.psdev.licensesdialog:licensesdialog:1.8.2'
     compile 'io.realm:android-adapters:2.0.0'
     testCompile 'junit:junit:4.12'
 }
