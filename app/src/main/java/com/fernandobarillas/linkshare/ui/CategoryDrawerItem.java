@@ -22,6 +22,6 @@ public class CategoryDrawerItem extends SecondaryDrawerItem {
     public String toString() {
         String name = "";
         if (getName() != null) name = getName().toString();
-        return "CategoryDrawerItem{" + "mCategory='" + name + '\'' + '}';
+        return "CategoryDrawerItem{" + "name='" + name + '\'' + '}';
     }
 }
