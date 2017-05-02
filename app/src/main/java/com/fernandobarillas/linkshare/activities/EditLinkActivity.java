@@ -1,5 +1,6 @@
 package com.fernandobarillas.linkshare.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ import timber.log.Timber;
 
 public class EditLinkActivity extends BaseLinkActivity {
 
-    public static final String EXTRA_LINK_ID = "link_id";
+    private static final String EXTRA_LINK_ID = "link_id";
 
     // Restore/Save instance state keys
     private static final String STATE_TITLE       = "title";
@@ -186,6 +187,19 @@ public class EditLinkActivity extends BaseLinkActivity {
         }
 
         super.onSaveInstanceState(outState);
+    }
+
+    public static void start(Context context, long linkId) {
+        Timber.v("start() called with: "
+                + "context = ["
+                + context
+                + "], linkId = ["
+                + linkId
+                + "]");
+        if(context == null) return;
+        Intent starter = new Intent(context, EditLinkActivity.class);
+        starter.putExtra(EXTRA_LINK_ID, linkId);
+        context.startActivity(starter);
     }
 
     private void updateLink(final Link link) {

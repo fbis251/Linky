@@ -1,6 +1,5 @@
 package com.fernandobarillas.linkshare.activities;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
@@ -132,9 +131,7 @@ public class AddLinkActivity extends BaseLinkActivity {
             Timber.e("editLink: Link was null, cannot edit");
             return;
         }
-        Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
-        editIntent.putExtra(EditLinkActivity.EXTRA_LINK_ID, link.getLinkId());
-        startActivity(editIntent);
+        EditLinkActivity.start(this, link.getLinkId());
         finish();
     }
 

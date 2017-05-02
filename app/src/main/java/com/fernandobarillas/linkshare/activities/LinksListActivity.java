@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -77,9 +76,6 @@ import timber.log.Timber;
 public class LinksListActivity extends BaseLinkActivity
         implements RealmChangeListener<RealmResults<Link>>, SearchView.OnQueryTextListener,
         AccountHeader.OnAccountHeaderListener, Drawer.OnDrawerItemClickListener {
-
-    private static final int EDIT_LINK_REQUEST     = 1;// Request code for EditLinkActivity
-    private static final int CATEGORIES_MENU_GROUP = 2; // Menu Group ID to use for link categories
 
     // Clipboard handling
     private static final String CLIPBOARD_LABEL = "LINK_URL";
@@ -359,27 +355,6 @@ public class LinksListActivity extends BaseLinkActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Timber.v("onActivityResult() called with: "
-                + "requestCode = ["
-                + requestCode
-                + "], resultCode = ["
-                + resultCode
-                + "], data = ["
-                + data
-                + "]");
-        if (requestCode == EDIT_LINK_REQUEST && resultCode == RESULT_OK) {
-            // TODO: Is this needed anymore considering this activity has a realm change listener?
-            // We can't reliably tell what operation the user performed on the Link, so it's best
-            // to just tell the adapter the entire dataset changed. Examples of not being able
-            // to tell include setting favorite to false when browsing favorites
-            // if (mLinksAdapter != null) mLinksAdapter.notifyDataSetChanged();
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     protected void onDestroy() {
         Timber.v("onDestroy()");
         if (mLinks != null) mLinks.removeChangeListener(this);
@@ -602,9 +577,7 @@ public class LinksListActivity extends BaseLinkActivity
             showSnackError(getString(R.string.error_cannot_edit), getRefreshSnackAction());
             return;
         }
-        Intent editIntent = new Intent(getApplicationContext(), EditLinkActivity.class);
-        editIntent.putExtra(EditLinkActivity.EXTRA_LINK_ID, link.getLinkId());
-        startActivityForResult(editIntent, EDIT_LINK_REQUEST);
+        EditLinkActivity.start(this, link.getLinkId());
     }
 
     private void errorResponseHandler(Response<Void> response, String errorMessage, int position) {
