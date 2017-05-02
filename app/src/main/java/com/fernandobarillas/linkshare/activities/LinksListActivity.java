@@ -40,8 +40,6 @@ import com.fernandobarillas.linkshare.ui.CategoryDrawerItem;
 import com.fernandobarillas.linkshare.ui.ItemTouchHelperCallback;
 import com.fernandobarillas.linkshare.ui.Snacks;
 import com.fernandobarillas.linkshare.utils.ResponseUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.kennyc.bottomsheet.BottomSheet;
 import com.kennyc.bottomsheet.BottomSheetListener;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -57,7 +55,11 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonDataException;
+import com.squareup.moshi.Moshi;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -768,13 +770,14 @@ public class LinksListActivity extends BaseLinkActivity
         String format = "Error %d%s";
         String errorMessage = "";
         try {
-            ErrorResponse errorResponse =
-                    new Gson().fromJson(errorBody.charStream(), ErrorResponse.class);
+            Moshi moshi = new Moshi.Builder().build();
+            JsonAdapter<ErrorResponse> errorAdapter = moshi.adapter(ErrorResponse.class);
+            ErrorResponse errorResponse = errorAdapter.fromJson(errorBody.source());
             if (errorResponse != null) {
                 errorMessage = errorResponse.getErrorMessage();
                 format = "Error %d: %s";
             }
-        } catch (JsonParseException ignored) {
+        } catch (IOException | JsonDataException ignored) {
             return false;
         }
         if (TextUtils.isEmpty(errorMessage)) format = "Error %d%s"; // TODO: Extract me

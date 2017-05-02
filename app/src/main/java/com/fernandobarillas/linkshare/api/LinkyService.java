@@ -5,8 +5,6 @@ import android.text.TextUtils;
 import com.fernandobarillas.linkshare.configuration.AppPreferences;
 import com.fernandobarillas.linkshare.exceptions.InvalidApiUrlException;
 import com.fernandobarillas.linkshare.utils.OkHttpClientUtil;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.URL;
@@ -17,7 +15,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.moshi.MoshiConverterFactory;
 import timber.log.Timber;
 
 /**
@@ -91,10 +89,9 @@ public class LinkyService {
                     OkHttpClientUtil.debugConfiguration(preferences, mHttpClientBuilder);
         }
         OkHttpClient okHttpClient = mHttpClientBuilder.build();
-        Gson gson = new GsonBuilder().serializeNulls().create();
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder().client(okHttpClient)
                 .baseUrl(getApiBaseUrl(mApiUrl))
-                .addConverterFactory(GsonConverterFactory.create(gson));
+                .addConverterFactory(MoshiConverterFactory.create());
         return retrofitBuilder.build().create(LinkyApi.class);
     }
 

@@ -27,8 +27,9 @@ import com.fernandobarillas.linkshare.models.ErrorResponse;
 import com.fernandobarillas.linkshare.models.LoginRequest;
 import com.fernandobarillas.linkshare.models.LoginResponse;
 import com.fernandobarillas.linkshare.utils.ResponseUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonDataException;
+import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -263,19 +264,20 @@ public class LoginActivity extends BaseLinkActivity {
                 Timber.v("doLogin onResponse() called with: " + "response = [" + response + "]");
                 Timber.v("doLogin onResponse: Body: " + response.body());
                 Timber.v("doLogin onResponse: Error body: " + response.errorBody());
-                Gson gson = new Gson();
+                Moshi moshi = new Moshi.Builder().build();
                 try {
                     if (response.isSuccessful()) {
                         // HTTP 200 response, response body might still be empty
                         if (response.body() != null) {
                             try {
+                                JsonAdapter<LoginResponse> loginAdapter =
+                                        moshi.adapter(LoginResponse.class);
                                 LoginResponse loginResponse =
-                                        gson.fromJson(response.body().string(),
-                                                LoginResponse.class);
+                                        loginAdapter.fromJson(response.body().source());
                                 if (!handleLoginSuccess(apiUrl, loginResponse)) {
                                     handleLoginError(true, null, null);
                                 }
-                            } catch (JsonSyntaxException e) {
+                            } catch (JsonDataException e) {
                                 handleLoginError(false,
                                         null,
                                         getString(R.string.error_invalid_json));
@@ -290,15 +292,16 @@ public class LoginActivity extends BaseLinkActivity {
                                 response.code());
                         if (response.errorBody() != null) {
                             try {
+                                JsonAdapter<ErrorResponse> errorAdapter =
+                                        moshi.adapter(ErrorResponse.class);
                                 ErrorResponse errorResponse =
-                                        gson.fromJson(response.errorBody().string(),
-                                                ErrorResponse.class);
+                                        errorAdapter.fromJson(response.body().source());
                                 if (errorResponse != null) {
                                     Timber.w("doLogin onResponse: API Response message: "
                                             + errorResponse.getErrorMessage());
                                     errorMessage = errorResponse.getErrorMessage();
                                 }
-                            } catch (JsonSyntaxException ignored) {
+                            } catch (JsonDataException ignored) {
                             }
                         }
                         handleLoginError(ResponseUtils.isAuthenticationError(response),
