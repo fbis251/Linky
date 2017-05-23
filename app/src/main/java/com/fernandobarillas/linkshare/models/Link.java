@@ -59,6 +59,16 @@ public class Link implements RealmModel {
         setUrl(url);
     }
 
+    public Link(Link otherLink) {
+        linkId = otherLink.getLinkId();
+        category = otherLink.getCategory();
+        isArchived = otherLink.isArchived();
+        isFavorite = otherLink.isFavorite();
+        timestamp = otherLink.getTimestamp();
+        title = otherLink.getTitle();
+        url = otherLink.getUrl();
+    }
+
     public Link(String url) {
         this.url = url;
     }
