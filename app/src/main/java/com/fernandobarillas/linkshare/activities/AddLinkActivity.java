@@ -15,6 +15,7 @@ import com.fernandobarillas.linkshare.models.AddLinkRequest;
 import com.fernandobarillas.linkshare.models.AddLinkResponse;
 import com.fernandobarillas.linkshare.models.Link;
 import com.fernandobarillas.linkshare.utils.ResponseUtils;
+import com.fernandobarillas.linkshare.utils.UrlParser;
 import com.varunest.sparkbutton.SparkButton;
 
 import retrofit2.Call;
@@ -46,12 +47,10 @@ public class AddLinkActivity extends BaseLinkActivity {
         Link intentLink;
         if (intentReader.isShareIntent()) {
             String title = intentReader.getSubject();
-            String url = intentReader.getText().toString();
-            // TODO: 12/27/16 need better validation here, what happens if the URL is also null?
+            String url = UrlParser.extractUrl(intentReader.getText().toString());
             if (TextUtils.isEmpty(title)) title = "";
             intentLink = new Link(url);
             intentLink.setTitle(title);
-            intentLink.setCategory("");
         } else {
             finish();
             return;
