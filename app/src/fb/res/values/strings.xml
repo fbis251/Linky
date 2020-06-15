@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">FB Linky</string>
-    <string name="title_about">FB About Linky</string>
     <string name="title_add_link">FB Save to Linky</string>
-    <string name="title_edit_link">FB Edit Link</string>
-    <string name="title_settings" translatable="false">@string/settings</string>
 </resources>
