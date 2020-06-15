@@ -6,7 +6,7 @@
     <string name="author_website_url" translatable="false">https://fernandobarillas.com</string>
 
     <!-- Activity Titles -->
-    <string name="title_about">About Linky</string>
+    <string name="title_about">@string/app_name</string>
     <string name="title_add_link">Save to Linky</string>
     <string name="title_edit_link">Edit Link</string>
     <string name="title_settings" translatable="false">@string/settings</string>
@@ -122,7 +122,7 @@
     <!-- Information -->
     <string name="preference_category_information">Information</string>
     <string name="preference_about_key" translatable="false">pref_about</string>
-    <string name="preference_about_title">@string/title_about</string>
+    <string name="preference_about_title">About This App</string>
     <string name="preference_about_summary">View application information</string>
     <string name="preference_licenses_key" translatable="false">pref_licenses</string>
     <string name="preference_licenses_title">Licenses</string>

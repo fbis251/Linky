@@ -54,6 +54,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+    applicationVariants.all { variant ->
+        variant.resValue "string", "applicationId", variant.applicationId
+        variant.resValue "string", "versionName", variant.versionName
+    }
 }
 
 dependencies {
