@@ -49,7 +49,7 @@ public class SettingsActivity extends BaseActivity {
                     .setIncludeOwnLicense(true)
                     .build();
         }
-        mLicensesDialog.showAppCompat();
+        mLicensesDialog.show();
     }
 
 }

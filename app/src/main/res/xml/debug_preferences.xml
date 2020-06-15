@@ -10,7 +10,7 @@
                 android:key="@string/preference_use_http_proxy_key"
                 android:title="Use HTTP Proxy"/>
 
-        <EditTextPreferenceFix
+        <EditTextPreference
                 android:defaultValue="@string/preference_http_proxy_address_default"
                 android:dependency="@string/preference_use_http_proxy_key"
                 android:inputType="textUri"
@@ -18,7 +18,7 @@
                 android:selectAllOnFocus="true"
                 android:title="HTTP Proxy Address"/>
 
-        <EditTextPreferenceFix
+        <EditTextPreference
                 android:defaultValue="@string/preference_http_proxy_port_default"
                 android:dependency="@string/preference_use_http_proxy_key"
                 android:inputType="number"
